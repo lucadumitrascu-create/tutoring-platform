@@ -41,8 +41,22 @@ export default function LoginPage() {
       return;
     }
 
-    // Redirect based on selected login type
-    window.location.href = loginType === 'admin' ? '/admin' : '/dashboard';
+    if (loginType === 'admin') {
+      window.location.href = '/admin';
+      return;
+    }
+
+    // For students, check access_status to determine redirect
+    const { data: profile } = await supabase
+      .from('users')
+      .select('access_status')
+      .single() as { data: { access_status: string } | null };
+
+    if (profile?.access_status === 'approved') {
+      window.location.href = '/dashboard';
+    } else {
+      window.location.href = '/request-access';
+    }
   };
 
   return (

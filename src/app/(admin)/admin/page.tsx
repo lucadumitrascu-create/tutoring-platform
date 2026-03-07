@@ -3,61 +3,80 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase-client';
 import Link from 'next/link';
-import type { Lesson, User } from '@/types/database';
+import type { User } from '@/types/database';
 
 interface Stats {
   totalLessons: number;
   totalStudents: number;
   pendingHomework: number;
-  accessGrants: number;
-}
-
-interface RecentAccess {
-  id: string;
-  created_at: string;
-  user: User;
-  lesson: Lesson;
+  pendingRequests: number;
 }
 
 export default function AdminDashboardPage() {
-  const [stats, setStats] = useState<Stats>({ totalLessons: 0, totalStudents: 0, pendingHomework: 0, accessGrants: 0 });
-  const [recentAccess, setRecentAccess] = useState<RecentAccess[]>([]);
+  const [stats, setStats] = useState<Stats>({ totalLessons: 0, totalStudents: 0, pendingHomework: 0, pendingRequests: 0 });
+  const [pendingStudents, setPendingStudents] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
   const supabase = createClient();
 
   useEffect(() => {
-    async function loadStats() {
-      try {
-      const [lessons, students, homework, purchases] = await Promise.all([
+    loadStats();
+  }, []);
+
+  async function loadStats() {
+    try {
+      const [lessons, students, homework, pending] = await Promise.all([
         supabase.from('lessons').select('id', { count: 'exact', head: true }),
         supabase.from('users').select('id', { count: 'exact', head: true }).eq('role', 'student'),
         supabase.from('homework').select('id', { count: 'exact', head: true }).eq('status', 'submitted'),
-        supabase.from('purchases').select('id', { count: 'exact', head: true }),
+        supabase.from('users').select('id', { count: 'exact', head: true }).eq('role', 'student').eq('access_status', 'pending'),
       ]);
 
-      // Fetch recent access grants
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: accessData } = await (supabase as any)
-        .from('purchases')
-        .select('*, user:users(*), lesson:lessons(*)')
+      // Fetch pending students
+      const { data: pendingData } = await supabase
+        .from('users')
+        .select('*')
+        .eq('role', 'student')
+        .eq('access_status', 'pending')
         .order('created_at', { ascending: false })
-        .limit(10) as { data: RecentAccess[] | null };
+        .limit(10) as { data: User[] | null };
 
       setStats({
         totalLessons: lessons.count ?? 0,
         totalStudents: students.count ?? 0,
         pendingHomework: homework.count ?? 0,
-        accessGrants: purchases.count ?? 0,
+        pendingRequests: pending.count ?? 0,
       });
-      setRecentAccess(accessData ?? []);
-      } catch {
-        setError('Failed to load dashboard data.');
-      }
-      setLoading(false);
+      setPendingStudents(pendingData ?? []);
+    } catch {
+      setError('Failed to load dashboard data.');
     }
-    loadStats();
-  }, []);
+    setLoading(false);
+  }
+
+  async function handleAction(studentId: string, action: 'approve' | 'reject') {
+    setActionLoading(`${studentId}-${action}`);
+    setError('');
+
+    try {
+      const res = await fetch('/api/access', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: studentId, action }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || `Failed to ${action}.`);
+      } else {
+        await loadStats();
+      }
+    } catch {
+      setError(`Failed to ${action}.`);
+    }
+    setActionLoading(null);
+  }
 
   const cards = [
     {
@@ -85,14 +104,14 @@ export default function AdminDashboardPage() {
       ),
     },
     {
-      label: 'Access Grants',
-      value: stats.accessGrants,
-      formatted: String(stats.accessGrants),
+      label: 'Pending Requests',
+      value: stats.pendingRequests,
+      formatted: String(stats.pendingRequests),
       href: '/admin/students',
-      color: 'bg-emerald-100 text-emerald-700',
+      color: 'bg-amber-100 text-amber-700',
       icon: (
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       ),
     },
@@ -101,10 +120,10 @@ export default function AdminDashboardPage() {
       value: stats.pendingHomework,
       formatted: String(stats.pendingHomework),
       href: '/admin/homework',
-      color: 'bg-amber-100 text-amber-700',
+      color: 'bg-emerald-100 text-emerald-700',
       icon: (
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
         </svg>
       ),
     },
@@ -149,36 +168,49 @@ export default function AdminDashboardPage() {
         ))}
       </div>
 
-      {/* Recent access grants */}
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Access Grants</h2>
-      {recentAccess.length > 0 ? (
+      {/* Pending requests */}
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">Pending Access Requests</h2>
+      {pendingStudents.length > 0 ? (
         <div className="bg-white border border-gray-200 rounded-xl overflow-hidden mb-10">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100">
                 <th className="text-left font-medium text-gray-500 px-5 py-3">Student</th>
-                <th className="text-left font-medium text-gray-500 px-5 py-3">Lesson</th>
-                <th className="text-left font-medium text-gray-500 px-5 py-3 hidden sm:table-cell">Price</th>
-                <th className="text-left font-medium text-gray-500 px-5 py-3 hidden sm:table-cell">Date</th>
+                <th className="text-left font-medium text-gray-500 px-5 py-3 hidden sm:table-cell">Joined</th>
+                <th className="text-right font-medium text-gray-500 px-5 py-3">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {recentAccess.map((p) => (
-                <tr key={p.id} className="border-b border-gray-50 last:border-0">
+              {pendingStudents.map((student) => (
+                <tr key={student.id} className="border-b border-gray-50 last:border-0">
                   <td className="px-5 py-3">
-                    <p className="font-medium text-gray-900">{p.user?.full_name || 'Unknown'}</p>
-                    <p className="text-xs text-gray-400">{p.user?.email}</p>
-                  </td>
-                  <td className="px-5 py-3 text-gray-700">{p.lesson?.title || 'Deleted lesson'}</td>
-                  <td className="px-5 py-3 text-gray-700 hidden sm:table-cell">
-                    {p.lesson?.is_free ? 'Free' : `$${(p.lesson?.price ?? 0).toFixed(2)}`}
+                    <p className="font-medium text-gray-900">{student.full_name || 'Unknown'}</p>
+                    <p className="text-xs text-gray-400">{student.email}</p>
                   </td>
                   <td className="px-5 py-3 text-gray-400 hidden sm:table-cell">
-                    {new Date(p.created_at).toLocaleDateString('en-US', {
+                    {new Date(student.created_at).toLocaleDateString('en-US', {
                       month: 'short',
                       day: 'numeric',
                       year: 'numeric',
                     })}
+                  </td>
+                  <td className="px-5 py-3 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => handleAction(student.id, 'approve')}
+                        disabled={actionLoading !== null}
+                        className="text-xs bg-green-600 text-white font-medium px-3 py-1.5 rounded-md hover:bg-green-700 disabled:opacity-50"
+                      >
+                        {actionLoading === `${student.id}-approve` ? 'Approving...' : 'Approve'}
+                      </button>
+                      <button
+                        onClick={() => handleAction(student.id, 'reject')}
+                        disabled={actionLoading !== null}
+                        className="text-xs bg-red-600 text-white font-medium px-3 py-1.5 rounded-md hover:bg-red-700 disabled:opacity-50"
+                      >
+                        {actionLoading === `${student.id}-reject` ? 'Rejecting...' : 'Reject'}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -187,7 +219,7 @@ export default function AdminDashboardPage() {
         </div>
       ) : (
         <div className="bg-white border border-gray-200 border-dashed rounded-xl p-8 text-center mb-10">
-          <p className="text-gray-400">No access grants yet.</p>
+          <p className="text-gray-400">No pending requests.</p>
         </div>
       )}
 

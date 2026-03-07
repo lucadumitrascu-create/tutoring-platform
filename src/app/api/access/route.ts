@@ -1,7 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase-server';
+import { createClient, createServiceClient } from '@/lib/supabase-server';
 
-export async function POST(request: NextRequest) {
+// POST — student requests access (sets status to 'pending')
+export async function POST() {
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    }
+
+    // Use service client to bypass RLS for updating access_status
+    const serviceClient = createServiceClient();
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (serviceClient as any)
+      .from('users')
+      .update({ access_status: 'pending' })
+      .eq('id', user.id)
+      .eq('access_status', 'none');
+
+    if (error) {
+      return NextResponse.json({ error: 'Failed to request access' }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+  }
+}
+
+// PATCH — admin approves or rejects a student
+export async function PATCH(request: NextRequest) {
   try {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -19,26 +49,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
-    const { userId, lessonId } = await request.json();
+    const { userId, action } = await request.json();
 
-    if (!userId || !lessonId) {
-      return NextResponse.json({ error: 'userId and lessonId required' }, { status: 400 });
+    if (!userId || !['approve', 'reject'].includes(action)) {
+      return NextResponse.json({ error: 'userId and action (approve|reject) required' }, { status: 400 });
     }
 
+    const newStatus = action === 'approve' ? 'approved' : 'rejected';
+
+    const serviceClient = createServiceClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase as any)
-      .from('purchases')
-      .insert({
-        user_id: userId,
-        lesson_id: lessonId,
-        granted_by: user.id,
-      });
+    const { error } = await (serviceClient as any)
+      .from('users')
+      .update({ access_status: newStatus })
+      .eq('id', userId);
 
     if (error) {
-      if (error.code === '23505') {
-        return NextResponse.json({ error: 'Access already granted' }, { status: 409 });
-      }
-      return NextResponse.json({ error: 'Failed to grant access' }, { status: 500 });
+      return NextResponse.json({ error: 'Failed to update access' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
@@ -47,6 +74,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// DELETE — admin revokes access (sets status back to 'none')
 export async function DELETE(request: NextRequest) {
   try {
     const supabase = createClient();
@@ -65,14 +93,22 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
-    const { userId, lessonId } = await request.json();
+    const { userId } = await request.json();
 
+    if (!userId) {
+      return NextResponse.json({ error: 'userId required' }, { status: 400 });
+    }
+
+    const serviceClient = createServiceClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any)
-      .from('purchases')
-      .delete()
-      .eq('user_id', userId)
-      .eq('lesson_id', lessonId);
+    const { error } = await (serviceClient as any)
+      .from('users')
+      .update({ access_status: 'none' })
+      .eq('id', userId);
+
+    if (error) {
+      return NextResponse.json({ error: 'Failed to revoke access' }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true });
   } catch {

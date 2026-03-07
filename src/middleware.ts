@@ -32,7 +32,17 @@ export async function middleware(request: NextRequest) {
   if (path.startsWith('/auth/')) {
     if (user) {
       const url = request.nextUrl.clone();
-      url.pathname = '/dashboard';
+      url.pathname = '/request-access';
+      return NextResponse.redirect(url);
+    }
+    return supabaseResponse;
+  }
+
+  // Request-access page — only for logged-in users
+  if (path.startsWith('/request-access')) {
+    if (!user) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/auth/login';
       return NextResponse.redirect(url);
     }
     return supabaseResponse;
@@ -65,5 +75,6 @@ export const config = {
     '/lessons/:path*',
     '/admin/:path*',
     '/auth/:path*',
+    '/request-access',
   ],
 };

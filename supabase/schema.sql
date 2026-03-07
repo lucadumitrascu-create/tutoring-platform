@@ -20,6 +20,7 @@ create table public.users (
   email text not null,
   role text not null default 'student' check (role in ('admin', 'student')),
   full_name text not null default '',
+  access_status text not null default 'none' check (access_status in ('none', 'pending', 'approved', 'rejected')),
   created_at timestamptz not null default now()
 );
 
@@ -40,6 +41,11 @@ create policy "Users can update own profile"
   on public.users for update
   using (auth.uid() = id)
   with check (auth.uid() = id);
+
+-- Admin can update any user (for access_status management)
+create policy "Admin can update users"
+  on public.users for update
+  using (public.is_admin());
 
 -- Allow insert during registration (triggered by function)
 create policy "Allow insert for authenticated users"
@@ -93,8 +99,8 @@ create table public.materials (
 
 alter table public.materials enable row level security;
 
--- Students can read materials for lessons they purchased (or free lessons)
-create policy "Users can read materials for purchased/free lessons"
+-- Students can read materials for accessible lessons (free or approved access)
+create policy "Users can read materials for accessible lessons"
   on public.materials for select
   using (
     exists (
@@ -103,8 +109,8 @@ create policy "Users can read materials for purchased/free lessons"
     )
     or
     exists (
-      select 1 from public.purchases p
-      where p.lesson_id = materials.lesson_id and p.user_id = auth.uid()
+      select 1 from public.users u
+      where u.id = auth.uid() and u.access_status = 'approved'
     )
     or public.is_admin()
   );
@@ -171,7 +177,7 @@ create policy "Students can read own homework"
   on public.homework for select
   using (auth.uid() = student_id);
 
--- Students can submit homework for purchased/free lessons
+-- Students can submit homework for accessible lessons (free or approved access)
 create policy "Students can submit homework"
   on public.homework for insert
   with check (
@@ -183,8 +189,8 @@ create policy "Students can submit homework"
       )
       or
       exists (
-        select 1 from public.purchases p
-        where p.lesson_id = homework.lesson_id and p.user_id = auth.uid()
+        select 1 from public.users u
+        where u.id = auth.uid() and u.access_status = 'approved'
       )
     )
   );

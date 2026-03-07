@@ -3,11 +3,11 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase-client';
 import Link from 'next/link';
-import type { User, Lesson, Purchase } from '@/types/database';
+import type { User, Lesson } from '@/types/database';
 
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null);
-  const [purchasedLessons, setPurchasedLessons] = useState<(Purchase & { lesson: Lesson })[]>([]);
+  const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const supabase = createClient();
@@ -26,14 +26,13 @@ export default function DashboardPage() {
 
         setUser(profile);
 
-        // Fetch purchased lessons
-        const { data: purchases } = await supabase
-          .from('purchases')
-          .select('*, lesson:lessons(*)')
-          .eq('user_id', authUser.id)
-          .order('created_at', { ascending: false }) as { data: (Purchase & { lesson: Lesson })[] | null };
+        // Fetch all lessons (student has site-wide access)
+        const { data: allLessons } = await supabase
+          .from('lessons')
+          .select('*')
+          .order('created_at', { ascending: false }) as { data: Lesson[] | null };
 
-        setPurchasedLessons(purchases ?? []);
+        setLessons(allLessons ?? []);
       } catch {
         setError('Failed to load dashboard data.');
       }
@@ -75,26 +74,26 @@ export default function DashboardPage() {
             </svg>
           </div>
           <h3 className="font-semibold text-gray-900 mb-1">Browse Lessons</h3>
-          <p className="text-sm text-gray-500">Find and purchase new lessons.</p>
+          <p className="text-sm text-gray-500">View all available lessons.</p>
         </Link>
       </div>
 
-      {/* Purchased lessons */}
+      {/* All lessons */}
       <div>
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Your Lessons</h2>
-        {purchasedLessons.length > 0 ? (
+        {lessons.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {purchasedLessons.map((p) => (
+            {lessons.map((lesson) => (
               <Link
-                key={p.id}
-                href={`/lessons/${p.lesson.id}`}
+                key={lesson.id}
+                href={`/lessons/${lesson.id}`}
                 className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow"
               >
-                <h3 className="font-semibold text-gray-900 mb-1">{p.lesson.title}</h3>
-                <p className="text-sm text-gray-500 line-clamp-2 mb-3">{p.lesson.description}</p>
-                {p.lesson.scheduled_at && (
+                <h3 className="font-semibold text-gray-900 mb-1">{lesson.title}</h3>
+                <p className="text-sm text-gray-500 line-clamp-2 mb-3">{lesson.description}</p>
+                {lesson.scheduled_at && (
                   <p className="text-xs text-primary-600 font-medium">
-                    Live: {new Date(p.lesson.scheduled_at).toLocaleDateString('en-US', {
+                    Live: {new Date(lesson.scheduled_at).toLocaleDateString('en-US', {
                       month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
                     })}
                   </p>
@@ -104,7 +103,7 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="bg-white border border-gray-200 border-dashed rounded-xl p-8 text-center">
-            <p className="text-gray-400 mb-3">You haven&apos;t purchased any lessons yet.</p>
+            <p className="text-gray-400 mb-3">No lessons available yet.</p>
             <Link href="/lessons" className="text-primary-600 font-medium text-sm hover:underline">
               Browse available lessons &rarr;
             </Link>

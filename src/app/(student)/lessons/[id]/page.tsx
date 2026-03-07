@@ -44,18 +44,17 @@ export default function LessonDetailPage() {
       }
       setUserId(user.id);
 
-      // Check access: free or purchased
+      // Check access: free or approved access_status
       if (lessonData.is_free) {
         setHasAccess(true);
       } else {
-        const { data: purchase } = await supabase
-          .from('purchases')
-          .select('id')
-          .eq('user_id', user.id)
-          .eq('lesson_id', id)
-          .maybeSingle() as { data: { id: string } | null };
+        const { data: profile } = await supabase
+          .from('users')
+          .select('access_status')
+          .eq('id', user.id)
+          .single() as { data: { access_status: string } | null };
 
-        setHasAccess(!!purchase);
+        setHasAccess(profile?.access_status === 'approved');
       }
 
       // Fetch materials

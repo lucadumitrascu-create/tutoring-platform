@@ -1,11 +1,13 @@
 export type UserRole = 'admin' | 'student';
 export type HomeworkStatus = 'submitted' | 'approved' | 'rejected';
+export type AccessStatus = 'none' | 'pending' | 'approved' | 'rejected';
 
 export interface User {
   id: string;
   email: string;
   role: UserRole;
   full_name: string;
+  access_status: AccessStatus;
   created_at: string;
 }
 

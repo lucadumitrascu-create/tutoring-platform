@@ -5,12 +5,8 @@ import { createClient } from '@/lib/supabase-client';
 import Link from 'next/link';
 import type { Lesson } from '@/types/database';
 
-interface LessonWithCount extends Lesson {
-  enrolledCount: number;
-}
-
 export default function AdminLessonsPage() {
-  const [lessons, setLessons] = useState<LessonWithCount[]>([]);
+  const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [error, setError] = useState('');
@@ -22,29 +18,19 @@ export default function AdminLessonsPage() {
 
   async function loadLessons() {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data } = await (supabase as any)
+      const { data } = await supabase
         .from('lessons')
-        .select('*, purchases(count)')
-        .order('created_at', { ascending: false }) as {
-        data: (Lesson & { purchases: [{ count: number }] })[] | null;
-      };
+        .select('*')
+        .order('created_at', { ascending: false }) as { data: Lesson[] | null };
 
-      if (data) {
-        setLessons(
-          data.map((l) => ({
-            ...l,
-            enrolledCount: l.purchases?.[0]?.count ?? 0,
-          }))
-        );
-      }
+      setLessons(data ?? []);
     } catch {
       setError('Failed to load lessons.');
     }
     setLoading(false);
   }
 
-  async function handleDelete(lesson: LessonWithCount) {
+  async function handleDelete(lesson: Lesson) {
     const confirmed = window.confirm(
       `Are you sure you want to delete "${lesson.title}"? This action cannot be undone.`
     );
@@ -58,8 +44,6 @@ export default function AdminLessonsPage() {
       await (supabase as any).from('materials').delete().eq('lesson_id', lesson.id);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase as any).from('homework').delete().eq('lesson_id', lesson.id);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('purchases').delete().eq('lesson_id', lesson.id);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase as any).from('lessons').delete().eq('id', lesson.id);
 
@@ -109,7 +93,6 @@ export default function AdminLessonsPage() {
               <tr className="border-b border-gray-100">
                 <th className="text-left font-medium text-gray-500 px-5 py-3">Title</th>
                 <th className="text-left font-medium text-gray-500 px-5 py-3 hidden sm:table-cell">Price</th>
-                <th className="text-left font-medium text-gray-500 px-5 py-3 hidden sm:table-cell">Enrolled</th>
                 <th className="text-left font-medium text-gray-500 px-5 py-3 hidden md:table-cell">Scheduled</th>
                 <th className="text-right font-medium text-gray-500 px-5 py-3">Actions</th>
               </tr>
@@ -127,9 +110,6 @@ export default function AdminLessonsPage() {
                     ) : (
                       <span className="text-gray-700">${lesson.price.toFixed(2)}</span>
                     )}
-                  </td>
-                  <td className="px-5 py-4 hidden sm:table-cell">
-                    <span className="text-gray-700">{lesson.enrolledCount}</span>
                   </td>
                   <td className="px-5 py-4 text-gray-400 hidden md:table-cell">
                     {lesson.scheduled_at

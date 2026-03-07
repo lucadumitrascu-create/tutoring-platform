@@ -3,11 +3,11 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase-client';
 import Link from 'next/link';
-import type { Lesson } from '@/types/database';
+import type { Lesson, AccessStatus } from '@/types/database';
 
 export default function LessonsPage() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
-  const [purchasedIds, setPurchasedIds] = useState<Set<string>>(new Set());
+  const [accessStatus, setAccessStatus] = useState<AccessStatus>('none');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const supabase = createClient();
@@ -23,16 +23,17 @@ export default function LessonsPage() {
 
         setLessons(allLessons ?? []);
 
-        // Fetch user's purchases
+        // Fetch user's access_status
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          const { data: purchases } = await supabase
-            .from('purchases')
-            .select('lesson_id')
-            .eq('user_id', user.id) as { data: { lesson_id: string }[] | null };
+          const { data: profile } = await supabase
+            .from('users')
+            .select('access_status')
+            .eq('id', user.id)
+            .single() as { data: { access_status: AccessStatus } | null };
 
-          if (purchases) {
-            setPurchasedIds(new Set(purchases.map((p) => p.lesson_id)));
+          if (profile) {
+            setAccessStatus(profile.access_status);
           }
         }
       } catch {
@@ -65,20 +66,16 @@ export default function LessonsPage() {
       {lessons.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {lessons.map((lesson) => {
-            const isPurchased = purchasedIds.has(lesson.id);
-            const isFree = lesson.is_free;
-            const hasAccess = isPurchased || isFree;
+            const hasAccess = accessStatus === 'approved' || lesson.is_free;
 
             return (
               <div
                 key={lesson.id}
                 className="bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col"
               >
-                {/* Card content */}
                 <div className="p-5 flex-1 flex flex-col">
-                  {/* Price badge */}
                   <div className="mb-3">
-                    {isFree ? (
+                    {lesson.is_free ? (
                       <span className="inline-block text-xs font-semibold text-green-700 bg-green-100 px-2.5 py-1 rounded-full">
                         Free
                       </span>
@@ -106,22 +103,16 @@ export default function LessonsPage() {
                     </p>
                   )}
 
-                  {/* Action button */}
-                  {hasAccess ? (
-                    <Link
-                      href={`/lessons/${lesson.id}`}
-                      className="w-full text-center bg-primary-600 text-white text-sm font-medium py-2.5 rounded-lg hover:bg-primary-700 transition-colors"
-                    >
-                      Access Lesson
-                    </Link>
-                  ) : (
-                    <Link
-                      href={`/lessons/${lesson.id}`}
-                      className="w-full text-center bg-gray-900 text-white text-sm font-medium py-2.5 rounded-lg hover:bg-gray-800 transition-colors"
-                    >
-                      View Lesson
-                    </Link>
-                  )}
+                  <Link
+                    href={`/lessons/${lesson.id}`}
+                    className={`w-full text-center text-sm font-medium py-2.5 rounded-lg transition-colors ${
+                      hasAccess
+                        ? 'bg-primary-600 text-white hover:bg-primary-700'
+                        : 'bg-gray-900 text-white hover:bg-gray-800'
+                    }`}
+                  >
+                    {hasAccess ? 'Access Lesson' : 'View Lesson'}
+                  </Link>
                 </div>
               </div>
             );
