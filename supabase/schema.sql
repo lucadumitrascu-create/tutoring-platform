@@ -170,10 +170,20 @@ create policy "Admin can read all purchases"
     )
   );
 
--- Insert via service role only (Stripe webhook), but allow policy for it
+-- Insert via service role (Stripe webhook)
 create policy "Service role can insert purchases"
   on public.purchases for insert
   with check (true);
+
+-- Admin can delete purchases (for lesson deletion)
+create policy "Admin can delete purchases"
+  on public.purchases for delete
+  using (
+    exists (
+      select 1 from public.users
+      where id = auth.uid() and role = 'admin'
+    )
+  );
 
 
 -- 5. HOMEWORK TABLE
@@ -223,9 +233,25 @@ create policy "Admin can read all homework"
     )
   );
 
+-- Students can update their own homework (resubmit)
+create policy "Students can update own homework"
+  on public.homework for update
+  using (auth.uid() = student_id)
+  with check (auth.uid() = student_id);
+
 -- Admin can update homework (approve/reject + feedback)
 create policy "Admin can update homework"
   on public.homework for update
+  using (
+    exists (
+      select 1 from public.users
+      where id = auth.uid() and role = 'admin'
+    )
+  );
+
+-- Admin can delete homework
+create policy "Admin can delete homework"
+  on public.homework for delete
   using (
     exists (
       select 1 from public.users
