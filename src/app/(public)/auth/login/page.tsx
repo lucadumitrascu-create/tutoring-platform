@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase-client';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+
+type LoginType = 'student' | 'admin';
 
 const errorMessages: Record<string, string> = {
   'Invalid login credentials': 'Incorrect email or password. Please try again.',
@@ -16,12 +17,12 @@ function friendlyError(msg: string): string {
 }
 
 export default function LoginPage() {
+  const [loginType, setLoginType] = useState<LoginType>('student');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
   const supabase = createClient();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -29,7 +30,7 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -40,18 +41,8 @@ export default function LoginPage() {
       return;
     }
 
-    // Fetch user role for redirect
-    const { data: profile } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', data.user.id)
-      .single() as { data: { role: string } | null };
-
-    if (profile?.role === 'admin') {
-      window.location.href = '/admin';
-    } else {
-      window.location.href = '/dashboard';
-    }
+    // Redirect based on selected login type
+    window.location.href = loginType === 'admin' ? '/admin' : '/dashboard';
   };
 
   return (
@@ -68,7 +59,33 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
             <h1 className="text-2xl font-bold text-gray-900 mb-1">Welcome back</h1>
-            <p className="text-gray-500 mb-8">Log in to access your lessons.</p>
+            <p className="text-gray-500 mb-6">Log in to access your account.</p>
+
+            {/* Login type tabs */}
+            <div className="flex bg-gray-100 rounded-lg p-1 mb-8">
+              <button
+                type="button"
+                onClick={() => setLoginType('student')}
+                className={`flex-1 py-2.5 text-sm font-medium rounded-md transition-colors ${
+                  loginType === 'student'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Student
+              </button>
+              <button
+                type="button"
+                onClick={() => setLoginType('admin')}
+                className={`flex-1 py-2.5 text-sm font-medium rounded-md transition-colors ${
+                  loginType === 'admin'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Administrator
+              </button>
+            </div>
 
             <form onSubmit={handleLogin} className="space-y-5">
               <div>
@@ -140,19 +157,21 @@ export default function LoginPage() {
                     Logging in...
                   </span>
                 ) : (
-                  'Log In'
+                  loginType === 'admin' ? 'Log In as Administrator' : 'Log In as Student'
                 )}
               </button>
             </form>
 
-            <div className="mt-6 pt-6 border-t border-gray-100 text-center">
-              <p className="text-sm text-gray-500">
-                Don&apos;t have an account?{' '}
-                <Link href="/auth/register" className="text-primary-600 font-medium hover:underline">
-                  Sign up
-                </Link>
-              </p>
-            </div>
+            {loginType === 'student' && (
+              <div className="mt-6 pt-6 border-t border-gray-100 text-center">
+                <p className="text-sm text-gray-500">
+                  Don&apos;t have an account?{' '}
+                  <Link href="/auth/register" className="text-primary-600 font-medium hover:underline">
+                    Sign up
+                  </Link>
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
