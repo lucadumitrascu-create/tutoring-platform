@@ -82,6 +82,23 @@ export interface Meeting {
   created_at: string;
 }
 
+export interface MaterialCategory {
+  id: string;
+  name: string;
+  description: string;
+  created_at: string;
+}
+
+export interface MaterialItem {
+  id: string;
+  category_id: string;
+  file_url: string;
+  file_type: string;
+  file_name: string;
+  sort_order: number;
+  created_at: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -137,6 +154,18 @@ export interface Database {
         Row: Meeting;
         Insert: Omit<Meeting, 'id' | 'created_at'>;
         Update: Partial<Omit<Meeting, 'id' | 'created_at'>>;
+        Relationships: [];
+      };
+      material_categories: {
+        Row: MaterialCategory;
+        Insert: Omit<MaterialCategory, 'id' | 'created_at'>;
+        Update: Partial<Omit<MaterialCategory, 'id' | 'created_at'>>;
+        Relationships: [];
+      };
+      material_items: {
+        Row: MaterialItem;
+        Insert: Omit<MaterialItem, 'id' | 'created_at'>;
+        Update: Partial<Omit<MaterialItem, 'id' | 'created_at'>>;
         Relationships: [];
       };
     };
