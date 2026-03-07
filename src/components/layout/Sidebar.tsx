@@ -96,7 +96,7 @@ export default function Sidebar() {
             key={link.href}
             href={link.href}
             onClick={() => setMobileOpen(false)}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+            className={`flex items-center gap-3 px-3 py-3 min-h-[44px] rounded-lg text-sm font-medium transition-all duration-150 active:scale-[0.97] ${
               isActive(link)
                 ? 'bg-primary-50 text-primary-700'
                 : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
@@ -123,7 +123,7 @@ export default function Sidebar() {
         </div>
         <button
           onClick={handleLogout}
-          className="mt-3 w-full text-left text-sm text-gray-500 hover:text-red-600 font-medium px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+          className="mt-3 w-full text-left text-sm text-gray-500 hover:text-red-600 font-medium px-3 py-2.5 min-h-[44px] rounded-lg hover:bg-gray-100 transition-all duration-150 active:scale-[0.97]"
         >
           Log out
         </button>
@@ -140,7 +140,7 @@ export default function Sidebar() {
         </Link>
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="p-2 rounded-lg text-gray-500 hover:bg-gray-100"
+          className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 transition-colors active:scale-95"
         >
           {mobileOpen ? (
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -155,15 +155,13 @@ export default function Sidebar() {
       </div>
 
       {/* Mobile overlay */}
-      {mobileOpen && (
-        <div
-          className="lg:hidden fixed inset-0 z-40 bg-black/30"
-          onClick={() => setMobileOpen(false)}
-        />
-      )}
+      <div
+        className={`lg:hidden fixed inset-0 z-40 transition-opacity duration-300 ${mobileOpen ? 'bg-black/30 pointer-events-auto' : 'bg-transparent pointer-events-none'}`}
+        onClick={() => setMobileOpen(false)}
+      />
 
       {/* Mobile drawer */}
-      <div className={`lg:hidden fixed top-0 left-0 z-50 h-full w-72 bg-white border-r border-gray-200 flex flex-col transform transition-transform duration-200 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className={`lg:hidden fixed top-0 left-0 z-50 h-full w-72 bg-white border-r border-gray-200 flex flex-col transform transition-transform duration-300 ease-out ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         {sidebarContent}
       </div>
 

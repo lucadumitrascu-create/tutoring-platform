@@ -67,12 +67,12 @@ export default function AdminGroupsPage() {
   return (
     <div>
       {error && <div className="bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg mb-6">{error}</div>}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 mb-1">Groups</h1>
           <p className="text-gray-500">Manage your classrooms.</p>
         </div>
-        <Link href="/admin/groups/new" className="bg-primary-600 text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2">
+        <Link href="/admin/groups/new" className="bg-primary-600 text-white text-sm font-medium px-5 py-2.5 min-h-[44px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all duration-150 flex items-center justify-center gap-2">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
@@ -81,9 +81,9 @@ export default function AdminGroupsPage() {
       </div>
 
       {groups.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {groups.map((group) => (
-            <div key={group.id} className="bg-white border border-gray-200 rounded-xl p-5 flex flex-col">
+            <div key={group.id} className="bg-white border border-gray-200 hover:border-gray-300 rounded-2xl p-5 flex flex-col hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200">
               <h3 className="text-lg font-semibold text-gray-900 mb-1">{group.name}</h3>
               <p className="text-sm text-gray-500 line-clamp-2 mb-4 flex-1">{group.description || 'No description'}</p>
               <div className="flex items-center justify-between">
@@ -105,12 +105,12 @@ export default function AdminGroupsPage() {
           ))}
         </div>
       ) : (
-        <div className="bg-white border border-gray-200 border-dashed rounded-xl p-12 text-center">
+        <div className="bg-white border border-gray-200 border-dashed rounded-2xl p-8 sm:p-12 text-center">
           <svg className="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
           </svg>
           <p className="text-gray-400 text-lg mb-2">No groups yet</p>
-          <Link href="/admin/groups/new" className="inline-block bg-primary-600 text-white text-sm font-medium px-6 py-2.5 rounded-lg hover:bg-primary-700 transition-colors">
+          <Link href="/admin/groups/new" className="inline-block bg-primary-600 text-white text-sm font-medium px-6 py-2.5 min-h-[44px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all duration-150">
             Create First Group
           </Link>
         </div>

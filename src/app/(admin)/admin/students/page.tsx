@@ -117,12 +117,12 @@ export default function AdminStudentsPage() {
       <p className="text-gray-500 mb-6">Manage student access to the platform.</p>
 
       {/* Filter tabs */}
-      <div className="flex gap-1 bg-gray-100 rounded-lg p-1 mb-6 w-fit">
+      <div className="flex gap-1 bg-gray-100 rounded-lg p-1 mb-6 overflow-x-auto scrollbar-hide">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setFilter(tab.key)}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+            className={`px-4 py-2.5 min-h-[44px] text-sm font-medium rounded-md whitespace-nowrap flex-shrink-0 transition-all duration-150 active:scale-95 ${
               filter === tab.key
                 ? 'bg-white text-gray-900 shadow-sm'
                 : 'text-gray-500 hover:text-gray-700'
@@ -137,7 +137,7 @@ export default function AdminStudentsPage() {
       </div>
 
       {filteredStudents.length > 0 ? (
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100">
@@ -186,14 +186,14 @@ export default function AdminStudentsPage() {
                             <button
                               onClick={() => handleAction(student.id, 'approve')}
                               disabled={isLoading}
-                              className="text-xs bg-green-600 text-white font-medium px-3 py-1.5 rounded-md hover:bg-green-700 disabled:opacity-50"
+                              className="text-xs bg-green-600 text-white font-medium px-3.5 py-2 min-h-[36px] rounded-md hover:bg-green-700 active:scale-95 transition-all disabled:opacity-50"
                             >
                               {actionLoading === `${student.id}-approve` ? 'Approving...' : 'Approve'}
                             </button>
                             <button
                               onClick={() => handleAction(student.id, 'reject')}
                               disabled={isLoading}
-                              className="text-xs bg-red-600 text-white font-medium px-3 py-1.5 rounded-md hover:bg-red-700 disabled:opacity-50"
+                              className="text-xs bg-red-600 text-white font-medium px-3.5 py-2 min-h-[36px] rounded-md hover:bg-red-700 active:scale-95 transition-all disabled:opacity-50"
                             >
                               {actionLoading === `${student.id}-reject` ? 'Rejecting...' : 'Reject'}
                             </button>
@@ -203,7 +203,7 @@ export default function AdminStudentsPage() {
                           <button
                             onClick={() => handleAction(student.id, 'revoke')}
                             disabled={isLoading}
-                            className="text-xs text-red-500 font-medium hover:underline disabled:opacity-50"
+                            className="text-xs text-red-500 font-medium hover:underline py-2 px-2 min-h-[36px] disabled:opacity-50"
                           >
                             {actionLoading === `${student.id}-revoke` ? 'Revoking...' : 'Revoke'}
                           </button>
@@ -212,7 +212,7 @@ export default function AdminStudentsPage() {
                           <button
                             onClick={() => handleAction(student.id, 'grant')}
                             disabled={isLoading}
-                            className="text-xs bg-primary-600 text-white font-medium px-3 py-1.5 rounded-md hover:bg-primary-700 disabled:opacity-50"
+                            className="text-xs bg-primary-600 text-white font-medium px-3.5 py-2 min-h-[36px] rounded-md hover:bg-primary-700 active:scale-95 transition-all disabled:opacity-50"
                           >
                             {actionLoading === `${student.id}-grant` ? 'Granting...' : 'Grant Access'}
                           </button>
@@ -226,7 +226,7 @@ export default function AdminStudentsPage() {
           </table>
         </div>
       ) : (
-        <div className="bg-white border border-gray-200 border-dashed rounded-xl p-12 text-center">
+        <div className="bg-white border border-gray-200 border-dashed rounded-2xl p-8 sm:p-12 text-center">
           <svg className="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
           </svg>

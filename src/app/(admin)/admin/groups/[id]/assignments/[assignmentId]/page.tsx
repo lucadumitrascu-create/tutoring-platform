@@ -187,10 +187,10 @@ export default function ManageAssignmentPage() {
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Manage Assignment</h1>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 rounded-lg p-1 mb-6 w-fit">
+      <div className="flex gap-1 bg-gray-100 rounded-lg p-1 mb-6 overflow-x-auto scrollbar-hide">
         {([{ key: 'details', label: 'Details' }, { key: 'submissions', label: `Submissions (${submissions.length})` }] as { key: ViewTab; label: string }[]).map((t) => (
           <button key={t.key} onClick={() => setTab(t.key)}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${tab === t.key ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+            className={`px-4 py-2.5 min-h-[44px] text-sm font-medium rounded-md whitespace-nowrap flex-shrink-0 transition-all duration-150 active:scale-95 ${tab === t.key ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
             {t.label}
           </button>
         ))}
@@ -245,12 +245,12 @@ export default function ManageAssignmentPage() {
 
           {error && <div className="bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg">{error}</div>}
 
-          <div className="flex items-center gap-3 pt-2">
-            <button type="submit" disabled={saving} className="bg-primary-600 text-white font-medium px-6 py-2.5 rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+            <button type="submit" disabled={saving} className="bg-primary-600 text-white font-medium px-6 py-3 min-h-[44px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all duration-150 disabled:opacity-50 flex items-center justify-center gap-2">
               {saving && <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>}
               {saving ? 'Saving...' : 'Save Changes'}
             </button>
-            <Link href={`/admin/groups/${groupId}`} className="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-2.5">Cancel</Link>
+            <Link href={`/admin/groups/${groupId}`} className="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-3 min-h-[44px] flex items-center justify-center">Cancel</Link>
           </div>
         </form>
       )}
@@ -261,7 +261,7 @@ export default function ManageAssignmentPage() {
           {submissions.length > 0 ? (
             <div className="space-y-4">
               {submissions.map((sub) => (
-                <div key={sub.id} className="bg-white border border-gray-200 rounded-xl p-5">
+                <div key={sub.id} className="bg-white border border-gray-200 hover:border-gray-300 rounded-2xl p-5 hover:shadow-sm transition-all duration-200">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
@@ -298,13 +298,13 @@ export default function ManageAssignmentPage() {
                         placeholder="Optional feedback..."
                         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none resize-none"
                       />
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                         <button onClick={() => handleSubmissionAction(sub.id, 'approved')} disabled={actionLoading === sub.id}
-                          className="bg-green-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50">
+                          className="bg-green-600 text-white text-sm font-medium px-4 py-2.5 min-h-[44px] rounded-lg hover:bg-green-700 active:scale-95 transition-all disabled:opacity-50">
                           {actionLoading === sub.id ? '...' : 'Approve'}
                         </button>
                         <button onClick={() => handleSubmissionAction(sub.id, 'rejected')} disabled={actionLoading === sub.id}
-                          className="bg-red-500 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-red-600 disabled:opacity-50">
+                          className="bg-red-500 text-white text-sm font-medium px-4 py-2.5 min-h-[44px] rounded-lg hover:bg-red-600 active:scale-95 transition-all disabled:opacity-50">
                           {actionLoading === sub.id ? '...' : 'Reject'}
                         </button>
                       </div>

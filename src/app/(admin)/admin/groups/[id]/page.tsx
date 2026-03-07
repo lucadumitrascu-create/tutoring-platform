@@ -135,10 +135,10 @@ export default function AdminGroupDetailPage() {
       {group.description && <p className="text-gray-500 mb-6">{group.description}</p>}
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 rounded-lg p-1 mb-6 w-fit">
+      <div className="flex gap-1 bg-gray-100 rounded-lg p-1 mb-6 overflow-x-auto scrollbar-hide">
         {tabs.map((t) => (
           <button key={t.key} onClick={() => setTab(t.key)}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${tab === t.key ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+            className={`px-4 py-2.5 min-h-[44px] text-sm font-medium rounded-md whitespace-nowrap flex-shrink-0 transition-all duration-150 active:scale-95 ${tab === t.key ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
             {t.label}
           </button>
         ))}
@@ -149,19 +149,19 @@ export default function AdminGroupDetailPage() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900">Lessons / Posts</h2>
-            <Link href={`/admin/groups/${id}/posts/new`} className="bg-primary-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors">New Post</Link>
+            <Link href={`/admin/groups/${id}/posts/new`} className="bg-primary-600 text-white text-sm font-medium px-4 py-2.5 min-h-[44px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all duration-150 flex items-center">New Post</Link>
           </div>
           {posts.length > 0 ? (
             <div className="space-y-2">
               {posts.map((post) => (
-                <div key={post.id} className="bg-white border border-gray-200 rounded-xl px-5 py-4 flex items-center justify-between">
+                <div key={post.id} className="bg-white border border-gray-200 hover:border-gray-300 rounded-2xl px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:shadow-sm transition-all duration-200">
                   <div>
                     <p className="font-medium text-gray-900">{post.title}</p>
                     <p className="text-xs text-gray-400">{new Date(post.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Link href={`/admin/groups/${id}/posts/${post.id}/edit`} className="text-sm text-primary-600 font-medium hover:underline">Edit</Link>
-                    <button onClick={() => deletePost(post.id)} disabled={actionLoading === `del-post-${post.id}`} className="text-sm text-red-500 font-medium hover:underline disabled:opacity-50">Delete</button>
+                    <Link href={`/admin/groups/${id}/posts/${post.id}/edit`} className="text-sm text-primary-600 font-medium hover:underline py-1.5 px-2">Edit</Link>
+                    <button onClick={() => deletePost(post.id)} disabled={actionLoading === `del-post-${post.id}`} className="text-sm text-red-500 font-medium hover:underline disabled:opacity-50 py-1.5 px-2">Delete</button>
                   </div>
                 </div>
               ))}
@@ -175,12 +175,12 @@ export default function AdminGroupDetailPage() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900">Assignments</h2>
-            <Link href={`/admin/groups/${id}/assignments/new`} className="bg-primary-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors">New Assignment</Link>
+            <Link href={`/admin/groups/${id}/assignments/new`} className="bg-primary-600 text-white text-sm font-medium px-4 py-2.5 min-h-[44px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all duration-150 flex items-center">New Assignment</Link>
           </div>
           {assignments.length > 0 ? (
             <div className="space-y-2">
               {assignments.map((a) => (
-                <div key={a.id} className="bg-white border border-gray-200 rounded-xl px-5 py-4 flex items-center justify-between">
+                <div key={a.id} className="bg-white border border-gray-200 hover:border-gray-300 rounded-2xl px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:shadow-sm transition-all duration-200">
                   <div>
                     <p className="font-medium text-gray-900">{a.title}</p>
                     <div className="flex items-center gap-3 mt-1">
@@ -189,8 +189,8 @@ export default function AdminGroupDetailPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Link href={`/admin/groups/${id}/assignments/${a.id}`} className="text-sm text-primary-600 font-medium hover:underline">Manage</Link>
-                    <button onClick={() => deleteAssignment(a.id)} disabled={actionLoading === `del-asgn-${a.id}`} className="text-sm text-red-500 font-medium hover:underline disabled:opacity-50">Delete</button>
+                    <Link href={`/admin/groups/${id}/assignments/${a.id}`} className="text-sm text-primary-600 font-medium hover:underline py-1.5 px-2">Manage</Link>
+                    <button onClick={() => deleteAssignment(a.id)} disabled={actionLoading === `del-asgn-${a.id}`} className="text-sm text-red-500 font-medium hover:underline disabled:opacity-50 py-1.5 px-2">Delete</button>
                   </div>
                 </div>
               ))}
@@ -204,14 +204,14 @@ export default function AdminGroupDetailPage() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900">Meetings</h2>
-            <Link href={`/admin/groups/${id}/meetings/new`} className="bg-primary-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors">Schedule Meeting</Link>
+            <Link href={`/admin/groups/${id}/meetings/new`} className="bg-primary-600 text-white text-sm font-medium px-4 py-2.5 min-h-[44px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all duration-150 flex items-center">Schedule Meeting</Link>
           </div>
           {meetings.length > 0 ? (
             <div className="space-y-2">
               {meetings.map((m) => {
                 const isPast = new Date(m.scheduled_at) < new Date();
                 return (
-                  <div key={m.id} className={`bg-white border border-gray-200 rounded-xl px-5 py-4 flex items-center justify-between ${isPast ? 'opacity-60' : ''}`}>
+                  <div key={m.id} className={`bg-white border border-gray-200 hover:border-gray-300 rounded-2xl px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:shadow-sm transition-all duration-200 ${isPast ? 'opacity-60' : ''}`}>
                     <div>
                       <div className="flex items-center gap-2">
                         <p className="font-medium text-gray-900">{m.title}</p>
@@ -220,8 +220,8 @@ export default function AdminGroupDetailPage() {
                       <p className="text-xs text-gray-400 mt-1">{new Date(m.scheduled_at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                     </div>
                     <div className="flex items-center gap-3">
-                      <a href={m.meet_link} target="_blank" rel="noopener noreferrer" className="text-sm text-primary-600 font-medium hover:underline">Join</a>
-                      <button onClick={() => deleteMeeting(m.id)} disabled={actionLoading === `del-meet-${m.id}`} className="text-sm text-red-500 font-medium hover:underline disabled:opacity-50">Delete</button>
+                      <a href={m.meet_link} target="_blank" rel="noopener noreferrer" className="text-sm text-primary-600 font-medium hover:underline py-1.5 px-2">Join</a>
+                      <button onClick={() => deleteMeeting(m.id)} disabled={actionLoading === `del-meet-${m.id}`} className="text-sm text-red-500 font-medium hover:underline disabled:opacity-50 py-1.5 px-2">Delete</button>
                     </div>
                   </div>
                 );
@@ -240,7 +240,7 @@ export default function AdminGroupDetailPage() {
           {members.length > 0 ? (
             <div className="space-y-1.5 mb-6">
               {members.map((m) => (
-                <div key={m.id} className="flex items-center justify-between bg-white border border-gray-200 rounded-lg px-4 py-3">
+                <div key={m.id} className="flex items-center justify-between bg-white border border-gray-200 hover:border-gray-300 rounded-xl px-4 py-3.5 hover:shadow-sm transition-all duration-200">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
                       <span className="text-xs font-semibold text-primary-700">{m.user?.full_name?.charAt(0)?.toUpperCase() || '?'}</span>
@@ -250,7 +250,7 @@ export default function AdminGroupDetailPage() {
                       <p className="text-xs text-gray-400">{m.user?.email}</p>
                     </div>
                   </div>
-                  <button onClick={() => removeMember(m.id)} disabled={actionLoading === `rm-${m.id}`} className="text-xs text-red-500 font-medium hover:underline disabled:opacity-50">Remove</button>
+                  <button onClick={() => removeMember(m.id)} disabled={actionLoading === `rm-${m.id}`} className="text-xs text-red-500 font-medium hover:underline disabled:opacity-50 py-1.5 px-2 min-h-[36px]">Remove</button>
                 </div>
               ))}
             </div>
@@ -262,7 +262,7 @@ export default function AdminGroupDetailPage() {
               <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Add Students</h3>
               <div className="space-y-1.5">
                 {availableStudents.map((s) => (
-                  <div key={s.id} className="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3 border border-gray-100">
+                  <div key={s.id} className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3.5 border border-gray-100 hover:border-gray-200 transition-all duration-200">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
                         <span className="text-xs font-semibold text-gray-600">{s.full_name?.charAt(0)?.toUpperCase() || '?'}</span>
@@ -272,7 +272,7 @@ export default function AdminGroupDetailPage() {
                         <p className="text-xs text-gray-400">{s.email}</p>
                       </div>
                     </div>
-                    <button onClick={() => addMember(s.id)} disabled={actionLoading === `add-${s.id}`} className="text-xs bg-primary-600 text-white font-medium px-3 py-1.5 rounded-md hover:bg-primary-700 disabled:opacity-50">
+                    <button onClick={() => addMember(s.id)} disabled={actionLoading === `add-${s.id}`} className="text-xs bg-primary-600 text-white font-medium px-3.5 py-2 min-h-[36px] rounded-md hover:bg-primary-700 active:scale-95 transition-all disabled:opacity-50">
                       {actionLoading === `add-${s.id}` ? 'Adding...' : 'Add'}
                     </button>
                   </div>

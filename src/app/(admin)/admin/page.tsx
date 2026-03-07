@@ -151,7 +151,7 @@ export default function AdminDashboardPage() {
           <Link
             key={card.label}
             href={card.href}
-            className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow"
+            className="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200"
           >
             <div className={`w-12 h-12 ${card.color} rounded-xl flex items-center justify-center mb-4`}>
               {card.icon}
@@ -165,7 +165,7 @@ export default function AdminDashboardPage() {
       {/* Pending requests */}
       <h2 className="text-lg font-semibold text-gray-900 mb-4">Pending Access Requests</h2>
       {pendingStudents.length > 0 ? (
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden mb-10">
+        <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden mb-10">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100">
@@ -187,11 +187,11 @@ export default function AdminDashboardPage() {
                   <td className="px-5 py-3 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <button onClick={() => handleAction(student.id, 'approve')} disabled={actionLoading !== null}
-                        className="text-xs bg-green-600 text-white font-medium px-3 py-1.5 rounded-md hover:bg-green-700 disabled:opacity-50">
+                        className="text-xs bg-green-600 text-white font-medium px-3.5 py-2 min-h-[36px] sm:min-h-0 rounded-md hover:bg-green-700 active:scale-95 transition-all disabled:opacity-50">
                         {actionLoading === `${student.id}-approve` ? 'Approving...' : 'Approve'}
                       </button>
                       <button onClick={() => handleAction(student.id, 'reject')} disabled={actionLoading !== null}
-                        className="text-xs bg-red-600 text-white font-medium px-3 py-1.5 rounded-md hover:bg-red-700 disabled:opacity-50">
+                        className="text-xs bg-red-600 text-white font-medium px-3.5 py-2 min-h-[36px] sm:min-h-0 rounded-md hover:bg-red-700 active:scale-95 transition-all disabled:opacity-50">
                         {actionLoading === `${student.id}-reject` ? 'Rejecting...' : 'Reject'}
                       </button>
                     </div>
@@ -202,7 +202,7 @@ export default function AdminDashboardPage() {
           </table>
         </div>
       ) : (
-        <div className="bg-white border border-gray-200 border-dashed rounded-xl p-8 text-center mb-10">
+        <div className="bg-white border border-gray-200 border-dashed rounded-2xl p-8 text-center mb-10">
           <p className="text-gray-400">No pending requests.</p>
         </div>
       )}
@@ -210,11 +210,11 @@ export default function AdminDashboardPage() {
       {/* Quick actions */}
       <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Link href="/admin/groups/new" className="bg-primary-600 text-white rounded-xl p-6 hover:bg-primary-700 transition-colors">
+        <Link href="/admin/groups/new" className="bg-primary-600 text-white rounded-2xl p-6 hover:bg-primary-700 active:scale-[0.98] transition-all duration-200">
           <h3 className="font-semibold mb-1">Create New Group</h3>
           <p className="text-sm text-primary-200">Set up a new classroom for your students.</p>
         </Link>
-        <Link href="/admin/groups" className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow">
+        <Link href="/admin/groups" className="bg-white border border-gray-200 hover:border-gray-300 rounded-2xl p-6 hover:shadow-md active:scale-[0.98] transition-all duration-200">
           <h3 className="font-semibold text-gray-900 mb-1">Manage Groups</h3>
           <p className="text-sm text-gray-500">View and manage all your classrooms.</p>
         </Link>
