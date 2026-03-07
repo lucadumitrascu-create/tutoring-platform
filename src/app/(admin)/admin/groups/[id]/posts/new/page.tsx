@@ -1,21 +1,26 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase-client';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import type { Post } from '@/types/database';
+import type { Post, MaterialCategory, MaterialItem } from '@/types/database';
 
 interface PendingFile {
   id: string;
   file: File | null;
   fileName: string;
   fileType: string;
-  source: 'supabase' | 'bunny';
+  source: 'supabase' | 'bunny' | 'library';
   uploading: boolean;
   progress: number;
   error: string;
   done: boolean;
+  libraryUrl?: string;
+}
+
+interface CategoryWithItems extends MaterialCategory {
+  itemCount: number;
 }
 
 export default function NewPostPage() {
@@ -28,6 +33,41 @@ export default function NewPostPage() {
   const [files, setFiles] = useState<PendingFile[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+
+  // Materials library
+  const [categories, setCategories] = useState<CategoryWithItems[]>([]);
+  const [showLibrary, setShowLibrary] = useState(false);
+  const [loadingCategory, setLoadingCategory] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadCategories() {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data } = await (supabase as any)
+        .from('material_categories')
+        .select('*, material_items(count)')
+        .order('name') as { data: (MaterialCategory & { material_items: [{ count: number }] })[] | null };
+      setCategories((data ?? []).map((c) => ({ ...c, itemCount: c.material_items?.[0]?.count ?? 0 })));
+    }
+    loadCategories();
+  }, []);
+
+  async function addFromCategory(catId: string, catName: string) {
+    setLoadingCategory(catId);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: items } = await (supabase as any).from('material_items').select('*').eq('category_id', catId).order('sort_order') as { data: MaterialItem[] | null };
+
+    if (items && items.length > 0) {
+      const libraryFiles: PendingFile[] = items.map((item) => ({
+        id: crypto.randomUUID(), file: null, fileName: item.file_name, fileType: item.file_type,
+        source: 'library' as const, uploading: false, progress: 100, error: '', done: true,
+        libraryUrl: item.file_url,
+      }));
+      setFiles((prev) => [...prev, ...libraryFiles]);
+      if (!title.trim()) setTitle(catName);
+    }
+    setLoadingCategory(null);
+    setShowLibrary(false);
+  }
 
   function addFiles(fileList: FileList | null) {
     if (!fileList) return;
@@ -90,18 +130,28 @@ export default function NewPostPage() {
 
       for (let i = 0; i < files.length; i++) {
         const f = files[i];
-        setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, uploading: true, progress: 50 } : pf));
 
-        const result = await uploadFile(f);
-        if (result) {
+        if (f.source === 'library' && f.libraryUrl) {
+          // Library files already have URLs, just create post_file record
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           await (supabase as any).from('post_files').insert({
-            post_id: post.id, file_url: result.url, file_type: f.fileType,
-            file_name: result.fileName, sort_order: i,
+            post_id: post.id, file_url: f.libraryUrl, file_type: f.fileType,
+            file_name: f.fileName, sort_order: i,
           });
-          setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, uploading: false, progress: 100, done: true } : pf));
         } else {
-          setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, uploading: false, error: 'Upload failed' } : pf));
+          // Upload new files
+          setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, uploading: true, progress: 50 } : pf));
+          const result = await uploadFile(f);
+          if (result) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            await (supabase as any).from('post_files').insert({
+              post_id: post.id, file_url: result.url, file_type: f.fileType,
+              file_name: result.fileName, sort_order: i,
+            });
+            setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, uploading: false, progress: 100, done: true } : pf));
+          } else {
+            setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, uploading: false, error: 'Upload failed' } : pf));
+          }
         }
       }
 
@@ -135,7 +185,7 @@ export default function NewPostPage() {
         {/* Files */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1.5">Files</label>
-          <p className="text-xs text-gray-400 mb-3">Upload PDFs, images, or videos. Use arrows to reorder.</p>
+          <p className="text-xs text-gray-400 mb-3">Upload files or pick from your materials library.</p>
 
           {files.length > 0 && (
             <div className="space-y-2 mb-4">
@@ -154,12 +204,15 @@ export default function NewPostPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-gray-700 truncate">{f.fileName}</p>
+                    {f.source === 'library' && <p className="text-xs text-primary-500 mt-0.5">From library</p>}
                     {f.uploading && <div className="mt-1.5 h-1.5 bg-gray-200 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full transition-all" style={{ width: `${f.progress}%` }} /></div>}
-                    {f.done && <p className="text-xs text-green-600 mt-0.5">Uploaded</p>}
+                    {f.source !== 'library' && f.done && <p className="text-xs text-green-600 mt-0.5">Uploaded</p>}
                     {f.error && <p className="text-xs text-red-500 mt-0.5">{f.error}</p>}
                   </div>
-                  <span className="text-[10px] font-medium text-gray-400 uppercase flex-shrink-0">{f.source === 'bunny' ? 'Video' : f.fileType.split('/')[1]?.toUpperCase() || 'FILE'}</span>
-                  {!f.uploading && !f.done && (
+                  <span className="text-[10px] font-medium text-gray-400 uppercase flex-shrink-0">
+                    {f.source === 'library' ? 'LIB' : f.source === 'bunny' ? 'Video' : f.fileType.split('/')[1]?.toUpperCase() || 'FILE'}
+                  </span>
+                  {!f.uploading && (f.source === 'library' || !f.done) && (
                     <button type="button" onClick={() => removeFile(f.id)} className="text-gray-400 hover:text-red-500 flex-shrink-0">
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
@@ -169,11 +222,43 @@ export default function NewPostPage() {
             </div>
           )}
 
-          <label className="flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-lg p-6 cursor-pointer hover:border-primary-300 hover:bg-primary-50/30 transition-colors">
-            <input type="file" multiple className="hidden" accept="image/*,application/pdf,video/*" onChange={(e) => addFiles(e.target.files)} />
-            <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
-            <span className="text-sm text-gray-500">Click to add files</span>
-          </label>
+          <div className="flex gap-3">
+            <label className="flex-1 flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-lg p-6 cursor-pointer hover:border-primary-300 hover:bg-primary-50/30 transition-colors">
+              <input type="file" multiple className="hidden" accept="image/*,application/pdf,video/*" onChange={(e) => addFiles(e.target.files)} />
+              <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
+              <span className="text-sm text-gray-500">Upload files</span>
+            </label>
+            {categories.length > 0 && (
+              <button type="button" onClick={() => setShowLibrary(!showLibrary)}
+                className={`flex-1 flex items-center justify-center gap-2 border-2 border-dashed rounded-lg p-6 transition-colors ${showLibrary ? 'border-primary-400 bg-primary-50/50' : 'border-gray-200 hover:border-primary-300 hover:bg-primary-50/30'}`}>
+                <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" /></svg>
+                <span className="text-sm text-gray-500">From library</span>
+              </button>
+            )}
+          </div>
+
+          {/* Library picker */}
+          {showLibrary && (
+            <div className="mt-3 bg-white border border-gray-200 rounded-xl p-4">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Choose a category</p>
+              <div className="space-y-1.5">
+                {categories.map((cat) => (
+                  <button key={cat.id} type="button" onClick={() => addFromCategory(cat.id, cat.name)} disabled={loadingCategory !== null}
+                    className="w-full text-left flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3 hover:bg-primary-50 border border-gray-100 hover:border-primary-200 transition-colors disabled:opacity-50">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{cat.name}</p>
+                      <p className="text-xs text-gray-400">{cat.itemCount} file{cat.itemCount !== 1 ? 's' : ''}</p>
+                    </div>
+                    {loadingCategory === cat.id ? (
+                      <svg className="animate-spin w-4 h-4 text-primary-600" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                    ) : (
+                      <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {error && <div className="bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg">{error}</div>}
