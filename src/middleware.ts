@@ -31,14 +31,8 @@ export async function middleware(request: NextRequest) {
   // Redirect logged-in users away from auth pages
   if (path.startsWith('/auth/')) {
     if (user) {
-      const { data: profile } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
-        .single();
-
       const url = request.nextUrl.clone();
-      url.pathname = profile?.role === 'admin' ? '/admin' : '/dashboard';
+      url.pathname = '/dashboard';
       return NextResponse.redirect(url);
     }
     return supabaseResponse;
@@ -53,27 +47,11 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Protected admin routes
+  // Protected admin routes (auth only — role check is in admin layout)
   if (path.startsWith('/admin')) {
     if (!user) {
-      console.log('[middleware] /admin - no user, redirecting to login');
       const url = request.nextUrl.clone();
       url.pathname = '/auth/login';
-      return NextResponse.redirect(url);
-    }
-
-    const { data: profile, error: profileError } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single() as { data: { role: string } | null; error: unknown };
-
-    console.log('[middleware] /admin - user:', user.id, 'profile:', JSON.stringify(profile), 'error:', JSON.stringify(profileError));
-
-    if (profile?.role !== 'admin') {
-      console.log('[middleware] /admin - not admin, redirecting to dashboard');
-      const url = request.nextUrl.clone();
-      url.pathname = '/dashboard';
       return NextResponse.redirect(url);
     }
   }
