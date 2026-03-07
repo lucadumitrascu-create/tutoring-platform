@@ -3,15 +3,25 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase-client';
 import Link from 'next/link';
+import type { Lesson, User } from '@/types/database';
 
 interface Stats {
   totalLessons: number;
   totalStudents: number;
   pendingHomework: number;
+  totalRevenue: number;
+}
+
+interface RecentPurchase {
+  id: string;
+  created_at: string;
+  user: User;
+  lesson: Lesson;
 }
 
 export default function AdminDashboardPage() {
-  const [stats, setStats] = useState<Stats>({ totalLessons: 0, totalStudents: 0, pendingHomework: 0 });
+  const [stats, setStats] = useState<Stats>({ totalLessons: 0, totalStudents: 0, pendingHomework: 0, totalRevenue: 0 });
+  const [recentPurchases, setRecentPurchases] = useState<RecentPurchase[]>([]);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
@@ -23,11 +33,31 @@ export default function AdminDashboardPage() {
         supabase.from('homework').select('id', { count: 'exact', head: true }).eq('status', 'submitted'),
       ]);
 
+      // Fetch recent purchases
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: purchasesData } = await (supabase as any)
+        .from('purchases')
+        .select('*, user:users(*), lesson:lessons(*)')
+        .order('created_at', { ascending: false })
+        .limit(10) as { data: RecentPurchase[] | null };
+
+      // Calculate total revenue from all purchases
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: allPurchases } = await (supabase as any)
+        .from('purchases')
+        .select('lesson:lessons(price)') as { data: { lesson: { price: number } }[] | null };
+
+      const totalRevenue = allPurchases
+        ? allPurchases.reduce((sum: number, p: { lesson: { price: number } }) => sum + (p.lesson?.price ?? 0), 0)
+        : 0;
+
       setStats({
         totalLessons: lessons.count ?? 0,
         totalStudents: students.count ?? 0,
         pendingHomework: homework.count ?? 0,
+        totalRevenue,
       });
+      setRecentPurchases(purchasesData ?? []);
       setLoading(false);
     }
     loadStats();
@@ -37,6 +67,7 @@ export default function AdminDashboardPage() {
     {
       label: 'Total Lessons',
       value: stats.totalLessons,
+      formatted: String(stats.totalLessons),
       href: '/admin/lessons',
       color: 'bg-primary-100 text-primary-700',
       icon: (
@@ -48,6 +79,7 @@ export default function AdminDashboardPage() {
     {
       label: 'Students',
       value: stats.totalStudents,
+      formatted: String(stats.totalStudents),
       href: '/admin/students',
       color: 'bg-green-100 text-green-700',
       icon: (
@@ -57,8 +89,21 @@ export default function AdminDashboardPage() {
       ),
     },
     {
+      label: 'Total Revenue',
+      value: stats.totalRevenue,
+      formatted: `$${stats.totalRevenue.toFixed(2)}`,
+      href: '/admin/students',
+      color: 'bg-emerald-100 text-emerald-700',
+      icon: (
+        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+    },
+    {
       label: 'Pending Reviews',
       value: stats.pendingHomework,
+      formatted: String(stats.pendingHomework),
       href: '/admin/homework',
       color: 'bg-amber-100 text-amber-700',
       icon: (
@@ -75,7 +120,7 @@ export default function AdminDashboardPage() {
       <p className="text-gray-500 mb-8">Overview of your tutoring platform.</p>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
         {cards.map((card) => (
           <Link
             key={card.label}
@@ -87,11 +132,53 @@ export default function AdminDashboardPage() {
             </div>
             <p className="text-sm text-gray-500 mb-1">{card.label}</p>
             <p className="text-3xl font-bold text-gray-900">
-              {loading ? '—' : card.value}
+              {loading ? '—' : card.formatted}
             </p>
           </Link>
         ))}
       </div>
+
+      {/* Recent purchases */}
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Purchases</h2>
+      {recentPurchases.length > 0 ? (
+        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden mb-10">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-100">
+                <th className="text-left font-medium text-gray-500 px-5 py-3">Student</th>
+                <th className="text-left font-medium text-gray-500 px-5 py-3">Lesson</th>
+                <th className="text-left font-medium text-gray-500 px-5 py-3 hidden sm:table-cell">Price</th>
+                <th className="text-left font-medium text-gray-500 px-5 py-3 hidden sm:table-cell">Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recentPurchases.map((p) => (
+                <tr key={p.id} className="border-b border-gray-50 last:border-0">
+                  <td className="px-5 py-3">
+                    <p className="font-medium text-gray-900">{p.user?.full_name || 'Unknown'}</p>
+                    <p className="text-xs text-gray-400">{p.user?.email}</p>
+                  </td>
+                  <td className="px-5 py-3 text-gray-700">{p.lesson?.title || 'Deleted lesson'}</td>
+                  <td className="px-5 py-3 text-gray-700 hidden sm:table-cell">
+                    ${(p.lesson?.price ?? 0).toFixed(2)}
+                  </td>
+                  <td className="px-5 py-3 text-gray-400 hidden sm:table-cell">
+                    {new Date(p.created_at).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="bg-white border border-gray-200 border-dashed rounded-xl p-8 text-center mb-10">
+          <p className="text-gray-400">No purchases yet.</p>
+        </div>
+      )}
 
       {/* Quick actions */}
       <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
