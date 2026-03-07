@@ -3,6 +3,16 @@
 -- Run this in your Supabase SQL Editor
 -- ============================================
 
+-- Helper function to check admin role (avoids RLS recursion)
+create or replace function public.is_admin()
+returns boolean as $$
+  select exists (
+    select 1 from public.users
+    where id = auth.uid() and role = 'admin'
+  );
+$$ language sql security definer;
+
+
 -- 1. USERS TABLE
 -- Extends Supabase auth.users with role and profile info
 create table public.users (
@@ -23,12 +33,7 @@ create policy "Users can read own profile"
 -- Admin can read all users
 create policy "Admin can read all users"
   on public.users for select
-  using (
-    exists (
-      select 1 from public.users
-      where id = auth.uid() and role = 'admin'
-    )
-  );
+  using (public.is_admin());
 
 -- Users can update their own profile (not role)
 create policy "Users can update own profile"
@@ -64,30 +69,15 @@ create policy "Anyone can read lessons"
 -- Only admin can insert/update/delete lessons
 create policy "Admin can insert lessons"
   on public.lessons for insert
-  with check (
-    exists (
-      select 1 from public.users
-      where id = auth.uid() and role = 'admin'
-    )
-  );
+  with check (public.is_admin());
 
 create policy "Admin can update lessons"
   on public.lessons for update
-  using (
-    exists (
-      select 1 from public.users
-      where id = auth.uid() and role = 'admin'
-    )
-  );
+  using (public.is_admin());
 
 create policy "Admin can delete lessons"
   on public.lessons for delete
-  using (
-    exists (
-      select 1 from public.users
-      where id = auth.uid() and role = 'admin'
-    )
-  );
+  using (public.is_admin());
 
 
 -- 3. MATERIALS TABLE
@@ -116,31 +106,17 @@ create policy "Users can read materials for purchased/free lessons"
       select 1 from public.purchases p
       where p.lesson_id = materials.lesson_id and p.user_id = auth.uid()
     )
-    or
-    exists (
-      select 1 from public.users
-      where id = auth.uid() and role = 'admin'
-    )
+    or public.is_admin()
   );
 
 -- Only admin can manage materials
 create policy "Admin can insert materials"
   on public.materials for insert
-  with check (
-    exists (
-      select 1 from public.users
-      where id = auth.uid() and role = 'admin'
-    )
-  );
+  with check (public.is_admin());
 
 create policy "Admin can delete materials"
   on public.materials for delete
-  using (
-    exists (
-      select 1 from public.users
-      where id = auth.uid() and role = 'admin'
-    )
-  );
+  using (public.is_admin());
 
 
 -- 4. PURCHASES (ACCESS GRANTS) TABLE
@@ -163,32 +139,17 @@ create policy "Users can read own purchases"
 -- Admin can read all purchases
 create policy "Admin can read all purchases"
   on public.purchases for select
-  using (
-    exists (
-      select 1 from public.users
-      where id = auth.uid() and role = 'admin'
-    )
-  );
+  using (public.is_admin());
 
 -- Admin can insert purchases (grant access)
 create policy "Admin can insert purchases"
   on public.purchases for insert
-  with check (
-    exists (
-      select 1 from public.users
-      where id = auth.uid() and role = 'admin'
-    )
-  );
+  with check (public.is_admin());
 
 -- Admin can delete purchases (revoke access)
 create policy "Admin can delete purchases"
   on public.purchases for delete
-  using (
-    exists (
-      select 1 from public.users
-      where id = auth.uid() and role = 'admin'
-    )
-  );
+  using (public.is_admin());
 
 
 -- 5. HOMEWORK TABLE
@@ -231,12 +192,7 @@ create policy "Students can submit homework"
 -- Admin can read all homework
 create policy "Admin can read all homework"
   on public.homework for select
-  using (
-    exists (
-      select 1 from public.users
-      where id = auth.uid() and role = 'admin'
-    )
-  );
+  using (public.is_admin());
 
 -- Students can update their own homework (resubmit)
 create policy "Students can update own homework"
@@ -247,22 +203,12 @@ create policy "Students can update own homework"
 -- Admin can update homework (approve/reject + feedback)
 create policy "Admin can update homework"
   on public.homework for update
-  using (
-    exists (
-      select 1 from public.users
-      where id = auth.uid() and role = 'admin'
-    )
-  );
+  using (public.is_admin());
 
 -- Admin can delete homework
 create policy "Admin can delete homework"
   on public.homework for delete
-  using (
-    exists (
-      select 1 from public.users
-      where id = auth.uid() and role = 'admin'
-    )
-  );
+  using (public.is_admin());
 
 
 -- ============================================
@@ -303,13 +249,7 @@ values ('homework', 'homework', false);
 -- Storage policies: materials bucket
 create policy "Admin can upload materials"
   on storage.objects for insert
-  with check (
-    bucket_id = 'materials'
-    and exists (
-      select 1 from public.users
-      where id = auth.uid() and role = 'admin'
-    )
-  );
+  with check (bucket_id = 'materials' and public.is_admin());
 
 create policy "Users can read materials they have access to"
   on storage.objects for select
@@ -320,13 +260,7 @@ create policy "Users can read materials they have access to"
 
 create policy "Admin can delete materials"
   on storage.objects for delete
-  using (
-    bucket_id = 'materials'
-    and exists (
-      select 1 from public.users
-      where id = auth.uid() and role = 'admin'
-    )
-  );
+  using (bucket_id = 'materials' and public.is_admin());
 
 -- Storage policies: homework bucket
 create policy "Students can upload homework"
@@ -345,10 +279,4 @@ create policy "Users can read own homework files"
 
 create policy "Admin can read all homework files"
   on storage.objects for select
-  using (
-    bucket_id = 'homework'
-    and exists (
-      select 1 from public.users
-      where id = auth.uid() and role = 'admin'
-    )
-  );
+  using (bucket_id = 'homework' and public.is_admin());
