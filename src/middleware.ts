@@ -56,18 +56,22 @@ export async function middleware(request: NextRequest) {
   // Protected admin routes
   if (path.startsWith('/admin')) {
     if (!user) {
+      console.log('[middleware] /admin - no user, redirecting to login');
       const url = request.nextUrl.clone();
       url.pathname = '/auth/login';
       return NextResponse.redirect(url);
     }
 
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('users')
       .select('role')
       .eq('id', user.id)
-      .single();
+      .single() as { data: { role: string } | null; error: unknown };
+
+    console.log('[middleware] /admin - user:', user.id, 'profile:', JSON.stringify(profile), 'error:', JSON.stringify(profileError));
 
     if (profile?.role !== 'admin') {
+      console.log('[middleware] /admin - not admin, redirecting to dashboard');
       const url = request.nextUrl.clone();
       url.pathname = '/dashboard';
       return NextResponse.redirect(url);
