@@ -34,7 +34,7 @@ export interface Purchase {
   id: string;
   user_id: string;
   lesson_id: string;
-  stripe_session_id: string;
+  granted_by: string | null;
   created_at: string;
 }
 

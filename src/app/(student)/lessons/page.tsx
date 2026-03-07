@@ -119,7 +119,7 @@ export default function LessonsPage() {
                       href={`/lessons/${lesson.id}`}
                       className="w-full text-center bg-gray-900 text-white text-sm font-medium py-2.5 rounded-lg hover:bg-gray-800 transition-colors"
                     >
-                      Buy Lesson
+                      View Lesson
                     </Link>
                   )}
                 </div>

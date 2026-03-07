@@ -9,10 +9,10 @@ interface Stats {
   totalLessons: number;
   totalStudents: number;
   pendingHomework: number;
-  totalRevenue: number;
+  accessGrants: number;
 }
 
-interface RecentPurchase {
+interface RecentAccess {
   id: string;
   created_at: string;
   user: User;
@@ -20,8 +20,8 @@ interface RecentPurchase {
 }
 
 export default function AdminDashboardPage() {
-  const [stats, setStats] = useState<Stats>({ totalLessons: 0, totalStudents: 0, pendingHomework: 0, totalRevenue: 0 });
-  const [recentPurchases, setRecentPurchases] = useState<RecentPurchase[]>([]);
+  const [stats, setStats] = useState<Stats>({ totalLessons: 0, totalStudents: 0, pendingHomework: 0, accessGrants: 0 });
+  const [recentAccess, setRecentAccess] = useState<RecentAccess[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const supabase = createClient();
@@ -29,37 +29,28 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     async function loadStats() {
       try {
-      const [lessons, students, homework] = await Promise.all([
+      const [lessons, students, homework, purchases] = await Promise.all([
         supabase.from('lessons').select('id', { count: 'exact', head: true }),
         supabase.from('users').select('id', { count: 'exact', head: true }).eq('role', 'student'),
         supabase.from('homework').select('id', { count: 'exact', head: true }).eq('status', 'submitted'),
+        supabase.from('purchases').select('id', { count: 'exact', head: true }),
       ]);
 
-      // Fetch recent purchases
+      // Fetch recent access grants
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: purchasesData } = await (supabase as any)
+      const { data: accessData } = await (supabase as any)
         .from('purchases')
         .select('*, user:users(*), lesson:lessons(*)')
         .order('created_at', { ascending: false })
-        .limit(10) as { data: RecentPurchase[] | null };
-
-      // Calculate total revenue from all purchases
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: allPurchases } = await (supabase as any)
-        .from('purchases')
-        .select('lesson:lessons(price)') as { data: { lesson: { price: number } }[] | null };
-
-      const totalRevenue = allPurchases
-        ? allPurchases.reduce((sum: number, p: { lesson: { price: number } }) => sum + (p.lesson?.price ?? 0), 0)
-        : 0;
+        .limit(10) as { data: RecentAccess[] | null };
 
       setStats({
         totalLessons: lessons.count ?? 0,
         totalStudents: students.count ?? 0,
         pendingHomework: homework.count ?? 0,
-        totalRevenue,
+        accessGrants: purchases.count ?? 0,
       });
-      setRecentPurchases(purchasesData ?? []);
+      setRecentAccess(accessData ?? []);
       } catch {
         setError('Failed to load dashboard data.');
       }
@@ -94,14 +85,14 @@ export default function AdminDashboardPage() {
       ),
     },
     {
-      label: 'Total Revenue',
-      value: stats.totalRevenue,
-      formatted: `$${stats.totalRevenue.toFixed(2)}`,
+      label: 'Access Grants',
+      value: stats.accessGrants,
+      formatted: String(stats.accessGrants),
       href: '/admin/students',
       color: 'bg-emerald-100 text-emerald-700',
       icon: (
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
         </svg>
       ),
     },
@@ -152,15 +143,15 @@ export default function AdminDashboardPage() {
             </div>
             <p className="text-sm text-gray-500 mb-1">{card.label}</p>
             <p className="text-3xl font-bold text-gray-900">
-              {loading ? '—' : card.formatted}
+              {card.formatted}
             </p>
           </Link>
         ))}
       </div>
 
-      {/* Recent purchases */}
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Purchases</h2>
-      {recentPurchases.length > 0 ? (
+      {/* Recent access grants */}
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Access Grants</h2>
+      {recentAccess.length > 0 ? (
         <div className="bg-white border border-gray-200 rounded-xl overflow-hidden mb-10">
           <table className="w-full text-sm">
             <thead>
@@ -172,7 +163,7 @@ export default function AdminDashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {recentPurchases.map((p) => (
+              {recentAccess.map((p) => (
                 <tr key={p.id} className="border-b border-gray-50 last:border-0">
                   <td className="px-5 py-3">
                     <p className="font-medium text-gray-900">{p.user?.full_name || 'Unknown'}</p>
@@ -180,7 +171,7 @@ export default function AdminDashboardPage() {
                   </td>
                   <td className="px-5 py-3 text-gray-700">{p.lesson?.title || 'Deleted lesson'}</td>
                   <td className="px-5 py-3 text-gray-700 hidden sm:table-cell">
-                    ${(p.lesson?.price ?? 0).toFixed(2)}
+                    {p.lesson?.is_free ? 'Free' : `$${(p.lesson?.price ?? 0).toFixed(2)}`}
                   </td>
                   <td className="px-5 py-3 text-gray-400 hidden sm:table-cell">
                     {new Date(p.created_at).toLocaleDateString('en-US', {
@@ -196,7 +187,7 @@ export default function AdminDashboardPage() {
         </div>
       ) : (
         <div className="bg-white border border-gray-200 border-dashed rounded-xl p-8 text-center mb-10">
-          <p className="text-gray-400">No purchases yet.</p>
+          <p className="text-gray-400">No access grants yet.</p>
         </div>
       )}
 

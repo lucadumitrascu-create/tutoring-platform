@@ -143,12 +143,12 @@ create policy "Admin can delete materials"
   );
 
 
--- 4. PURCHASES TABLE
+-- 4. PURCHASES (ACCESS GRANTS) TABLE
 create table public.purchases (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references public.users(id) on delete cascade not null,
   lesson_id uuid references public.lessons(id) on delete cascade not null,
-  stripe_session_id text not null,
+  granted_by uuid references public.users(id),
   created_at timestamptz not null default now(),
   unique(user_id, lesson_id)
 );
@@ -170,12 +170,17 @@ create policy "Admin can read all purchases"
     )
   );
 
--- Insert via service role (Stripe webhook)
-create policy "Service role can insert purchases"
+-- Admin can insert purchases (grant access)
+create policy "Admin can insert purchases"
   on public.purchases for insert
-  with check (true);
+  with check (
+    exists (
+      select 1 from public.users
+      where id = auth.uid() and role = 'admin'
+    )
+  );
 
--- Admin can delete purchases (for lesson deletion)
+-- Admin can delete purchases (revoke access)
 create policy "Admin can delete purchases"
   on public.purchases for delete
   using (
