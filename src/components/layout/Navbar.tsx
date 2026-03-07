@@ -36,7 +36,7 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.push('/');
+    window.location.href = '/auth/login';
   };
 
   const isAdmin = user?.role === 'admin';

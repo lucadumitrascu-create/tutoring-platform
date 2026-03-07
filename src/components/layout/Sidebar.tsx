@@ -71,7 +71,7 @@ export default function Sidebar() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.push('/');
+    window.location.href = '/auth/login';
   };
 
   const isActive = (link: typeof adminLinks[0]) => {
