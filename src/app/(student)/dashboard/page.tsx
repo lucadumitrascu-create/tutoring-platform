@@ -3,11 +3,12 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase-client';
 import Link from 'next/link';
-import type { User, Lesson } from '@/types/database';
+import type { User, Group, Meeting } from '@/types/database';
 
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null);
-  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [upcomingMeetings, setUpcomingMeetings] = useState<(Meeting & { groupName: string })[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const supabase = createClient();
@@ -26,13 +27,30 @@ export default function DashboardPage() {
 
         setUser(profile);
 
-        // Fetch all lessons (student has site-wide access)
-        const { data: allLessons } = await supabase
-          .from('lessons')
-          .select('*')
-          .order('created_at', { ascending: false }) as { data: Lesson[] | null };
+        // Fetch groups
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: memberships } = await (supabase as any)
+          .from('group_members')
+          .select('group:groups(*)')
+          .eq('user_id', authUser.id) as { data: { group: Group }[] | null };
 
-        setLessons(allLessons ?? []);
+        const userGroups = (memberships ?? []).map((m) => m.group);
+        setGroups(userGroups);
+
+        // Fetch upcoming meetings from all groups
+        if (userGroups.length > 0) {
+          const groupIds = userGroups.map((g) => g.id);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const { data: meetingsData } = await (supabase as any)
+            .from('meetings')
+            .select('*, group:groups(name)')
+            .in('group_id', groupIds)
+            .gte('scheduled_at', new Date().toISOString())
+            .order('scheduled_at', { ascending: true })
+            .limit(5) as { data: (Meeting & { group: { name: string } })[] | null };
+
+          setUpcomingMeetings((meetingsData ?? []).map((m) => ({ ...m, groupName: m.group?.name || '' })));
+        }
       } catch {
         setError('Failed to load dashboard data.');
       }
@@ -62,51 +80,50 @@ export default function DashboardPage() {
       </h1>
       <p className="text-gray-500 mb-8">Here&apos;s your learning dashboard.</p>
 
-      {/* Quick actions */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
-        <Link
-          href="/lessons"
-          className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow group"
-        >
-          <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary-200 transition-colors">
-            <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-            </svg>
+      {/* Upcoming Meetings */}
+      {upcomingMeetings.length > 0 && (
+        <div className="mb-10">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Upcoming Meetings</h2>
+          <div className="space-y-2">
+            {upcomingMeetings.map((m) => (
+              <div key={m.id} className="bg-white border border-gray-200 rounded-xl px-5 py-4 flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-gray-900">{m.title}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs text-primary-600 font-medium">{m.groupName}</span>
+                    <span className="text-xs text-gray-400">{new Date(m.scheduled_at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                  </div>
+                </div>
+                <a href={m.meet_link} target="_blank" rel="noopener noreferrer"
+                  className="bg-primary-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors">
+                  Join
+                </a>
+              </div>
+            ))}
           </div>
-          <h3 className="font-semibold text-gray-900 mb-1">Browse Lessons</h3>
-          <p className="text-sm text-gray-500">View all available lessons.</p>
-        </Link>
-      </div>
+        </div>
+      )}
 
-      {/* All lessons */}
+      {/* My Groups */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Your Lessons</h2>
-        {lessons.length > 0 ? (
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900">My Groups</h2>
+          <Link href="/groups" className="text-sm text-primary-600 font-medium hover:underline">View all</Link>
+        </div>
+        {groups.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {lessons.map((lesson) => (
-              <Link
-                key={lesson.id}
-                href={`/lessons/${lesson.id}`}
-                className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow"
-              >
-                <h3 className="font-semibold text-gray-900 mb-1">{lesson.title}</h3>
-                <p className="text-sm text-gray-500 line-clamp-2 mb-3">{lesson.description}</p>
-                {lesson.scheduled_at && (
-                  <p className="text-xs text-primary-600 font-medium">
-                    Live: {new Date(lesson.scheduled_at).toLocaleDateString('en-US', {
-                      month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-                    })}
-                  </p>
-                )}
+            {groups.map((group) => (
+              <Link key={group.id} href={`/groups/${group.id}`}
+                className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow">
+                <h3 className="font-semibold text-gray-900 mb-1">{group.name}</h3>
+                <p className="text-sm text-gray-500 line-clamp-2">{group.description || 'No description'}</p>
               </Link>
             ))}
           </div>
         ) : (
           <div className="bg-white border border-gray-200 border-dashed rounded-xl p-8 text-center">
-            <p className="text-gray-400 mb-3">No lessons available yet.</p>
-            <Link href="/lessons" className="text-primary-600 font-medium text-sm hover:underline">
-              Browse available lessons &rarr;
-            </Link>
+            <p className="text-gray-400 mb-1">No groups yet.</p>
+            <p className="text-gray-400 text-sm">Your teacher will add you to a group.</p>
           </div>
         )}
       </div>

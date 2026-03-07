@@ -8,7 +8,7 @@ import type { User } from '@/types/database';
 
 const studentLinks = [
   { href: '/dashboard', label: 'Dashboard' },
-  { href: '/lessons', label: 'Lessons' },
+  { href: '/groups', label: 'My Groups' },
 ];
 
 export default function Navbar() {

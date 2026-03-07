@@ -1,6 +1,6 @@
 export type UserRole = 'admin' | 'student';
-export type HomeworkStatus = 'submitted' | 'approved' | 'rejected';
 export type AccessStatus = 'none' | 'pending' | 'approved' | 'rejected';
+export type SubmissionStatus = 'submitted' | 'approved' | 'rejected';
 
 export interface User {
   id: string;
@@ -11,43 +11,74 @@ export interface User {
   created_at: string;
 }
 
-export interface Lesson {
+export interface Group {
   id: string;
-  title: string;
+  name: string;
   description: string;
-  price: number;
-  is_free: boolean;
-  meet_link: string | null;
-  scheduled_at: string | null;
   created_at: string;
 }
 
-export interface Material {
+export interface GroupMember {
   id: string;
-  lesson_id: string;
+  group_id: string;
+  user_id: string;
+  created_at: string;
+}
+
+export interface Post {
+  id: string;
+  group_id: string;
+  title: string;
+  description: string;
+  created_at: string;
+}
+
+export interface PostFile {
+  id: string;
+  post_id: string;
   file_url: string;
   file_type: string;
   file_name: string;
-  uploaded_by: string;
+  sort_order: number;
   created_at: string;
 }
 
-export interface Purchase {
+export interface Assignment {
   id: string;
-  user_id: string;
-  lesson_id: string;
-  granted_by: string | null;
+  group_id: string;
+  title: string;
+  description: string;
+  deadline: string | null;
   created_at: string;
 }
 
-export interface Homework {
+export interface AssignmentFile {
   id: string;
-  lesson_id: string;
+  assignment_id: string;
+  file_url: string;
+  file_type: string;
+  file_name: string;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface AssignmentSubmission {
+  id: string;
+  assignment_id: string;
   student_id: string;
   file_url: string;
   file_name: string;
-  status: HomeworkStatus;
+  status: SubmissionStatus;
   feedback: string | null;
+  created_at: string;
+}
+
+export interface Meeting {
+  id: string;
+  group_id: string;
+  title: string;
+  meet_link: string;
+  scheduled_at: string;
   created_at: string;
 }
 
@@ -60,28 +91,52 @@ export interface Database {
         Update: Partial<Omit<User, 'id' | 'created_at'>>;
         Relationships: [];
       };
-      lessons: {
-        Row: Lesson;
-        Insert: Omit<Lesson, 'id' | 'created_at'>;
-        Update: Partial<Omit<Lesson, 'id' | 'created_at'>>;
+      groups: {
+        Row: Group;
+        Insert: Omit<Group, 'id' | 'created_at'>;
+        Update: Partial<Omit<Group, 'id' | 'created_at'>>;
         Relationships: [];
       };
-      materials: {
-        Row: Material;
-        Insert: Omit<Material, 'id' | 'created_at'>;
-        Update: Partial<Omit<Material, 'id' | 'created_at'>>;
+      group_members: {
+        Row: GroupMember;
+        Insert: Omit<GroupMember, 'id' | 'created_at'>;
+        Update: Partial<Omit<GroupMember, 'id' | 'created_at'>>;
         Relationships: [];
       };
-      purchases: {
-        Row: Purchase;
-        Insert: Omit<Purchase, 'id' | 'created_at'>;
-        Update: Partial<Omit<Purchase, 'id' | 'created_at'>>;
+      posts: {
+        Row: Post;
+        Insert: Omit<Post, 'id' | 'created_at'>;
+        Update: Partial<Omit<Post, 'id' | 'created_at'>>;
         Relationships: [];
       };
-      homework: {
-        Row: Homework;
-        Insert: Omit<Homework, 'id' | 'created_at'>;
-        Update: Partial<Omit<Homework, 'id' | 'created_at'>>;
+      post_files: {
+        Row: PostFile;
+        Insert: Omit<PostFile, 'id' | 'created_at'>;
+        Update: Partial<Omit<PostFile, 'id' | 'created_at'>>;
+        Relationships: [];
+      };
+      assignments: {
+        Row: Assignment;
+        Insert: Omit<Assignment, 'id' | 'created_at'>;
+        Update: Partial<Omit<Assignment, 'id' | 'created_at'>>;
+        Relationships: [];
+      };
+      assignment_files: {
+        Row: AssignmentFile;
+        Insert: Omit<AssignmentFile, 'id' | 'created_at'>;
+        Update: Partial<Omit<AssignmentFile, 'id' | 'created_at'>>;
+        Relationships: [];
+      };
+      assignment_submissions: {
+        Row: AssignmentSubmission;
+        Insert: Omit<AssignmentSubmission, 'id' | 'created_at'>;
+        Update: Partial<Omit<AssignmentSubmission, 'id' | 'created_at'>>;
+        Relationships: [];
+      };
+      meetings: {
+        Row: Meeting;
+        Insert: Omit<Meeting, 'id' | 'created_at'>;
+        Update: Partial<Omit<Meeting, 'id' | 'created_at'>>;
         Relationships: [];
       };
     };

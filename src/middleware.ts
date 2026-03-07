@@ -49,7 +49,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Protected student routes
-  if (path.startsWith('/dashboard') || path.startsWith('/lessons')) {
+  if (path.startsWith('/dashboard') || path.startsWith('/groups')) {
     if (!user) {
       const url = request.nextUrl.clone();
       url.pathname = '/auth/login';
@@ -72,7 +72,7 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/dashboard/:path*',
-    '/lessons/:path*',
+    '/groups/:path*',
     '/admin/:path*',
     '/auth/:path*',
     '/request-access',

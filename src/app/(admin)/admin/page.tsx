@@ -6,14 +6,14 @@ import Link from 'next/link';
 import type { User } from '@/types/database';
 
 interface Stats {
-  totalLessons: number;
+  totalGroups: number;
   totalStudents: number;
-  pendingHomework: number;
+  pendingSubmissions: number;
   pendingRequests: number;
 }
 
 export default function AdminDashboardPage() {
-  const [stats, setStats] = useState<Stats>({ totalLessons: 0, totalStudents: 0, pendingHomework: 0, pendingRequests: 0 });
+  const [stats, setStats] = useState<Stats>({ totalGroups: 0, totalStudents: 0, pendingSubmissions: 0, pendingRequests: 0 });
   const [pendingStudents, setPendingStudents] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -26,14 +26,14 @@ export default function AdminDashboardPage() {
 
   async function loadStats() {
     try {
-      const [lessons, students, homework, pending] = await Promise.all([
-        supabase.from('lessons').select('id', { count: 'exact', head: true }),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const [groups, students, submissions, pending] = await Promise.all([
+        (supabase as any).from('groups').select('id', { count: 'exact', head: true }),
         supabase.from('users').select('id', { count: 'exact', head: true }).eq('role', 'student'),
-        supabase.from('homework').select('id', { count: 'exact', head: true }).eq('status', 'submitted'),
+        (supabase as any).from('assignment_submissions').select('id', { count: 'exact', head: true }).eq('status', 'submitted'),
         supabase.from('users').select('id', { count: 'exact', head: true }).eq('role', 'student').eq('access_status', 'pending'),
       ]);
 
-      // Fetch pending students
       const { data: pendingData } = await supabase
         .from('users')
         .select('*')
@@ -43,9 +43,9 @@ export default function AdminDashboardPage() {
         .limit(10) as { data: User[] | null };
 
       setStats({
-        totalLessons: lessons.count ?? 0,
+        totalGroups: groups.count ?? 0,
         totalStudents: students.count ?? 0,
-        pendingHomework: homework.count ?? 0,
+        pendingSubmissions: submissions.count ?? 0,
         pendingRequests: pending.count ?? 0,
       });
       setPendingStudents(pendingData ?? []);
@@ -80,21 +80,19 @@ export default function AdminDashboardPage() {
 
   const cards = [
     {
-      label: 'Total Lessons',
-      value: stats.totalLessons,
-      formatted: String(stats.totalLessons),
-      href: '/admin/lessons',
+      label: 'Total Groups',
+      value: stats.totalGroups,
+      href: '/admin/groups',
       color: 'bg-primary-100 text-primary-700',
       icon: (
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
         </svg>
       ),
     },
     {
       label: 'Students',
       value: stats.totalStudents,
-      formatted: String(stats.totalStudents),
       href: '/admin/students',
       color: 'bg-green-100 text-green-700',
       icon: (
@@ -106,7 +104,6 @@ export default function AdminDashboardPage() {
     {
       label: 'Pending Requests',
       value: stats.pendingRequests,
-      formatted: String(stats.pendingRequests),
       href: '/admin/students',
       color: 'bg-amber-100 text-amber-700',
       icon: (
@@ -117,13 +114,12 @@ export default function AdminDashboardPage() {
     },
     {
       label: 'Pending Reviews',
-      value: stats.pendingHomework,
-      formatted: String(stats.pendingHomework),
-      href: '/admin/homework',
+      value: stats.pendingSubmissions,
+      href: '/admin/groups',
       color: 'bg-emerald-100 text-emerald-700',
       icon: (
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
         </svg>
       ),
     },
@@ -161,9 +157,7 @@ export default function AdminDashboardPage() {
               {card.icon}
             </div>
             <p className="text-sm text-gray-500 mb-1">{card.label}</p>
-            <p className="text-3xl font-bold text-gray-900">
-              {card.formatted}
-            </p>
+            <p className="text-3xl font-bold text-gray-900">{card.value}</p>
           </Link>
         ))}
       </div>
@@ -188,26 +182,16 @@ export default function AdminDashboardPage() {
                     <p className="text-xs text-gray-400">{student.email}</p>
                   </td>
                   <td className="px-5 py-3 text-gray-400 hidden sm:table-cell">
-                    {new Date(student.created_at).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}
+                    {new Date(student.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                   </td>
                   <td className="px-5 py-3 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => handleAction(student.id, 'approve')}
-                        disabled={actionLoading !== null}
-                        className="text-xs bg-green-600 text-white font-medium px-3 py-1.5 rounded-md hover:bg-green-700 disabled:opacity-50"
-                      >
+                      <button onClick={() => handleAction(student.id, 'approve')} disabled={actionLoading !== null}
+                        className="text-xs bg-green-600 text-white font-medium px-3 py-1.5 rounded-md hover:bg-green-700 disabled:opacity-50">
                         {actionLoading === `${student.id}-approve` ? 'Approving...' : 'Approve'}
                       </button>
-                      <button
-                        onClick={() => handleAction(student.id, 'reject')}
-                        disabled={actionLoading !== null}
-                        className="text-xs bg-red-600 text-white font-medium px-3 py-1.5 rounded-md hover:bg-red-700 disabled:opacity-50"
-                      >
+                      <button onClick={() => handleAction(student.id, 'reject')} disabled={actionLoading !== null}
+                        className="text-xs bg-red-600 text-white font-medium px-3 py-1.5 rounded-md hover:bg-red-700 disabled:opacity-50">
                         {actionLoading === `${student.id}-reject` ? 'Rejecting...' : 'Reject'}
                       </button>
                     </div>
@@ -226,19 +210,13 @@ export default function AdminDashboardPage() {
       {/* Quick actions */}
       <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Link
-          href="/admin/lessons/new"
-          className="bg-primary-600 text-white rounded-xl p-6 hover:bg-primary-700 transition-colors"
-        >
-          <h3 className="font-semibold mb-1">Create New Lesson</h3>
-          <p className="text-sm text-primary-200">Add a new lesson with materials and scheduling.</p>
+        <Link href="/admin/groups/new" className="bg-primary-600 text-white rounded-xl p-6 hover:bg-primary-700 transition-colors">
+          <h3 className="font-semibold mb-1">Create New Group</h3>
+          <p className="text-sm text-primary-200">Set up a new classroom for your students.</p>
         </Link>
-        <Link
-          href="/admin/homework"
-          className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow"
-        >
-          <h3 className="font-semibold text-gray-900 mb-1">Review Homework</h3>
-          <p className="text-sm text-gray-500">Approve or reject student submissions.</p>
+        <Link href="/admin/groups" className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow">
+          <h3 className="font-semibold text-gray-900 mb-1">Manage Groups</h3>
+          <p className="text-sm text-gray-500">View and manage all your classrooms.</p>
         </Link>
       </div>
     </div>
