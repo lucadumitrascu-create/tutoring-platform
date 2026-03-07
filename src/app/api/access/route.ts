@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient, createServiceClient } from '@/lib/supabase-server';
+import { createClient } from '@/lib/supabase-server';
 
 // POST — student requests access (sets status to 'pending')
 export async function POST() {
@@ -10,15 +10,13 @@ export async function POST() {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    // Use service client to bypass RLS for updating access_status
-    const serviceClient = createServiceClient();
-
+    // Student can request access if status is 'none' or 'rejected'
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (serviceClient as any)
+    const { error } = await (supabase as any)
       .from('users')
       .update({ access_status: 'pending' })
       .eq('id', user.id)
-      .eq('access_status', 'none');
+      .in('access_status', ['none', 'rejected']);
 
     if (error) {
       return NextResponse.json({ error: 'Failed to request access' }, { status: 500 });
@@ -57,9 +55,8 @@ export async function PATCH(request: NextRequest) {
 
     const newStatus = action === 'approve' ? 'approved' : 'rejected';
 
-    const serviceClient = createServiceClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (serviceClient as any)
+    const { error } = await (supabase as any)
       .from('users')
       .update({ access_status: newStatus })
       .eq('id', userId);
@@ -99,9 +96,8 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'userId required' }, { status: 400 });
     }
 
-    const serviceClient = createServiceClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (serviceClient as any)
+    const { error } = await (supabase as any)
       .from('users')
       .update({ access_status: 'none' })
       .eq('id', userId);
