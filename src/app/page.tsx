@@ -1,25 +1,6 @@
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase-server';
-import type { Lesson } from '@/types/database';
 
-async function getFreeLessons(): Promise<Lesson[]> {
-  try {
-    const supabase = createClient();
-    const { data } = await supabase
-      .from('lessons')
-      .select('*')
-      .eq('is_free', true)
-      .order('created_at', { ascending: false })
-      .limit(3) as { data: Lesson[] | null };
-    return data ?? [];
-  } catch {
-    return [];
-  }
-}
-
-export default async function Home() {
-  const freeLessons = await getFreeLessons();
-
+export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-white">
       {/* Navbar */}
@@ -65,12 +46,6 @@ export default async function Home() {
               className="w-full sm:w-auto bg-primary-600 text-white px-8 py-3.5 rounded-xl hover:bg-primary-700 font-semibold text-lg transition-colors"
             >
               Start Learning
-            </Link>
-            <Link
-              href="#lessons"
-              className="w-full sm:w-auto border border-gray-300 text-gray-700 px-8 py-3.5 rounded-xl hover:bg-gray-50 font-semibold text-lg transition-colors"
-            >
-              View Free Lessons
             </Link>
           </div>
         </div>
@@ -129,84 +104,23 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Free Lessons Preview */}
-      <section id="lessons" className="py-20 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Free lessons to get started
-            </h2>
-            <p className="text-gray-500 text-lg">
-              Try these lessons for free — no account needed to browse.
-            </p>
-          </div>
-
-          {freeLessons.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {freeLessons.map((lesson) => (
-                <div
-                  key={lesson.id}
-                  className="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-lg transition-shadow"
-                >
-                  <div className="inline-block bg-green-50 text-green-700 text-xs font-semibold px-3 py-1 rounded-full mb-4">
-                    FREE
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{lesson.title}</h3>
-                  <p className="text-gray-500 text-sm mb-4 line-clamp-3">{lesson.description}</p>
-                  {lesson.scheduled_at && (
-                    <p className="text-xs text-gray-400 mb-4">
-                      Live session: {new Date(lesson.scheduled_at).toLocaleDateString('en-US', {
-                        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-                      })}
-                    </p>
-                  )}
-                  <Link
-                    href="/auth/register"
-                    className="text-primary-600 font-medium text-sm hover:underline"
-                  >
-                    Sign up to access &rarr;
-                  </Link>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12 bg-gray-50 rounded-2xl">
-              <p className="text-gray-400">Lessons coming soon. Sign up to get notified!</p>
-            </div>
-          )}
-
-          <div className="text-center mt-10">
-            <Link
-              href="/auth/register"
-              className="text-primary-600 font-semibold hover:underline"
-            >
-              Browse all lessons &rarr;
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section className="py-20 bg-gray-50 px-4 sm:px-6">
+      {/* How it works */}
+      <section className="py-20 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Simple, transparent pricing
+              How it works
             </h2>
-            <p className="text-gray-500 text-lg">
-              No subscriptions. Pay once per lesson, get permanent access.
-            </p>
           </div>
 
           <div className="bg-white rounded-2xl border border-gray-200 p-8 sm:p-10 max-w-lg mx-auto">
-            <h3 className="text-xl font-bold text-gray-900 mb-6">How it works</h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                   <span className="text-primary-700 text-xs font-bold">1</span>
                 </div>
                 <p className="text-gray-600">
-                  <span className="font-medium text-gray-900">Browse lessons</span> — see all available topics, descriptions, and prices.
+                  <span className="font-medium text-gray-900">Create an account</span> — register and request access to the platform.
                 </p>
               </li>
               <li className="flex items-start gap-3">
@@ -214,7 +128,7 @@ export default async function Home() {
                   <span className="text-primary-700 text-xs font-bold">2</span>
                 </div>
                 <p className="text-gray-600">
-                  <span className="font-medium text-gray-900">Pay once</span> — secure checkout via Stripe. No recurring charges.
+                  <span className="font-medium text-gray-900">Get approved</span> — once your payment is confirmed, you get full access.
                 </p>
               </li>
               <li className="flex items-start gap-3">
@@ -222,12 +136,11 @@ export default async function Home() {
                   <span className="text-primary-700 text-xs font-bold">3</span>
                 </div>
                 <p className="text-gray-600">
-                  <span className="font-medium text-gray-900">Access forever</span> — videos, PDFs, live session links, and homework submissions.
+                  <span className="font-medium text-gray-900">Start learning</span> — access your groups, lessons, assignments, and live meetings.
                 </p>
               </li>
             </ul>
             <div className="mt-8 pt-6 border-t border-gray-100 text-center">
-              <p className="text-sm text-gray-400 mb-4">Free lessons available — no payment required.</p>
               <Link
                 href="/auth/register"
                 className="inline-block bg-primary-600 text-white px-6 py-3 rounded-xl hover:bg-primary-700 font-semibold transition-colors"
@@ -252,7 +165,6 @@ export default async function Home() {
             <div>
               <h4 className="text-sm font-semibold text-gray-900 mb-3">Quick Links</h4>
               <ul className="space-y-2 text-sm text-gray-500">
-                <li><Link href="#lessons" className="hover:text-gray-700">Lessons</Link></li>
                 <li><Link href="/auth/login" className="hover:text-gray-700">Log in</Link></li>
                 <li><Link href="/auth/register" className="hover:text-gray-700">Register</Link></li>
               </ul>
