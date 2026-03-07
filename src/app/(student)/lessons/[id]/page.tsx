@@ -20,6 +20,7 @@ export default function LessonDetailPage() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
+  const [buying, setBuying] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -169,12 +170,34 @@ export default function LessonDetailPage() {
           </div>
           <h2 className="text-lg font-semibold text-gray-900 mb-2">This lesson requires purchase</h2>
           <p className="text-gray-500 text-sm mb-6">Get full access to all materials, live sessions, and homework submission.</p>
-          <Link
-            href={`/checkout/success?lesson_id=${lesson.id}`}
-            className="inline-block bg-gray-900 text-white font-medium px-8 py-3 rounded-lg hover:bg-gray-800 transition-colors"
+          <button
+            onClick={async () => {
+              setBuying(true);
+              try {
+                const res = await fetch('/api/stripe/checkout', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ lessonId: lesson.id }),
+                });
+                const data = await res.json();
+                if (data.url) {
+                  window.location.href = data.url;
+                }
+              } catch {
+                setBuying(false);
+              }
+            }}
+            disabled={buying}
+            className="inline-flex items-center gap-2 bg-gray-900 text-white font-medium px-8 py-3 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
           >
+            {buying && (
+              <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            )}
             Buy for ${lesson.price.toFixed(2)}
-          </Link>
+          </button>
         </div>
       </div>
     );
