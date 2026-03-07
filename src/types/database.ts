@@ -1,4 +1,5 @@
 export type UserRole = 'admin' | 'student';
+export type HomeworkStatus = 'submitted' | 'approved' | 'rejected';
 
 export interface User {
   id: string;
@@ -37,8 +38,6 @@ export interface Purchase {
   created_at: string;
 }
 
-export type HomeworkStatus = 'submitted' | 'approved' | 'rejected';
-
 export interface Homework {
   id: string;
   lesson_id: string;
@@ -57,27 +56,36 @@ export interface Database {
         Row: User;
         Insert: Omit<User, 'created_at'>;
         Update: Partial<Omit<User, 'id' | 'created_at'>>;
+        Relationships: [];
       };
       lessons: {
         Row: Lesson;
         Insert: Omit<Lesson, 'id' | 'created_at'>;
         Update: Partial<Omit<Lesson, 'id' | 'created_at'>>;
+        Relationships: [];
       };
       materials: {
         Row: Material;
         Insert: Omit<Material, 'id' | 'created_at'>;
         Update: Partial<Omit<Material, 'id' | 'created_at'>>;
+        Relationships: [];
       };
       purchases: {
         Row: Purchase;
         Insert: Omit<Purchase, 'id' | 'created_at'>;
         Update: Partial<Omit<Purchase, 'id' | 'created_at'>>;
+        Relationships: [];
       };
       homework: {
         Row: Homework;
         Insert: Omit<Homework, 'id' | 'created_at'>;
         Update: Partial<Omit<Homework, 'id' | 'created_at'>>;
+        Relationships: [];
       };
     };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
   };
 }
