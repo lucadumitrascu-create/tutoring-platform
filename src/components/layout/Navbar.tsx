@@ -39,6 +39,8 @@ export default function Navbar() {
     router.push('/');
   };
 
+  const isAdmin = user?.role === 'admin';
+
   return (
     <nav className="sticky top-0 z-50 bg-white border-b border-gray-200">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -63,6 +65,18 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  pathname.startsWith('/admin')
+                    ? 'bg-primary-50 text-primary-700'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                }`}
+              >
+                Admin Panel
+              </Link>
+            )}
           </div>
 
           {/* Right: User + logout */}
@@ -114,6 +128,19 @@ export default function Navbar() {
                   {link.label}
                 </Link>
               ))}
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  onClick={() => setMenuOpen(false)}
+                  className={`block px-3 py-2 rounded-lg text-sm font-medium ${
+                    pathname.startsWith('/admin')
+                      ? 'bg-primary-50 text-primary-700'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  Admin Panel
+                </Link>
+              )}
             </div>
             <div className="mt-3 pt-3 border-t border-gray-100 px-3">
               <p className="text-sm font-medium text-gray-900">{user?.full_name}</p>

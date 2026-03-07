@@ -17,6 +17,7 @@ export default function AdminHomeworkPage() {
   const [filter, setFilter] = useState<FilterStatus>('all');
   const [feedbackMap, setFeedbackMap] = useState<Record<string, string>>({});
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [error, setError] = useState('');
   const supabase = createClient();
 
   useEffect(() => {
@@ -24,39 +25,47 @@ export default function AdminHomeworkPage() {
   }, []);
 
   async function loadHomework() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data } = await (supabase as any)
-      .from('homework')
-      .select('*, student:users(*), lesson:lessons(*)')
-      .order('created_at', { ascending: false }) as { data: HomeworkWithDetails[] | null };
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data } = await (supabase as any)
+        .from('homework')
+        .select('*, student:users(*), lesson:lessons(*)')
+        .order('created_at', { ascending: false }) as { data: HomeworkWithDetails[] | null };
 
-    setHomeworkList(data ?? []);
+      setHomeworkList(data ?? []);
 
-    // Pre-fill feedback map
-    if (data) {
-      const map: Record<string, string> = {};
-      for (const hw of data) {
-        map[hw.id] = hw.feedback || '';
+      // Pre-fill feedback map
+      if (data) {
+        const map: Record<string, string> = {};
+        for (const hw of data) {
+          map[hw.id] = hw.feedback || '';
+        }
+        setFeedbackMap(map);
       }
-      setFeedbackMap(map);
+    } catch {
+      setError('Failed to load homework submissions.');
     }
-
     setLoading(false);
   }
 
   async function updateStatus(hw: HomeworkWithDetails, status: 'approved' | 'rejected') {
     setUpdatingId(hw.id);
+    setError('');
     const feedback = feedbackMap[hw.id]?.trim() || null;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any)
-      .from('homework')
-      .update({ status, feedback })
-      .eq('id', hw.id);
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase as any)
+        .from('homework')
+        .update({ status, feedback })
+        .eq('id', hw.id);
 
-    setHomeworkList((prev) =>
-      prev.map((h) => (h.id === hw.id ? { ...h, status, feedback } : h))
-    );
+      setHomeworkList((prev) =>
+        prev.map((h) => (h.id === hw.id ? { ...h, status, feedback } : h))
+      );
+    } catch {
+      setError('Failed to update homework status.');
+    }
     setUpdatingId(null);
   }
 
@@ -84,6 +93,9 @@ export default function AdminHomeworkPage() {
 
   return (
     <div>
+      {error && (
+        <div className="bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg mb-6">{error}</div>
+      )}
       <h1 className="text-2xl font-bold text-gray-900 mb-1">Homework Reviews</h1>
       <p className="text-gray-500 mb-6">Review, approve or reject student submissions.</p>
 

@@ -13,6 +13,7 @@ export default function AdminLessonsPage() {
   const [lessons, setLessons] = useState<LessonWithCount[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [error, setError] = useState('');
   const supabase = createClient();
 
   useEffect(() => {
@@ -20,21 +21,25 @@ export default function AdminLessonsPage() {
   }, []);
 
   async function loadLessons() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data } = await (supabase as any)
-      .from('lessons')
-      .select('*, purchases(count)')
-      .order('created_at', { ascending: false }) as {
-      data: (Lesson & { purchases: [{ count: number }] })[] | null;
-    };
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data } = await (supabase as any)
+        .from('lessons')
+        .select('*, purchases(count)')
+        .order('created_at', { ascending: false }) as {
+        data: (Lesson & { purchases: [{ count: number }] })[] | null;
+      };
 
-    if (data) {
-      setLessons(
-        data.map((l) => ({
-          ...l,
-          enrolledCount: l.purchases?.[0]?.count ?? 0,
-        }))
-      );
+      if (data) {
+        setLessons(
+          data.map((l) => ({
+            ...l,
+            enrolledCount: l.purchases?.[0]?.count ?? 0,
+          }))
+        );
+      }
+    } catch {
+      setError('Failed to load lessons.');
     }
     setLoading(false);
   }
@@ -46,17 +51,22 @@ export default function AdminLessonsPage() {
     if (!confirmed) return;
 
     setDeleting(lesson.id);
+    setError('');
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).from('materials').delete().eq('lesson_id', lesson.id);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).from('homework').delete().eq('lesson_id', lesson.id);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).from('purchases').delete().eq('lesson_id', lesson.id);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).from('lessons').delete().eq('id', lesson.id);
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase as any).from('materials').delete().eq('lesson_id', lesson.id);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase as any).from('homework').delete().eq('lesson_id', lesson.id);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase as any).from('purchases').delete().eq('lesson_id', lesson.id);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase as any).from('lessons').delete().eq('id', lesson.id);
 
-    setLessons((prev) => prev.filter((l) => l.id !== lesson.id));
+      setLessons((prev) => prev.filter((l) => l.id !== lesson.id));
+    } catch {
+      setError('Failed to delete lesson. Please try again.');
+    }
     setDeleting(null);
   }
 
@@ -73,6 +83,9 @@ export default function AdminLessonsPage() {
 
   return (
     <div>
+      {error && (
+        <div className="bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg mb-6">{error}</div>
+      )}
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 mb-1">Lessons</h1>

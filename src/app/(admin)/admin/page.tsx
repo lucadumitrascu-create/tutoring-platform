@@ -23,10 +23,12 @@ export default function AdminDashboardPage() {
   const [stats, setStats] = useState<Stats>({ totalLessons: 0, totalStudents: 0, pendingHomework: 0, totalRevenue: 0 });
   const [recentPurchases, setRecentPurchases] = useState<RecentPurchase[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const supabase = createClient();
 
   useEffect(() => {
     async function loadStats() {
+      try {
       const [lessons, students, homework] = await Promise.all([
         supabase.from('lessons').select('id', { count: 'exact', head: true }),
         supabase.from('users').select('id', { count: 'exact', head: true }).eq('role', 'student'),
@@ -58,6 +60,9 @@ export default function AdminDashboardPage() {
         totalRevenue,
       });
       setRecentPurchases(purchasesData ?? []);
+      } catch {
+        setError('Failed to load dashboard data.');
+      }
       setLoading(false);
     }
     loadStats();
@@ -114,10 +119,25 @@ export default function AdminDashboardPage() {
     },
   ];
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <svg className="animate-spin w-6 h-6 text-primary-600" viewBox="0 0 24 24" fill="none">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
+      </div>
+    );
+  }
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-gray-900 mb-1">Dashboard</h1>
       <p className="text-gray-500 mb-8">Overview of your tutoring platform.</p>
+
+      {error && (
+        <div className="bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg mb-6">{error}</div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">

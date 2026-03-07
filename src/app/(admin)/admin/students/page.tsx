@@ -13,47 +13,52 @@ export default function AdminStudentsPage() {
   const [students, setStudents] = useState<StudentWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [error, setError] = useState('');
   const supabase = createClient();
 
   useEffect(() => {
     async function loadStudents() {
-      // Get all students
-      const { data: users } = await supabase
-        .from('users')
-        .select('*')
-        .eq('role', 'student')
-        .order('created_at', { ascending: false }) as { data: User[] | null };
+      try {
+        // Get all students
+        const { data: users } = await supabase
+          .from('users')
+          .select('*')
+          .eq('role', 'student')
+          .order('created_at', { ascending: false }) as { data: User[] | null };
 
-      if (!users || users.length === 0) {
-        setLoading(false);
-        return;
+        if (!users || users.length === 0) {
+          setLoading(false);
+          return;
+        }
+
+        // Get all purchases with lessons
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: purchases } = await (supabase as any)
+          .from('purchases')
+          .select('user_id, lesson:lessons(*)') as {
+          data: { user_id: string; lesson: Lesson }[] | null;
+        };
+
+        // Get all homework
+        const { data: homework } = await supabase
+          .from('homework')
+          .select('*') as { data: Homework[] | null };
+
+        // Map data per student
+        const enriched: StudentWithDetails[] = users.map((u) => ({
+          ...u,
+          purchasedLessons: purchases
+            ? purchases.filter((p) => p.user_id === u.id).map((p) => p.lesson)
+            : [],
+          homeworkList: homework
+            ? homework.filter((h) => h.student_id === u.id)
+            : [],
+        }));
+
+        setStudents(enriched);
+      } catch {
+        setError('Failed to load students.');
       }
-
-      // Get all purchases with lessons
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: purchases } = await (supabase as any)
-        .from('purchases')
-        .select('user_id, lesson:lessons(*)') as {
-        data: { user_id: string; lesson: Lesson }[] | null;
-      };
-
-      // Get all homework
-      const { data: homework } = await supabase
-        .from('homework')
-        .select('*') as { data: Homework[] | null };
-
-      // Map data per student
-      const enriched: StudentWithDetails[] = users.map((u) => ({
-        ...u,
-        purchasedLessons: purchases
-          ? purchases.filter((p) => p.user_id === u.id).map((p) => p.lesson)
-          : [],
-        homeworkList: homework
-          ? homework.filter((h) => h.student_id === u.id)
-          : [],
-      }));
-
-      setStudents(enriched);
       setLoading(false);
     }
     loadStudents();
@@ -72,6 +77,9 @@ export default function AdminStudentsPage() {
 
   return (
     <div>
+      {error && (
+        <div className="bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg mb-6">{error}</div>
+      )}
       <h1 className="text-2xl font-bold text-gray-900 mb-1">Students</h1>
       <p className="text-gray-500 mb-8">View all registered students and their activity.</p>
 

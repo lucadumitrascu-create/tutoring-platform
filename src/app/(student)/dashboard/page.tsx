@@ -9,29 +9,34 @@ export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null);
   const [purchasedLessons, setPurchasedLessons] = useState<(Purchase & { lesson: Lesson })[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const supabase = createClient();
 
   useEffect(() => {
     async function loadData() {
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-      if (!authUser) return;
+      try {
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (!authUser) return;
 
-      const { data: profile } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', authUser.id)
-        .single() as { data: User | null };
+        const { data: profile } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', authUser.id)
+          .single() as { data: User | null };
 
-      setUser(profile);
+        setUser(profile);
 
-      // Fetch purchased lessons
-      const { data: purchases } = await supabase
-        .from('purchases')
-        .select('*, lesson:lessons(*)')
-        .eq('user_id', authUser.id)
-        .order('created_at', { ascending: false }) as { data: (Purchase & { lesson: Lesson })[] | null };
+        // Fetch purchased lessons
+        const { data: purchases } = await supabase
+          .from('purchases')
+          .select('*, lesson:lessons(*)')
+          .eq('user_id', authUser.id)
+          .order('created_at', { ascending: false }) as { data: (Purchase & { lesson: Lesson })[] | null };
 
-      setPurchasedLessons(purchases ?? []);
+        setPurchasedLessons(purchases ?? []);
+      } catch {
+        setError('Failed to load dashboard data.');
+      }
       setLoading(false);
     }
     loadData();
@@ -50,6 +55,9 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+      {error && (
+        <div className="bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg mb-6">{error}</div>
+      )}
       <h1 className="text-2xl font-bold text-gray-900 mb-1">
         Welcome back, {user?.full_name || 'Student'}!
       </h1>

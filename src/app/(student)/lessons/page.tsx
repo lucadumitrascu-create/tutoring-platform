@@ -9,31 +9,35 @@ export default function LessonsPage() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [purchasedIds, setPurchasedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const supabase = createClient();
 
   useEffect(() => {
     async function loadData() {
-      // Fetch all lessons
-      const { data: allLessons } = await supabase
-        .from('lessons')
-        .select('*')
-        .order('created_at', { ascending: false }) as { data: Lesson[] | null };
+      try {
+        // Fetch all lessons
+        const { data: allLessons } = await supabase
+          .from('lessons')
+          .select('*')
+          .order('created_at', { ascending: false }) as { data: Lesson[] | null };
 
-      setLessons(allLessons ?? []);
+        setLessons(allLessons ?? []);
 
-      // Fetch user's purchases
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: purchases } = await supabase
-          .from('purchases')
-          .select('lesson_id')
-          .eq('user_id', user.id) as { data: { lesson_id: string }[] | null };
+        // Fetch user's purchases
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: purchases } = await supabase
+            .from('purchases')
+            .select('lesson_id')
+            .eq('user_id', user.id) as { data: { lesson_id: string }[] | null };
 
-        if (purchases) {
-          setPurchasedIds(new Set(purchases.map((p) => p.lesson_id)));
+          if (purchases) {
+            setPurchasedIds(new Set(purchases.map((p) => p.lesson_id)));
+          }
         }
+      } catch {
+        setError('Failed to load lessons.');
       }
-
       setLoading(false);
     }
     loadData();
@@ -52,6 +56,9 @@ export default function LessonsPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+      {error && (
+        <div className="bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg mb-6">{error}</div>
+      )}
       <h1 className="text-2xl font-bold text-gray-900 mb-1">Available Lessons</h1>
       <p className="text-gray-500 mb-8">Browse and access all lessons.</p>
 
