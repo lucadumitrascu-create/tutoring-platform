@@ -25,10 +25,24 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresh the session
   const { data: { user } } = await supabase.auth.getUser();
-
   const path = request.nextUrl.pathname;
+
+  // Redirect logged-in users away from auth pages
+  if (path.startsWith('/auth/')) {
+    if (user) {
+      const { data: profile } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      const url = request.nextUrl.clone();
+      url.pathname = profile?.role === 'admin' ? '/admin' : '/dashboard';
+      return NextResponse.redirect(url);
+    }
+    return supabaseResponse;
+  }
 
   // Protected student routes
   if (path.startsWith('/dashboard') || path.startsWith('/lessons') || path.startsWith('/checkout')) {
@@ -47,7 +61,6 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    // Check role from users table
     const { data: profile } = await supabase
       .from('users')
       .select('role')
@@ -70,5 +83,6 @@ export const config = {
     '/lessons/:path*',
     '/checkout/:path*',
     '/admin/:path*',
+    '/auth/:path*',
   ],
 };
