@@ -9,6 +9,7 @@ import type { User } from '@/types/database';
 const studentLinks = [
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/groups', label: 'My Groups' },
+  { href: '/homework', label: 'Teme' },
   { href: '/profile', label: 'Profile' },
 ];
 
@@ -93,7 +94,7 @@ export default function Navbar() {
                 }`}
               >
                 {link.label}
-                {link.href === '/dashboard' && pendingAssignments > 0 && (
+                {(link.href === '/dashboard' || link.href === '/homework') && pendingAssignments > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1">
                     {pendingAssignments}
                   </span>
