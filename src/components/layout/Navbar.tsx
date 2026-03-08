@@ -6,9 +6,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import type { User } from '@/types/database';
 
-const studentLinks = [
-  { href: '/dashboard', label: 'Dashboard' },
-];
+const studentLinks: { href: string; label: string }[] = [];
 
 export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
