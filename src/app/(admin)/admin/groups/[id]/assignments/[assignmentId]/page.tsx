@@ -156,6 +156,7 @@ export default function ManageAssignmentPage() {
 
   async function handleSubmissionAction(subId: string, action: 'approved' | 'rejected') {
     setActionLoading(subId);
+    setError('');
     const feedback = feedbackMap[subId]?.trim() || null;
 
     let feedback_file_url: string | null = null;
@@ -170,9 +171,16 @@ export default function ManageAssignmentPage() {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).from('assignment_submissions').update({
+    const { error: updateError } = await (supabase as any).from('assignment_submissions').update({
       status: action, feedback, feedback_file_url, feedback_file_name,
     }).eq('id', subId);
+
+    if (updateError) {
+      console.error('Update failed:', updateError);
+      setError(`Failed to ${action}: ${updateError.message}`);
+      setActionLoading(null);
+      return;
+    }
 
     setFeedbackFiles((prev) => { const copy = { ...prev }; delete copy[subId]; return copy; });
     await loadSubmissions();
@@ -272,6 +280,7 @@ export default function ManageAssignmentPage() {
       {/* SUBMISSIONS TAB */}
       {tab === 'submissions' && (
         <div>
+          {error && <div className="bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg mb-4">{error}</div>}
           {submissions.length > 0 ? (
             <div className="space-y-4">
               {submissions.map((sub) => (
@@ -291,10 +300,19 @@ export default function ManageAssignmentPage() {
                     </span>
                   </div>
 
-                  <a href={sub.file_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-primary-600 hover:underline mb-3">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
-                    {sub.file_name}
-                  </a>
+                  {sub.file_url && (
+                    <a href={sub.file_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-primary-600 hover:underline mb-3">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
+                      {sub.file_name}
+                    </a>
+                  )}
+
+                  {(sub as any).text_answer && (
+                    <div className="bg-gray-50 rounded-lg px-4 py-3 mb-3">
+                      <p className="text-xs font-medium text-gray-500 mb-1">Text Answer</p>
+                      <p className="text-sm text-gray-700 whitespace-pre-wrap">{(sub as any).text_answer}</p>
+                    </div>
+                  )}
 
                   {(sub.feedback || sub.feedback_file_url) && (
                     <div className="bg-gray-50 rounded-lg px-4 py-3 mb-3">
