@@ -66,8 +66,9 @@ export interface AssignmentSubmission {
   id: string;
   assignment_id: string;
   student_id: string;
-  file_url: string;
-  file_name: string;
+  file_url: string | null;
+  file_name: string | null;
+  text_answer: string | null;
   status: SubmissionStatus;
   feedback: string | null;
   feedback_file_url: string | null;
