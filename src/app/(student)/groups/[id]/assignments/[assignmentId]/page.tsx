@@ -19,6 +19,8 @@ export default function StudentAssignmentPage() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [textAnswer, setTextAnswer] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -35,6 +37,7 @@ export default function StudentAssignmentPage() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: subData } = await (supabase as any).from('assignment_submissions').select('*').eq('assignment_id', assignmentId).eq('student_id', user.id).single() as { data: AssignmentSubmission | null };
         setSubmission(subData);
+        if (subData?.text_answer) setTextAnswer(subData.text_answer);
       }
 
       setLoading(false);
@@ -42,7 +45,12 @@ export default function StudentAssignmentPage() {
     load();
   }, [assignmentId]);
 
-  async function handleUpload(file: File) {
+  async function handleSubmit() {
+    if (!textAnswer.trim() && !selectedFile) {
+      setError('Please write an answer or attach a file.');
+      return;
+    }
+
     setUploading(true);
     setError('');
 
@@ -50,26 +58,39 @@ export default function StudentAssignmentPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setError('Not logged in.'); setUploading(false); return; }
 
-      const result = await uploadToBunny(file, `homework/${user.id}/${assignmentId}`);
-      if (!result) { setError('Upload failed.'); setUploading(false); return; }
-      const { url: fileUrl, fileName } = result;
+      let fileUrl: string | null = null;
+      let fileName: string | null = null;
+
+      if (selectedFile) {
+        const result = await uploadToBunny(selectedFile, `homework/${user.id}/${assignmentId}`);
+        if (!result) { setError('Upload failed.'); setUploading(false); return; }
+        fileUrl = result.url;
+        fileName = result.fileName;
+      }
 
       if (submission) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await (supabase as any).from('assignment_submissions').update({
-          file_url: fileUrl, file_name: fileName, status: 'submitted', feedback: null,
+          ...(fileUrl && { file_url: fileUrl, file_name: fileName }),
+          text_answer: textAnswer.trim() || null,
+          status: 'submitted',
+          feedback: null,
         }).eq('id', submission.id);
       } else {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await (supabase as any).from('assignment_submissions').insert({
-          assignment_id: assignmentId, student_id: user.id,
-          file_url: fileUrl, file_name: fileName,
+          assignment_id: assignmentId,
+          student_id: user.id,
+          file_url: fileUrl,
+          file_name: fileName,
+          text_answer: textAnswer.trim() || null,
         });
       }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: subData } = await (supabase as any).from('assignment_submissions').select('*').eq('assignment_id', assignmentId).eq('student_id', user.id).single() as { data: AssignmentSubmission | null };
       setSubmission(subData);
+      setSelectedFile(null);
     } catch {
       setError('Something went wrong.');
     }
@@ -171,11 +192,21 @@ export default function StudentAssignmentPage() {
         {submission ? (
           <div className="bg-white border border-gray-200 rounded-2xl p-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
-              <a href={submission.file_url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary-600 font-medium hover:underline flex items-center gap-2 min-h-[44px]">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
-                {submission.file_name}
-              </a>
-              <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${statusCfg.bg} ${statusCfg.text}`}>
+              <div className="flex-1 min-w-0">
+                {submission.file_url && (
+                  <a href={submission.file_url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary-600 font-medium hover:underline flex items-center gap-2 min-h-[44px]">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
+                    {submission.file_name}
+                  </a>
+                )}
+                {submission.text_answer && (
+                  <div className="bg-gray-50 rounded-lg px-4 py-3 mt-2">
+                    <p className="text-xs font-medium text-gray-500 mb-1">Your answer</p>
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{submission.text_answer}</p>
+                  </div>
+                )}
+              </div>
+              <span className={`text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0 ${statusCfg.bg} ${statusCfg.text}`}>
                 {statusCfg.label}
               </span>
             </div>
@@ -195,22 +226,52 @@ export default function StudentAssignmentPage() {
             )}
 
             {(submission.status === 'rejected' || submission.status === 'submitted') && (
-              <div className="mt-4">
+              <div className="mt-4 space-y-3">
+                <textarea
+                  value={textAnswer}
+                  onChange={(e) => setTextAnswer(e.target.value)}
+                  rows={3}
+                  placeholder="Write your answer or update it..."
+                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none resize-none"
+                />
                 <label className="flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-xl p-4 cursor-pointer hover:border-primary-300 hover:bg-primary-50/30 transition-colors min-h-[44px]">
-                  <input type="file" className="hidden" accept="image/*,application/pdf" onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])} disabled={uploading} />
+                  <input type="file" className="hidden" accept="image/*,application/pdf" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} disabled={uploading} />
                   <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
-                  <span className="text-sm text-gray-500">{uploading ? 'Uploading...' : 'Re-upload submission'}</span>
+                  <span className="text-sm text-gray-500">{selectedFile ? selectedFile.name : 'Attach file (optional)'}</span>
                 </label>
+                <button
+                  onClick={handleSubmit}
+                  disabled={uploading}
+                  className="bg-primary-600 text-white text-sm font-medium px-5 py-2.5 min-h-[44px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {uploading && <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>}
+                  {uploading ? 'Submitting...' : 'Re-submit'}
+                </button>
               </div>
             )}
           </div>
         ) : (
-          <div>
-            <label className="flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-xl p-8 cursor-pointer hover:border-primary-300 hover:bg-primary-50/30 transition-colors min-h-[44px]">
-              <input type="file" className="hidden" accept="image/*,application/pdf" onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])} disabled={uploading} />
+          <div className="space-y-3">
+            <textarea
+              value={textAnswer}
+              onChange={(e) => setTextAnswer(e.target.value)}
+              rows={4}
+              placeholder="Write your answer here..."
+              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none resize-none"
+            />
+            <label className="flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-xl p-6 cursor-pointer hover:border-primary-300 hover:bg-primary-50/30 transition-colors min-h-[44px]">
+              <input type="file" className="hidden" accept="image/*,application/pdf" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} disabled={uploading} />
               <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
-              <span className="text-sm text-gray-500">{uploading ? 'Uploading...' : 'Upload your solution'}</span>
+              <span className="text-sm text-gray-500">{selectedFile ? selectedFile.name : 'Attach file (optional)'}</span>
             </label>
+            <button
+              onClick={handleSubmit}
+              disabled={uploading}
+              className="bg-primary-600 text-white text-sm font-medium px-5 py-2.5 min-h-[44px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {uploading && <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>}
+              {uploading ? 'Submitting...' : 'Submit'}
+            </button>
           </div>
         )}
 
