@@ -80,7 +80,7 @@ export default function DashboardPage() {
           setGroups(userGroups.map((g) => ({ ...g, totalAssignments: 0, submittedAssignments: 0 })));
         }
       } catch {
-        setError('Failed to load dashboard data.');
+        setError('Nu s-au putut încărca datele.');
       }
       setLoading(false);
     }
@@ -131,7 +131,7 @@ export default function DashboardPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
             </svg>
           </div>
-          <span className="text-sm font-medium text-gray-900">Profile</span>
+          <span className="text-sm font-medium text-gray-900">Profil</span>
         </Link>
       </div>
 
@@ -168,7 +168,7 @@ export default function DashboardPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
                 </svg>
               </div>
-              <h2 className="text-sm font-semibold text-gray-900">Upcoming Meetings</h2>
+              <h2 className="text-sm font-semibold text-gray-900">Întâlniri viitoare</h2>
             </div>
             <div className="px-5 pb-4 space-y-2">
               {upcomingMeetings.map((m) => (
@@ -177,13 +177,13 @@ export default function DashboardPage() {
                     <p className="font-medium text-gray-900 text-sm">{m.title}</p>
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
                       <span className="text-xs text-primary-600 font-medium">{m.groupName}</span>
-                      <span className="text-xs text-gray-400">{new Date(m.scheduled_at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                      <span className="text-xs text-gray-400">{new Date(m.scheduled_at).toLocaleDateString('ro-RO', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                       <span className="text-xs font-medium bg-primary-50 text-primary-700 px-2 py-0.5 rounded-full">{getRelativeTime(m.scheduled_at)}</span>
                     </div>
                   </div>
                   <a href={m.meet_link} target="_blank" rel="noopener noreferrer"
                     className="bg-primary-600 text-white text-xs font-medium px-3.5 py-2 min-h-[36px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all flex items-center justify-center">
-                    Join
+                    Intră
                   </a>
                 </div>
               ))}
@@ -200,9 +200,9 @@ export default function DashboardPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
                 </svg>
               </div>
-              <h2 className="text-sm font-semibold text-gray-900">My Groups</h2>
+              <h2 className="text-sm font-semibold text-gray-900">Grupurile mele</h2>
             </div>
-            <Link href="/groups" className="text-xs text-primary-600 font-medium hover:underline">View all</Link>
+            <Link href="/groups" className="text-xs text-primary-600 font-medium hover:underline">Vezi toate</Link>
           </div>
           {groups.length > 0 ? (
             <div className="px-5 pb-5">
@@ -216,11 +216,11 @@ export default function DashboardPage() {
                       <div className={`h-1.5 ${color.bg}`} />
                       <div className="p-4">
                         <h3 className="font-semibold text-gray-900 text-sm mb-0.5">{group.name}</h3>
-                        <p className="text-xs text-gray-500 line-clamp-2 mb-3">{group.description || 'No description'}</p>
+                        <p className="text-xs text-gray-500 line-clamp-2 mb-3">{group.description || 'Fără descriere'}</p>
                         {group.totalAssignments > 0 && (
                           <div>
                             <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
-                              <span>Progress</span>
+                              <span>Progres</span>
                               <span>{group.submittedAssignments}/{group.totalAssignments}</span>
                             </div>
                             <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
@@ -238,8 +238,8 @@ export default function DashboardPage() {
             <div className="px-5 pb-5">
               <EmptyState
                 icon={<svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" /></svg>}
-                title="No groups yet"
-                description="Your teacher will add you to a group."
+                title="Niciun grup încă"
+                description="Profesorul tău te va adăuga într-un grup."
               />
             </div>
           )}

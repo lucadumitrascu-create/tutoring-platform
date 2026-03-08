@@ -51,7 +51,7 @@ export default function AdminDashboardPage() {
       });
       setPendingStudents(pendingData ?? []);
     } catch {
-      setError('Failed to load dashboard data.');
+      setError('Nu s-au putut încărca datele panoului.');
     }
     setLoading(false);
   }
@@ -69,19 +69,19 @@ export default function AdminDashboardPage() {
 
       if (!res.ok) {
         const data = await res.json();
-        setError(data.error || `Failed to ${action}.`);
+        setError(data.error || `Acțiunea ${action} a eșuat.`);
       } else {
         await loadStats();
       }
     } catch {
-      setError(`Failed to ${action}.`);
+      setError(`Acțiunea ${action} a eșuat.`);
     }
     setActionLoading(null);
   }
 
   const cards = [
     {
-      label: 'Total Groups',
+      label: 'Total grupuri',
       value: stats.totalGroups,
       href: '/admin/groups',
       color: 'bg-primary-100 text-primary-700',
@@ -92,7 +92,7 @@ export default function AdminDashboardPage() {
       ),
     },
     {
-      label: 'Students',
+      label: 'Elevi',
       value: stats.totalStudents,
       href: '/admin/students',
       color: 'bg-green-100 text-green-700',
@@ -103,7 +103,7 @@ export default function AdminDashboardPage() {
       ),
     },
     {
-      label: 'Pending Requests',
+      label: 'Cereri în așteptare',
       value: stats.pendingRequests,
       href: '/admin/students',
       color: 'bg-amber-100 text-amber-700',
@@ -114,7 +114,7 @@ export default function AdminDashboardPage() {
       ),
     },
     {
-      label: 'Pending Reviews',
+      label: 'Recenzii în așteptare',
       value: stats.pendingSubmissions,
       href: '/admin/groups',
       color: 'bg-emerald-100 text-emerald-700',
@@ -132,8 +132,8 @@ export default function AdminDashboardPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Dashboard</h1>
-      <p className="text-gray-500 mb-8">Overview of your tutoring platform.</p>
+      <h1 className="text-2xl font-bold text-gray-900 mb-1">Panou principal</h1>
+      <p className="text-gray-500 mb-8">Prezentare generală a platformei de meditații.</p>
 
       {error && (
         <div className="bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg mb-6">{error}</div>
@@ -157,36 +157,36 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Pending requests */}
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Pending Access Requests</h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">Cereri de acces în așteptare</h2>
       {pendingStudents.length > 0 ? (
         <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden mb-10">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100">
-                <th className="text-left font-medium text-gray-500 px-5 py-3">Student</th>
-                <th className="text-left font-medium text-gray-500 px-5 py-3 hidden sm:table-cell">Joined</th>
-                <th className="text-right font-medium text-gray-500 px-5 py-3">Actions</th>
+                <th className="text-left font-medium text-gray-500 px-5 py-3">Elev</th>
+                <th className="text-left font-medium text-gray-500 px-5 py-3 hidden sm:table-cell">Înscris</th>
+                <th className="text-right font-medium text-gray-500 px-5 py-3">Acțiuni</th>
               </tr>
             </thead>
             <tbody>
               {pendingStudents.map((student) => (
                 <tr key={student.id} className="border-b border-gray-50 last:border-0">
                   <td className="px-5 py-3">
-                    <p className="font-medium text-gray-900">{student.full_name || 'Unknown'}</p>
+                    <p className="font-medium text-gray-900">{student.full_name || 'Necunoscut'}</p>
                     <p className="text-xs text-gray-400">{student.email}</p>
                   </td>
                   <td className="px-5 py-3 text-gray-400 hidden sm:table-cell">
-                    {new Date(student.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    {new Date(student.created_at).toLocaleDateString('ro-RO', { month: 'short', day: 'numeric', year: 'numeric' })}
                   </td>
                   <td className="px-5 py-3 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <button onClick={() => handleAction(student.id, 'approve')} disabled={actionLoading !== null}
                         className="text-xs bg-green-600 text-white font-medium px-3.5 py-2 min-h-[36px] sm:min-h-0 rounded-md hover:bg-green-700 active:scale-95 transition-all disabled:opacity-50">
-                        {actionLoading === `${student.id}-approve` ? 'Approving...' : 'Approve'}
+                        {actionLoading === `${student.id}-approve` ? 'Se aprobă...' : 'Aprobă'}
                       </button>
                       <button onClick={() => handleAction(student.id, 'reject')} disabled={actionLoading !== null}
                         className="text-xs bg-red-600 text-white font-medium px-3.5 py-2 min-h-[36px] sm:min-h-0 rounded-md hover:bg-red-700 active:scale-95 transition-all disabled:opacity-50">
-                        {actionLoading === `${student.id}-reject` ? 'Rejecting...' : 'Reject'}
+                        {actionLoading === `${student.id}-reject` ? 'Se respinge...' : 'Respinge'}
                       </button>
                     </div>
                   </td>
@@ -197,20 +197,20 @@ export default function AdminDashboardPage() {
         </div>
       ) : (
         <div className="bg-white border border-gray-200 border-dashed rounded-2xl p-8 text-center mb-10">
-          <p className="text-gray-400">No pending requests.</p>
+          <p className="text-gray-400">Nu există cereri în așteptare.</p>
         </div>
       )}
 
       {/* Quick actions */}
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">Acțiuni rapide</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Link href="/admin/groups/new" className="bg-primary-600 text-white rounded-2xl p-6 hover:bg-primary-700 active:scale-[0.98] transition-all duration-200">
-          <h3 className="font-semibold mb-1">Create New Group</h3>
-          <p className="text-sm text-primary-200">Set up a new classroom for your students.</p>
+          <h3 className="font-semibold mb-1">Creează un grup nou</h3>
+          <p className="text-sm text-primary-200">Configurează o nouă clasă pentru elevii tăi.</p>
         </Link>
         <Link href="/admin/groups" className="bg-white border border-gray-200 hover:border-gray-300 rounded-2xl p-6 hover:shadow-md active:scale-[0.98] transition-all duration-200">
-          <h3 className="font-semibold text-gray-900 mb-1">Manage Groups</h3>
-          <p className="text-sm text-gray-500">View and manage all your classrooms.</p>
+          <h3 className="font-semibold text-gray-900 mb-1">Gestionează grupurile</h3>
+          <p className="text-sm text-gray-500">Vizualizează și gestionează toate clasele tale.</p>
         </Link>
       </div>
     </div>

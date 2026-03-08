@@ -16,7 +16,7 @@ export default function NewGroupPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim()) { setError('Name is required.'); return; }
+    if (!name.trim()) { setError('Numele este obligatoriu.'); return; }
     setSaving(true);
     setError('');
 
@@ -29,35 +29,35 @@ export default function NewGroupPage() {
         .single() as { data: Group | null; error: { message: string } | null };
 
       if (err || !group) {
-        setError(err?.message || 'Failed to create group.');
+        setError(err?.message || 'Nu s-a putut crea grupul.');
         setSaving(false);
         return;
       }
       router.push(`/admin/groups/${group.id}`);
     } catch {
-      setError('Something went wrong.');
+      setError('Ceva nu a funcționat.');
       setSaving(false);
     }
   }
 
   return (
     <div className="max-w-xl">
-      <Link href="/admin/groups" className="text-sm text-primary-600 hover:underline mb-6 inline-block">&larr; Back to groups</Link>
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Create New Group</h1>
-      <p className="text-gray-500 mb-8">Set up a new classroom for your students.</p>
+      <Link href="/admin/groups" className="text-sm text-primary-600 hover:underline mb-6 inline-block">&larr; Înapoi la grupuri</Link>
+      <h1 className="text-2xl font-bold text-gray-900 mb-1">Creează grup nou</h1>
+      <p className="text-gray-500 mb-8">Configurează o nouă clasă pentru elevii tăi.</p>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Group Name *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Nume grup *</label>
           <input type="text" value={name} onChange={(e) => setName(e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
             placeholder="e.g. Clasa 10A" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Descriere</label>
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3}
             className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none resize-none"
-            placeholder="Optional description..." />
+            placeholder="Descriere opțională..." />
         </div>
 
         {error && <div className="bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg">{error}</div>}
@@ -66,9 +66,9 @@ export default function NewGroupPage() {
           <button type="submit" disabled={saving}
             className="bg-primary-600 text-white font-medium px-6 py-3 min-h-[44px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all duration-150 disabled:opacity-50 flex items-center justify-center gap-2">
             {saving && <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>}
-            {saving ? 'Creating...' : 'Create Group'}
+            {saving ? 'Se creează...' : 'Creează grup'}
           </button>
-          <Link href="/admin/groups" className="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-3 min-h-[44px] flex items-center justify-center">Cancel</Link>
+          <Link href="/admin/groups" className="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-3 min-h-[44px] flex items-center justify-center">Anulează</Link>
         </div>
       </form>
     </div>

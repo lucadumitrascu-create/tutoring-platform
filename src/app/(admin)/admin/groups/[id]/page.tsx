@@ -74,7 +74,7 @@ export default function AdminGroupDetailPage() {
     setActionLoading(`add-${userId}`);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error: err } = await (supabase as any).from('group_members').insert({ group_id: id, user_id: userId });
-    if (err) { setError(err.code === '23505' ? 'Already a member.' : 'Failed to add member.'); }
+    if (err) { setError(err.code === '23505' ? 'Este deja membru.' : 'Nu s-a putut adăuga membrul.'); }
     else { await loadMembers(); }
     setActionLoading(null);
   }
@@ -88,7 +88,7 @@ export default function AdminGroupDetailPage() {
   }
 
   async function deletePost(postId: string) {
-    if (!window.confirm('Delete this post?')) return;
+    if (!window.confirm('Ștergi această postare?')) return;
     setActionLoading(`del-post-${postId}`);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (supabase as any).from('posts').delete().eq('id', postId);
@@ -97,7 +97,7 @@ export default function AdminGroupDetailPage() {
   }
 
   async function deleteAssignment(aId: string) {
-    if (!window.confirm('Delete this assignment and all submissions?')) return;
+    if (!window.confirm('Ștergi această temă și toate trimiterile?')) return;
     setActionLoading(`del-asgn-${aId}`);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (supabase as any).from('assignments').delete().eq('id', aId);
@@ -106,7 +106,7 @@ export default function AdminGroupDetailPage() {
   }
 
   async function deleteMeeting(mId: string) {
-    if (!window.confirm('Delete this meeting?')) return;
+    if (!window.confirm('Ștergi această întâlnire?')) return;
     setActionLoading(`del-meet-${mId}`);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (supabase as any).from('meetings').delete().eq('id', mId);
@@ -126,21 +126,21 @@ export default function AdminGroupDetailPage() {
     );
   }
 
-  if (!group) return <p className="text-gray-500 py-12 text-center">Group not found.</p>;
+  if (!group) return <p className="text-gray-500 py-12 text-center">Grupul nu a fost găsit.</p>;
 
   const memberIds = new Set(members.map((m) => m.user_id));
   const availableStudents = allStudents.filter((s) => !memberIds.has(s.id));
 
   const tabs: { key: Tab; label: string }[] = [
-    { key: 'posts', label: 'Posts' },
-    { key: 'assignments', label: 'Assignments' },
-    { key: 'meetings', label: 'Meetings' },
-    { key: 'members', label: `Members (${members.length})` },
+    { key: 'posts', label: 'Postări' },
+    { key: 'assignments', label: 'Teme' },
+    { key: 'meetings', label: 'Întâlniri' },
+    { key: 'members', label: `Membri (${members.length})` },
   ];
 
   return (
     <div>
-      <Link href="/admin/groups" className="text-sm text-primary-600 hover:underline mb-4 inline-block">&larr; Back to groups</Link>
+      <Link href="/admin/groups" className="text-sm text-primary-600 hover:underline mb-4 inline-block">&larr; Înapoi la grupuri</Link>
       {error && <div className="bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg mb-4">{error}</div>}
 
       <h1 className="text-2xl font-bold text-gray-900 mb-1">{group.name}</h1>
@@ -164,12 +164,12 @@ export default function AdminGroupDetailPage() {
         return (
           <div>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Lessons / Posts</h2>
-              <Link href={`/admin/groups/${id}/posts/new`} className="bg-primary-600 text-white text-sm font-medium px-4 py-2.5 min-h-[44px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all duration-150 flex items-center justify-center">New Post</Link>
+              <h2 className="text-lg font-semibold text-gray-900">Lecții / Postări</h2>
+              <Link href={`/admin/groups/${id}/posts/new`} className="bg-primary-600 text-white text-sm font-medium px-4 py-2.5 min-h-[44px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all duration-150 flex items-center justify-center">Postare nouă</Link>
             </div>
             {posts.length > 0 && (
               <div className="mb-4">
-                <SearchInput value={search} onChange={setSearch} placeholder="Search posts..." />
+                <SearchInput value={search} onChange={setSearch} placeholder="Caută postări..." />
               </div>
             )}
             {filteredPosts.length > 0 ? (
@@ -178,23 +178,23 @@ export default function AdminGroupDetailPage() {
                   <div key={post.id} className="bg-white border border-gray-200 hover:border-gray-300 rounded-2xl px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:shadow-sm transition-all duration-200">
                     <div>
                       <p className="font-medium text-gray-900">{post.title}</p>
-                      <p className="text-xs text-gray-400">{new Date(post.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                      <p className="text-xs text-gray-400">{new Date(post.created_at).toLocaleDateString('ro-RO', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Link href={`/admin/groups/${id}/posts/${post.id}/edit`} className="text-sm text-primary-600 font-medium hover:underline py-1.5 px-2">Edit</Link>
-                      <button onClick={() => deletePost(post.id)} disabled={actionLoading === `del-post-${post.id}`} className="text-sm text-red-500 font-medium hover:underline disabled:opacity-50 py-1.5 px-2">Delete</button>
+                      <Link href={`/admin/groups/${id}/posts/${post.id}/edit`} className="text-sm text-primary-600 font-medium hover:underline py-1.5 px-2">Editează</Link>
+                      <button onClick={() => deletePost(post.id)} disabled={actionLoading === `del-post-${post.id}`} className="text-sm text-red-500 font-medium hover:underline disabled:opacity-50 py-1.5 px-2">Șterge</button>
                     </div>
                   </div>
                 ))}
               </div>
             ) : posts.length > 0 ? (
-              <p className="text-gray-400 text-sm text-center py-8">No results for &ldquo;{search}&rdquo;</p>
+              <p className="text-gray-400 text-sm text-center py-8">Niciun rezultat pentru &ldquo;{search}&rdquo;</p>
             ) : (
               <EmptyState
                 icon={<svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" /></svg>}
-                title="No posts yet"
-                description="Create your first post for this group."
-                action={<Link href={`/admin/groups/${id}/posts/new`} className="inline-block bg-primary-600 text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-primary-700 active:scale-95 transition-all">New Post</Link>}
+                title="Încă nu există postări"
+                description="Creează prima postare pentru acest grup."
+                action={<Link href={`/admin/groups/${id}/posts/new`} className="inline-block bg-primary-600 text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-primary-700 active:scale-95 transition-all">Postare nouă</Link>}
               />
             )}
           </div>
@@ -205,8 +205,8 @@ export default function AdminGroupDetailPage() {
       {tab === 'assignments' && (
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Assignments</h2>
-            <Link href={`/admin/groups/${id}/assignments/new`} className="bg-primary-600 text-white text-sm font-medium px-4 py-2.5 min-h-[44px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all duration-150 flex items-center">New Assignment</Link>
+            <h2 className="text-lg font-semibold text-gray-900">Teme</h2>
+            <Link href={`/admin/groups/${id}/assignments/new`} className="bg-primary-600 text-white text-sm font-medium px-4 py-2.5 min-h-[44px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all duration-150 flex items-center">Temă nouă</Link>
           </div>
           {assignments.length > 0 ? (
             <div className="space-y-2">
@@ -215,13 +215,13 @@ export default function AdminGroupDetailPage() {
                   <div>
                     <p className="font-medium text-gray-900">{a.title}</p>
                     <div className="flex items-center gap-3 mt-1">
-                      {a.deadline && <span className="text-xs text-gray-400">Due: {new Date(a.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>}
-                      <span className="text-xs text-primary-600">{a.submissionCount} submission{a.submissionCount !== 1 ? 's' : ''}</span>
+                      {a.deadline && <span className="text-xs text-gray-400">Termen: {new Date(a.deadline).toLocaleDateString('ro-RO', { month: 'short', day: 'numeric' })}</span>}
+                      <span className="text-xs text-primary-600">{a.submissionCount} {a.submissionCount !== 1 ? 'trimiteri' : 'trimitere'}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Link href={`/admin/groups/${id}/assignments/${a.id}`} className="text-sm text-primary-600 font-medium hover:underline py-1.5 px-2">Manage</Link>
-                    <button onClick={() => deleteAssignment(a.id)} disabled={actionLoading === `del-asgn-${a.id}`} className="text-sm text-red-500 font-medium hover:underline disabled:opacity-50 py-1.5 px-2">Delete</button>
+                    <Link href={`/admin/groups/${id}/assignments/${a.id}`} className="text-sm text-primary-600 font-medium hover:underline py-1.5 px-2">Gestionează</Link>
+                    <button onClick={() => deleteAssignment(a.id)} disabled={actionLoading === `del-asgn-${a.id}`} className="text-sm text-red-500 font-medium hover:underline disabled:opacity-50 py-1.5 px-2">Șterge</button>
                   </div>
                 </div>
               ))}
@@ -229,8 +229,8 @@ export default function AdminGroupDetailPage() {
           ) : (
             <EmptyState
               icon={<svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" /></svg>}
-              title="No assignments yet"
-              action={<Link href={`/admin/groups/${id}/assignments/new`} className="inline-block bg-primary-600 text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-primary-700 active:scale-95 transition-all">New Assignment</Link>}
+              title="Încă nu există teme"
+              action={<Link href={`/admin/groups/${id}/assignments/new`} className="inline-block bg-primary-600 text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-primary-700 active:scale-95 transition-all">Temă nouă</Link>}
             />
           )}
         </div>
@@ -240,8 +240,8 @@ export default function AdminGroupDetailPage() {
       {tab === 'meetings' && (
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Meetings</h2>
-            <Link href={`/admin/groups/${id}/meetings/new`} className="bg-primary-600 text-white text-sm font-medium px-4 py-2.5 min-h-[44px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all duration-150 flex items-center">Schedule Meeting</Link>
+            <h2 className="text-lg font-semibold text-gray-900">Întâlniri</h2>
+            <Link href={`/admin/groups/${id}/meetings/new`} className="bg-primary-600 text-white text-sm font-medium px-4 py-2.5 min-h-[44px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all duration-150 flex items-center">Programează întâlnire</Link>
           </div>
           {meetings.length > 0 ? (
             <div className="space-y-2">
@@ -252,13 +252,13 @@ export default function AdminGroupDetailPage() {
                     <div>
                       <div className="flex items-center gap-2">
                         <p className="font-medium text-gray-900">{m.title}</p>
-                        {isPast && <span className="text-[10px] font-semibold bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Past</span>}
+                        {isPast && <span className="text-[10px] font-semibold bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Trecut</span>}
                       </div>
-                      <p className="text-xs text-gray-400 mt-1">{new Date(m.scheduled_at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                      <p className="text-xs text-gray-400 mt-1">{new Date(m.scheduled_at).toLocaleDateString('ro-RO', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                     </div>
                     <div className="flex items-center gap-3">
-                      <a href={m.meet_link} target="_blank" rel="noopener noreferrer" className="text-sm text-primary-600 font-medium hover:underline py-1.5 px-2">Join</a>
-                      <button onClick={() => deleteMeeting(m.id)} disabled={actionLoading === `del-meet-${m.id}`} className="text-sm text-red-500 font-medium hover:underline disabled:opacity-50 py-1.5 px-2">Delete</button>
+                      <a href={m.meet_link} target="_blank" rel="noopener noreferrer" className="text-sm text-primary-600 font-medium hover:underline py-1.5 px-2">Intră</a>
+                      <button onClick={() => deleteMeeting(m.id)} disabled={actionLoading === `del-meet-${m.id}`} className="text-sm text-red-500 font-medium hover:underline disabled:opacity-50 py-1.5 px-2">Șterge</button>
                     </div>
                   </div>
                 );
@@ -267,8 +267,8 @@ export default function AdminGroupDetailPage() {
           ) : (
             <EmptyState
               icon={<svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>}
-              title="No meetings scheduled"
-              action={<Link href={`/admin/groups/${id}/meetings/new`} className="inline-block bg-primary-600 text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-primary-700 active:scale-95 transition-all">Schedule Meeting</Link>}
+              title="Nicio întâlnire programată"
+              action={<Link href={`/admin/groups/${id}/meetings/new`} className="inline-block bg-primary-600 text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-primary-700 active:scale-95 transition-all">Programează întâlnire</Link>}
             />
           )}
         </div>
@@ -277,7 +277,7 @@ export default function AdminGroupDetailPage() {
       {/* MEMBERS TAB */}
       {tab === 'members' && (
         <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Members</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Membri</h2>
 
           {/* Current members */}
           {members.length > 0 ? (
@@ -293,16 +293,16 @@ export default function AdminGroupDetailPage() {
                       <p className="text-xs text-gray-400">{m.user?.email}</p>
                     </div>
                   </div>
-                  <button onClick={() => removeMember(m.id)} disabled={actionLoading === `rm-${m.id}`} className="text-xs text-red-500 font-medium hover:underline disabled:opacity-50 py-1.5 px-2 min-h-[36px]">Remove</button>
+                  <button onClick={() => removeMember(m.id)} disabled={actionLoading === `rm-${m.id}`} className="text-xs text-red-500 font-medium hover:underline disabled:opacity-50 py-1.5 px-2 min-h-[36px]">Elimină</button>
                 </div>
               ))}
             </div>
-          ) : <p className="text-gray-400 text-sm mb-6">No members yet.</p>}
+          ) : <p className="text-gray-400 text-sm mb-6">Încă nu există membri.</p>}
 
           {/* Add members */}
           {availableStudents.length > 0 && (
             <div>
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Add Students</h3>
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Adaugă elevi</h3>
               <div className="space-y-1.5">
                 {availableStudents.map((s) => (
                   <div key={s.id} className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3.5 border border-gray-100 hover:border-gray-200 transition-all duration-200">
@@ -316,7 +316,7 @@ export default function AdminGroupDetailPage() {
                       </div>
                     </div>
                     <button onClick={() => addMember(s.id)} disabled={actionLoading === `add-${s.id}`} className="text-xs bg-primary-600 text-white font-medium px-3.5 py-2 min-h-[36px] rounded-md hover:bg-primary-700 active:scale-95 transition-all disabled:opacity-50">
-                      {actionLoading === `add-${s.id}` ? 'Adding...' : 'Add'}
+                      {actionLoading === `add-${s.id}` ? 'Se adaugă...' : 'Adaugă'}
                     </button>
                   </div>
                 ))}

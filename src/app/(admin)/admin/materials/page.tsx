@@ -36,20 +36,20 @@ export default function MaterialsPage() {
         })));
       }
     } catch {
-      setError('Failed to load categories.');
+      setError('Nu s-au putut încărca categoriile.');
     }
     setLoading(false);
   }
 
   async function handleDelete(cat: CategoryWithCount) {
-    if (!window.confirm(`Delete "${cat.name}" and all its files?`)) return;
+    if (!window.confirm(`Ștergi "${cat.name}" și toate fișierele sale?`)) return;
     setDeleting(cat.id);
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase as any).from('material_categories').delete().eq('id', cat.id);
       setCategories((prev) => prev.filter((c) => c.id !== cat.id));
     } catch {
-      setError('Failed to delete category.');
+      setError('Nu s-a putut șterge categoria.');
     }
     setDeleting(null);
   }
@@ -71,14 +71,14 @@ export default function MaterialsPage() {
       {error && <div className="bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg mb-6">{error}</div>}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">Materials</h1>
-          <p className="text-gray-500">Organize your content library by category.</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">Materiale</h1>
+          <p className="text-gray-500">Organizează biblioteca de conținut pe categorii.</p>
         </div>
         <Link href="/admin/materials/new" className="bg-primary-600 text-white text-sm font-medium px-5 py-2.5 min-h-[44px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all duration-150 flex items-center justify-center gap-2">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
-          New Category
+          Categorie nouă
         </Link>
       </div>
 
@@ -92,13 +92,13 @@ export default function MaterialsPage() {
                 </svg>
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-1">{cat.name}</h3>
-              <p className="text-sm text-gray-500 line-clamp-2 mb-4 flex-1">{cat.description || 'No description'}</p>
+              <p className="text-sm text-gray-500 line-clamp-2 mb-4 flex-1">{cat.description || 'Fără descriere'}</p>
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-400">{cat.itemCount} file{cat.itemCount !== 1 ? 's' : ''}</span>
+                <span className="text-xs text-gray-400">{cat.itemCount} {cat.itemCount !== 1 ? 'fișiere' : 'fișier'}</span>
                 <div className="flex items-center gap-2">
-                  <Link href={`/admin/materials/${cat.id}`} className="text-sm text-primary-600 font-medium hover:underline">Manage</Link>
+                  <Link href={`/admin/materials/${cat.id}`} className="text-sm text-primary-600 font-medium hover:underline">Gestionează</Link>
                   <button onClick={() => handleDelete(cat)} disabled={deleting === cat.id} className="text-sm text-red-500 font-medium hover:underline disabled:opacity-50">
-                    {deleting === cat.id ? 'Deleting...' : 'Delete'}
+                    {deleting === cat.id ? 'Se șterge...' : 'Șterge'}
                   </button>
                 </div>
               </div>
@@ -110,9 +110,9 @@ export default function MaterialsPage() {
           <svg className="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
           </svg>
-          <p className="text-gray-400 text-lg mb-2">No categories yet</p>
+          <p className="text-gray-400 text-lg mb-2">Încă nu există categorii</p>
           <Link href="/admin/materials/new" className="inline-block bg-primary-600 text-white text-sm font-medium px-6 py-2.5 min-h-[44px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all duration-150">
-            Create First Category
+            Creează prima categorie
           </Link>
         </div>
       )}

@@ -112,7 +112,7 @@ export default function ManageAssignmentPage() {
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
-    if (!title.trim()) { setError('Title is required.'); return; }
+    if (!title.trim()) { setError('Titlul este obligatoriu.'); return; }
     setSaving(true);
     setError('');
 
@@ -143,13 +143,13 @@ export default function ManageAssignmentPage() {
           });
           setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, uploading: false, progress: 100, done: true } : pf));
         } else {
-          setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, uploading: false, error: 'Upload failed' } : pf));
+          setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, uploading: false, error: 'Încărcare eșuată' } : pf));
         }
       }
 
       router.push(`/admin/groups/${groupId}`);
     } catch {
-      setError('Something went wrong.');
+      setError('Ceva nu a funcționat.');
       setSaving(false);
     }
   }
@@ -177,7 +177,7 @@ export default function ManageAssignmentPage() {
 
     if (updateError) {
       console.error('Update failed:', updateError);
-      setError(`Failed to ${action}: ${updateError.message}`);
+      setError(`Acțiunea ${action} a eșuat: ${updateError.message}`);
       setActionLoading(null);
       return;
     }
@@ -205,12 +205,12 @@ export default function ManageAssignmentPage() {
 
   return (
     <div className="max-w-4xl">
-      <Link href={`/admin/groups/${groupId}`} className="text-sm text-primary-600 hover:underline mb-6 inline-block">&larr; Back to group</Link>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Manage Assignment</h1>
+      <Link href={`/admin/groups/${groupId}`} className="text-sm text-primary-600 hover:underline mb-6 inline-block">&larr; Înapoi la grup</Link>
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">Gestionează tema</h1>
 
       {/* Tabs */}
       <div className="flex gap-1 bg-gray-100 rounded-lg p-1 mb-6 overflow-x-auto scrollbar-hide">
-        {([{ key: 'details', label: 'Details' }, { key: 'submissions', label: `Submissions (${submissions.length})` }] as { key: ViewTab; label: string }[]).map((t) => (
+        {([{ key: 'details', label: 'Detalii' }, { key: 'submissions', label: `Trimiteri (${submissions.length})` }] as { key: ViewTab; label: string }[]).map((t) => (
           <button key={t.key} onClick={() => setTab(t.key)}
             className={`px-4 py-2.5 min-h-[44px] text-sm font-medium rounded-md whitespace-nowrap flex-shrink-0 transition-all duration-150 active:scale-95 ${tab === t.key ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
             {t.label}
@@ -222,35 +222,35 @@ export default function ManageAssignmentPage() {
       {tab === 'details' && (
         <form onSubmit={handleSave} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Title *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Titlu *</label>
             <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Descriere</label>
             <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none resize-none" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Deadline</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Termen limită</label>
             {deadline ? (
               <div className="flex items-center gap-2">
                 <input type="datetime-local" value={deadline} onChange={(e) => setDeadline(e.target.value)}
                   className="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" />
                 <button type="button" onClick={() => setDeadline('')}
                   className="text-sm text-gray-400 hover:text-red-500 px-3 py-2.5 min-h-[44px] rounded-lg hover:bg-gray-100 transition-colors flex-shrink-0"
-                  title="Remove deadline">
+                  title="Elimină termenul limită">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
               </div>
             ) : (
               <button type="button" onClick={() => setDeadline(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16))}
                 className="w-full border-2 border-dashed border-gray-200 rounded-lg px-4 py-3 text-sm text-gray-400 hover:border-primary-300 hover:text-primary-600 transition-colors text-left">
-                No deadline — click to add one
+                Fără deadline — click pentru a adăuga
               </button>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Requirement Files</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Fișiere cerință</label>
             {files.length > 0 && (
               <div className="space-y-2 mb-4">
                 {files.map((f, idx) => (
@@ -261,9 +261,9 @@ export default function ManageAssignmentPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-gray-700 truncate">{f.fileName}</p>
-                      {f.isExisting && <p className="text-xs text-gray-400 mt-0.5">Existing</p>}
+                      {f.isExisting && <p className="text-xs text-gray-400 mt-0.5">Existent</p>}
                       {f.uploading && <div className="mt-1.5 h-1.5 bg-gray-200 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full" style={{ width: `${f.progress}%` }} /></div>}
-                      {!f.isExisting && f.done && <p className="text-xs text-green-600 mt-0.5">Uploaded</p>}
+                      {!f.isExisting && f.done && <p className="text-xs text-green-600 mt-0.5">Încărcat</p>}
                       {f.error && <p className="text-xs text-red-500 mt-0.5">{f.error}</p>}
                     </div>
                     <button type="button" onClick={() => removeFile(f)} className="text-gray-400 hover:text-red-500 flex-shrink-0">
@@ -276,7 +276,7 @@ export default function ManageAssignmentPage() {
             <label className="flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-lg p-6 cursor-pointer hover:border-primary-300 hover:bg-primary-50/30 transition-colors">
               <input type="file" multiple className="hidden" accept="image/*,application/pdf,video/*" onChange={(e) => addFiles(e.target.files)} />
               <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
-              <span className="text-sm text-gray-500">Click to add files</span>
+              <span className="text-sm text-gray-500">Click pentru a adăuga fișiere</span>
             </label>
           </div>
 
@@ -285,9 +285,9 @@ export default function ManageAssignmentPage() {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
             <button type="submit" disabled={saving} className="bg-primary-600 text-white font-medium px-6 py-3 min-h-[44px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all duration-150 disabled:opacity-50 flex items-center justify-center gap-2">
               {saving && <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>}
-              {saving ? 'Saving...' : 'Save Changes'}
+              {saving ? 'Se salvează...' : 'Salvează'}
             </button>
-            <Link href={`/admin/groups/${groupId}`} className="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-3 min-h-[44px] flex items-center justify-center">Cancel</Link>
+            <Link href={`/admin/groups/${groupId}`} className="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-3 min-h-[44px] flex items-center justify-center">Anulează</Link>
           </div>
         </form>
       )}
@@ -307,7 +307,7 @@ export default function ManageAssignmentPage() {
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-900">{sub.student?.full_name}</p>
-                        <p className="text-xs text-gray-400">{new Date(sub.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                        <p className="text-xs text-gray-400">{new Date(sub.created_at).toLocaleDateString('ro-RO', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                       </div>
                     </div>
                     <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${statusColors[sub.status] || ''}`}>
@@ -324,7 +324,7 @@ export default function ManageAssignmentPage() {
 
                   {(sub as any).text_answer && (
                     <div className="bg-gray-50 rounded-lg px-4 py-3 mb-3">
-                      <p className="text-xs font-medium text-gray-500 mb-1">Text Answer</p>
+                      <p className="text-xs font-medium text-gray-500 mb-1">Răspuns text</p>
                       <p className="text-sm text-gray-700 whitespace-pre-wrap">{(sub as any).text_answer}</p>
                     </div>
                   )}
@@ -336,7 +336,7 @@ export default function ManageAssignmentPage() {
                       {sub.feedback_file_url && (
                         <a href={sub.feedback_file_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-primary-600 hover:underline mt-1">
                           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" /></svg>
-                          {sub.feedback_file_name || 'Attached file'}
+                          {sub.feedback_file_name || 'Fișier atașat'}
                         </a>
                       )}
                     </div>
@@ -348,7 +348,7 @@ export default function ManageAssignmentPage() {
                         value={feedbackMap[sub.id] || ''}
                         onChange={(e) => setFeedbackMap((prev) => ({ ...prev, [sub.id]: e.target.value }))}
                         rows={2}
-                        placeholder="Optional feedback..."
+                        placeholder="Feedback opțional..."
                         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none resize-none"
                       />
                       <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-500 hover:text-gray-700 transition-colors">
@@ -357,16 +357,16 @@ export default function ManageAssignmentPage() {
                           setFeedbackFiles((prev) => ({ ...prev, [sub.id]: file }));
                         }} />
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" /></svg>
-                        {feedbackFiles[sub.id] ? feedbackFiles[sub.id]!.name : 'Attach file'}
+                        {feedbackFiles[sub.id] ? feedbackFiles[sub.id]!.name : 'Atașează fișier'}
                       </label>
                       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                         <button onClick={() => handleSubmissionAction(sub.id, 'approved')} disabled={actionLoading === sub.id}
                           className="bg-green-600 text-white text-sm font-medium px-4 py-2.5 min-h-[44px] rounded-lg hover:bg-green-700 active:scale-95 transition-all disabled:opacity-50">
-                          {actionLoading === sub.id ? '...' : 'Approve'}
+                          {actionLoading === sub.id ? '...' : 'Aprobă'}
                         </button>
                         <button onClick={() => handleSubmissionAction(sub.id, 'rejected')} disabled={actionLoading === sub.id}
                           className="bg-red-500 text-white text-sm font-medium px-4 py-2.5 min-h-[44px] rounded-lg hover:bg-red-600 active:scale-95 transition-all disabled:opacity-50">
-                          {actionLoading === sub.id ? '...' : 'Reject'}
+                          {actionLoading === sub.id ? '...' : 'Respinge'}
                         </button>
                       </div>
                     </div>
@@ -375,7 +375,7 @@ export default function ManageAssignmentPage() {
               ))}
             </div>
           ) : (
-            <p className="text-gray-400 text-sm">No submissions yet.</p>
+            <p className="text-gray-400 text-sm">Încă nu există trimiteri.</p>
           )}
         </div>
       )}

@@ -8,10 +8,10 @@ import { SkeletonTable } from '@/components/ui/Skeleton';
 type FilterTab = 'all' | 'pending' | 'approved' | 'none';
 
 const statusConfig: Record<AccessStatus, { label: string; bg: string; text: string }> = {
-  none: { label: 'No Access', bg: 'bg-gray-100', text: 'text-gray-700' },
-  pending: { label: 'Pending', bg: 'bg-amber-100', text: 'text-amber-700' },
-  approved: { label: 'Active', bg: 'bg-green-100', text: 'text-green-700' },
-  rejected: { label: 'Rejected', bg: 'bg-red-100', text: 'text-red-700' },
+  none: { label: 'Fără acces', bg: 'bg-gray-100', text: 'text-gray-700' },
+  pending: { label: 'În așteptare', bg: 'bg-amber-100', text: 'text-amber-700' },
+  approved: { label: 'Activ', bg: 'bg-green-100', text: 'text-green-700' },
+  rejected: { label: 'Respins', bg: 'bg-red-100', text: 'text-red-700' },
 };
 
 export default function AdminStudentsPage() {
@@ -42,7 +42,7 @@ export default function AdminStudentsPage() {
 
       setStudents(users ?? []);
     } catch {
-      setError('Failed to load students.');
+      setError('Nu s-au putut încărca elevii.');
     }
     setLoading(false);
   }
@@ -83,12 +83,12 @@ export default function AdminStudentsPage() {
 
       if (!res.ok) {
         const data = await res.json();
-        setError(data.error || `Failed to ${action}.`);
+        setError(data.error || `Acțiunea ${action} a eșuat.`);
       } else {
         await loadStudents();
       }
     } catch {
-      setError(`Failed to ${action}.`);
+      setError(`Acțiunea ${action} a eșuat.`);
     }
     setActionLoading(null);
   }
@@ -133,12 +133,12 @@ export default function AdminStudentsPage() {
       }
 
       const group = groups.find((g) => g.id === groupId);
-      setSuccessMsg(`${ids.length} student${ids.length > 1 ? 's' : ''} added to ${group?.name || 'group'}.`);
+      setSuccessMsg(`${ids.length} ${ids.length > 1 ? 'elevi adăugați' : 'elev adăugat'} la ${group?.name || 'grup'}.`);
       setTimeout(() => setSuccessMsg(''), 3000);
       setSelectedStudents(new Set());
       setShowGroupPicker(false);
     } catch {
-      setError('Failed to add students to group.');
+      setError('Nu s-au putut adăuga elevii la grup.');
     }
     setAddingToGroup(null);
   }
@@ -157,7 +157,7 @@ export default function AdminStudentsPage() {
 
   const tabs: { key: FilterTab; label: string; count: number; icon: React.ReactNode }[] = [
     {
-      key: 'all', label: 'All', count: students.length,
+      key: 'all', label: 'Toți', count: students.length,
       icon: (
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
@@ -165,7 +165,7 @@ export default function AdminStudentsPage() {
       ),
     },
     {
-      key: 'pending', label: 'Pending', count: pendingCount,
+      key: 'pending', label: 'În așteptare', count: pendingCount,
       icon: (
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -173,7 +173,7 @@ export default function AdminStudentsPage() {
       ),
     },
     {
-      key: 'approved', label: 'Active', count: activeCount,
+      key: 'approved', label: 'Activ', count: activeCount,
       icon: (
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -181,7 +181,7 @@ export default function AdminStudentsPage() {
       ),
     },
     {
-      key: 'none', label: 'No Access', count: noAccessCount,
+      key: 'none', label: 'Fără acces', count: noAccessCount,
       icon: (
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -208,8 +208,8 @@ export default function AdminStudentsPage() {
       {successMsg && (
         <div className="bg-green-50 text-green-700 text-sm px-4 py-3 rounded-lg mb-6">{successMsg}</div>
       )}
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Students</h1>
-      <p className="text-gray-500 mb-6">Manage student access to the platform.</p>
+      <h1 className="text-2xl font-bold text-gray-900 mb-1">Elevi</h1>
+      <p className="text-gray-500 mb-6">Gestionează accesul elevilor la platformă.</p>
 
       {/* Filter icons */}
       <div className="flex gap-2 mb-6">
@@ -247,10 +247,10 @@ export default function AdminStudentsPage() {
                       className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer" />
                   )}
                 </th>
-                <th className="text-left font-medium text-gray-500 px-5 py-3">Student</th>
+                <th className="text-left font-medium text-gray-500 px-5 py-3">Elev</th>
                 <th className="text-left font-medium text-gray-500 px-5 py-3 hidden sm:table-cell">Status</th>
-                <th className="text-left font-medium text-gray-500 px-5 py-3 hidden md:table-cell">Joined</th>
-                <th className="text-right font-medium text-gray-500 px-5 py-3">Actions</th>
+                <th className="text-left font-medium text-gray-500 px-5 py-3 hidden md:table-cell">Înscris</th>
+                <th className="text-right font-medium text-gray-500 px-5 py-3">Acțiuni</th>
               </tr>
             </thead>
             <tbody>
@@ -286,7 +286,7 @@ export default function AdminStudentsPage() {
                       </span>
                     </td>
                     <td className="px-5 py-4 text-gray-400 hidden md:table-cell">
-                      {new Date(student.created_at).toLocaleDateString('en-US', {
+                      {new Date(student.created_at).toLocaleDateString('ro-RO', {
                         month: 'short',
                         day: 'numeric',
                         year: 'numeric',
@@ -301,14 +301,14 @@ export default function AdminStudentsPage() {
                               disabled={isLoading}
                               className="text-xs bg-green-600 text-white font-medium px-3.5 py-2 min-h-[36px] rounded-md hover:bg-green-700 active:scale-95 transition-all disabled:opacity-50"
                             >
-                              {actionLoading === `${student.id}-approve` ? 'Approving...' : 'Approve'}
+                              {actionLoading === `${student.id}-approve` ? 'Se aprobă...' : 'Aprobă'}
                             </button>
                             <button
                               onClick={() => handleAction(student.id, 'reject')}
                               disabled={isLoading}
                               className="text-xs bg-red-600 text-white font-medium px-3.5 py-2 min-h-[36px] rounded-md hover:bg-red-700 active:scale-95 transition-all disabled:opacity-50"
                             >
-                              {actionLoading === `${student.id}-reject` ? 'Rejecting...' : 'Reject'}
+                              {actionLoading === `${student.id}-reject` ? 'Se respinge...' : 'Respinge'}
                             </button>
                           </>
                         )}
@@ -318,7 +318,7 @@ export default function AdminStudentsPage() {
                             disabled={isLoading}
                             className="text-xs text-red-500 font-medium hover:underline py-2 px-2 min-h-[36px] disabled:opacity-50"
                           >
-                            {actionLoading === `${student.id}-revoke` ? 'Revoking...' : 'Revoke'}
+                            {actionLoading === `${student.id}-revoke` ? 'Se revocă...' : 'Revocă'}
                           </button>
                         )}
                         {(student.access_status === 'none' || student.access_status === 'rejected') && (
@@ -327,7 +327,7 @@ export default function AdminStudentsPage() {
                             disabled={isLoading}
                             className="text-xs bg-primary-600 text-white font-medium px-3.5 py-2 min-h-[36px] rounded-md hover:bg-primary-700 active:scale-95 transition-all disabled:opacity-50"
                           >
-                            {actionLoading === `${student.id}-grant` ? 'Granting...' : 'Grant Access'}
+                            {actionLoading === `${student.id}-grant` ? 'Se acordă...' : 'Acordă acces'}
                           </button>
                         )}
                       </div>
@@ -344,7 +344,7 @@ export default function AdminStudentsPage() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
           </svg>
           <p className="text-gray-400 text-lg">
-            {filter === 'all' ? 'No students registered yet.' : `No ${tabs.find(t => t.key === filter)?.label.toLowerCase()} students.`}
+            {filter === 'all' ? 'Încă nu sunt elevi înregistrați.' : `Niciun elev ${tabs.find(t => t.key === filter)?.label.toLowerCase()}.`}
           </p>
         </div>
       )}
@@ -353,12 +353,12 @@ export default function AdminStudentsPage() {
       {selectedStudents.size > 0 && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
           <div className="bg-gray-900 text-white rounded-2xl shadow-2xl px-6 py-3.5 flex items-center gap-4">
-            <span className="text-sm font-medium">{selectedStudents.size} selected</span>
+            <span className="text-sm font-medium">{selectedStudents.size} {selectedStudents.size > 1 ? 'selectați' : 'selectat'}</span>
             <div className="w-px h-5 bg-gray-700" />
             <div className="relative">
               <button onClick={() => setShowGroupPicker(!showGroupPicker)}
                 className="bg-primary-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-primary-700 active:scale-95 transition-all">
-                Add to Group
+                Adaugă la grup
               </button>
               {showGroupPicker && (
                 <div className="absolute bottom-full mb-2 right-0 w-64 bg-white border border-gray-200 rounded-xl shadow-xl p-2 max-h-64 overflow-y-auto">
@@ -371,7 +371,7 @@ export default function AdminStudentsPage() {
                       )}
                     </button>
                   )) : (
-                    <p className="text-sm text-gray-400 px-3 py-2">No groups yet.</p>
+                    <p className="text-sm text-gray-400 px-3 py-2">Încă nu există grupuri.</p>
                   )}
                 </div>
               )}

@@ -52,10 +52,10 @@ export default function ProfilePage() {
   }, []);
 
   const accessStatusMap: Record<string, { label: string; bg: string; text: string }> = {
-    approved: { label: 'Active', bg: 'bg-green-100', text: 'text-green-700' },
-    pending: { label: 'Pending', bg: 'bg-amber-100', text: 'text-amber-700' },
-    none: { label: 'No Access', bg: 'bg-gray-100', text: 'text-gray-700' },
-    rejected: { label: 'Rejected', bg: 'bg-red-100', text: 'text-red-700' },
+    approved: { label: 'Activ', bg: 'bg-green-100', text: 'text-green-700' },
+    pending: { label: 'În așteptare', bg: 'bg-amber-100', text: 'text-amber-700' },
+    none: { label: 'Fără acces', bg: 'bg-gray-100', text: 'text-gray-700' },
+    rejected: { label: 'Respins', bg: 'bg-red-100', text: 'text-red-700' },
   };
 
   if (loading) {
@@ -82,14 +82,14 @@ export default function ProfilePage() {
   const statusCfg = accessStatusMap[user.access_status] || accessStatusMap.none;
 
   const statItems = [
-    { label: 'Groups', value: stats.groupsEnrolled },
-    { label: 'Submissions', value: stats.assignmentsSubmitted },
-    { label: 'Lessons Read', value: stats.postsRead },
+    { label: 'Grupuri', value: stats.groupsEnrolled },
+    { label: 'Teme trimise', value: stats.assignmentsSubmitted },
+    { label: 'Lecții citite', value: stats.postsRead },
   ];
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold text-gray-900 mb-8">Profile</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-8">Profil</h1>
 
       <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
         {/* User info */}
@@ -119,19 +119,19 @@ export default function ProfilePage() {
           {/* Account details */}
           <div className="space-y-3">
             <div className="flex items-center justify-between py-2">
-              <span className="text-sm text-gray-500">Status</span>
+              <span className="text-sm text-gray-500">Stare</span>
               <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${statusCfg.bg} ${statusCfg.text}`}>
                 {statusCfg.label}
               </span>
             </div>
             <div className="flex items-center justify-between py-2 border-t border-gray-100">
-              <span className="text-sm text-gray-500">Role</span>
-              <span className="text-sm text-gray-900 capitalize">{user.role}</span>
+              <span className="text-sm text-gray-500">Rol</span>
+              <span className="text-sm text-gray-900 capitalize">{user.role === 'student' ? 'Elev' : user.role === 'admin' ? 'Administrator' : user.role}</span>
             </div>
             <div className="flex items-center justify-between py-2 border-t border-gray-100">
-              <span className="text-sm text-gray-500">Joined</span>
+              <span className="text-sm text-gray-500">Înscris</span>
               <span className="text-sm text-gray-900">
-                {new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                {new Date(user.created_at).toLocaleDateString('ro-RO', { month: 'long', day: 'numeric', year: 'numeric' })}
               </span>
             </div>
           </div>

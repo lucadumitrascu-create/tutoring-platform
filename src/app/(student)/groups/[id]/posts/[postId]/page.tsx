@@ -65,17 +65,17 @@ export default function StudentPostDetailPage() {
     );
   }
 
-  if (!post) return <p className="text-gray-500 py-12 text-center">Post not found.</p>;
+  if (!post) return <p className="text-gray-500 py-12 text-center">Postarea nu a fost găsită.</p>;
 
   return (
     <div className="max-w-4xl">
       <Link href={`/groups/${groupId}`} className="text-sm text-primary-600 hover:underline mb-6 inline-flex items-center gap-1 py-1">
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
-        Back to group
+        Înapoi la grup
       </Link>
 
       <h1 className="text-2xl font-bold text-gray-900 mb-2">{post.title}</h1>
-      <p className="text-xs text-gray-400 mb-6">{new Date(post.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+      <p className="text-xs text-gray-400 mb-6">{new Date(post.created_at).toLocaleDateString('ro-RO', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
 
       {post.description && <p className="text-gray-600 mb-8 whitespace-pre-wrap">{post.description}</p>}
 
@@ -107,8 +107,8 @@ export default function StudentPostDetailPage() {
                   <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-t border-gray-200">
                     <p className="text-sm text-gray-700">{f.file_name}</p>
                     <div className="flex items-center gap-3">
-                      <button onClick={() => openPreview(f)} className="text-sm text-primary-600 font-medium hover:underline">Fullscreen</button>
-                      <a href={f.file_url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary-600 font-medium hover:underline">Open in new tab</a>
+                      <button onClick={() => openPreview(f)} className="text-sm text-primary-600 font-medium hover:underline">Ecran complet</button>
+                      <a href={f.file_url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary-600 font-medium hover:underline">Deschide în tab nou</a>
                     </div>
                   </div>
                 </div>

@@ -137,7 +137,7 @@ export default function NewPostPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!title.trim()) { setError('Title is required.'); return; }
+    if (!title.trim()) { setError('Titlul este obligatoriu.'); return; }
     setSaving(true);
     setError('');
 
@@ -148,7 +148,7 @@ export default function NewPostPage() {
         .insert({ group_id: groupId, title: title.trim(), description: description.trim() })
         .select().single() as { data: Post | null; error: { message: string } | null };
 
-      if (postErr || !post) { setError(postErr?.message || 'Failed to create post.'); setSaving(false); return; }
+      if (postErr || !post) { setError(postErr?.message || 'Nu s-a putut crea postarea.'); setSaving(false); return; }
 
       for (let i = 0; i < files.length; i++) {
         const f = files[i];
@@ -172,14 +172,14 @@ export default function NewPostPage() {
             });
             setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, uploading: false, progress: 100, done: true } : pf));
           } else {
-            setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, uploading: false, error: 'Upload failed' } : pf));
+            setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, uploading: false, error: 'Încărcare eșuată' } : pf));
           }
         }
       }
 
       router.push(`/admin/groups/${groupId}`);
     } catch {
-      setError('Something went wrong.');
+      setError('Ceva nu a funcționat.');
       setSaving(false);
     }
   }
@@ -193,28 +193,28 @@ export default function NewPostPage() {
 
   return (
     <div className="max-w-3xl">
-      <Link href={`/admin/groups/${groupId}`} className="text-sm text-primary-600 hover:underline mb-6 inline-block">&larr; Back to group</Link>
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">New Post</h1>
-      <p className="text-gray-500 mb-8">Create a lesson or content post for this group.</p>
+      <Link href={`/admin/groups/${groupId}`} className="text-sm text-primary-600 hover:underline mb-6 inline-block">&larr; Înapoi la grup</Link>
+      <h1 className="text-2xl font-bold text-gray-900 mb-1">Postare nouă</h1>
+      <p className="text-gray-500 mb-8">Creează o lecție sau postare de conținut pentru acest grup.</p>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Title *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Titlu *</label>
           <input type="text" value={title} onChange={(e) => setTitle(e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
-            placeholder="e.g. Introducere în algebră" />
+            placeholder="ex. Introducere în algebră" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Descriere</label>
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4}
             className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none resize-none"
-            placeholder="Describe the lesson content..." />
+            placeholder="Descrie conținutul lecției..." />
         </div>
 
         {/* Files */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Files</label>
-          <p className="text-xs text-gray-400 mb-3">Upload files or pick from your materials library.</p>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Fișiere</label>
+          <p className="text-xs text-gray-400 mb-3">Încarcă fișiere sau alege din biblioteca de materiale.</p>
 
           {files.length > 0 && (
             <div className="space-y-2 mb-4">
@@ -231,9 +231,9 @@ export default function NewPostPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-gray-700 truncate">{f.fileName}</p>
-                    {f.source === 'library' && <p className="text-xs text-primary-500 mt-0.5">From library</p>}
+                    {f.source === 'library' && <p className="text-xs text-primary-500 mt-0.5">Din bibliotecă</p>}
                     {f.uploading && <div className="mt-1.5 h-1.5 bg-gray-200 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full transition-all" style={{ width: `${f.progress}%` }} /></div>}
-                    {f.source !== 'library' && f.done && <p className="text-xs text-green-600 mt-0.5">Uploaded</p>}
+                    {f.source !== 'library' && f.done && <p className="text-xs text-green-600 mt-0.5">Încărcat</p>}
                     {f.error && <p className="text-xs text-red-500 mt-0.5">{f.error}</p>}
                   </div>
                   <span className="text-[10px] font-medium text-gray-400 uppercase flex-shrink-0">
@@ -253,13 +253,13 @@ export default function NewPostPage() {
             <label className="flex-1 flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-lg p-6 min-h-[44px] cursor-pointer hover:border-primary-300 hover:bg-primary-50/30 active:scale-[0.98] transition-all duration-150">
               <input type="file" multiple className="hidden" accept="image/*,application/pdf,video/*" onChange={(e) => addFiles(e.target.files)} />
               <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
-              <span className="text-sm text-gray-500">Upload files</span>
+              <span className="text-sm text-gray-500">Încarcă fișiere</span>
             </label>
             {categories.length > 0 && (
               <button type="button" onClick={() => setShowLibrary(!showLibrary)}
                 className={`flex-1 flex items-center justify-center gap-2 border-2 border-dashed rounded-lg p-6 min-h-[44px] active:scale-[0.98] transition-all duration-150 ${showLibrary ? 'border-primary-400 bg-primary-50/50' : 'border-gray-200 hover:border-primary-300 hover:bg-primary-50/30'}`}>
                 <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" /></svg>
-                <span className="text-sm text-gray-500">From library</span>
+                <span className="text-sm text-gray-500">Din bibliotecă</span>
               </button>
             )}
           </div>
@@ -267,7 +267,7 @@ export default function NewPostPage() {
           {/* Library picker */}
           {showLibrary && (
             <div className="mt-3 bg-white border border-gray-200 rounded-2xl p-4">
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Choose a category</p>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Alege o categorie</p>
               <div className="space-y-1.5">
                 {categories.map((cat) => (
                   <div key={cat.id}>
@@ -275,7 +275,7 @@ export default function NewPostPage() {
                       className={`w-full text-left flex items-center justify-between rounded-xl px-4 py-3.5 min-h-[44px] border active:scale-[0.98] transition-all duration-150 disabled:opacity-50 ${expandedCategory === cat.id ? 'bg-primary-50 border-primary-200' : 'bg-gray-50 border-gray-100 hover:bg-primary-50 hover:border-primary-200'}`}>
                       <div>
                         <p className="text-sm font-medium text-gray-900">{cat.name}</p>
-                        <p className="text-xs text-gray-400">{cat.itemCount} file{cat.itemCount !== 1 ? 's' : ''}</p>
+                        <p className="text-xs text-gray-400">{cat.itemCount} {cat.itemCount !== 1 ? 'fișiere' : 'fișier'}</p>
                       </div>
                       {loadingCategory === cat.id ? (
                         <svg className="animate-spin w-4 h-4 text-primary-600" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
@@ -297,7 +297,7 @@ export default function NewPostPage() {
                         ))}
                         <button type="button" onClick={addSelectedItems} disabled={selectedItems.size === 0}
                           className="mt-2 w-full bg-primary-600 text-white text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-primary-700 active:scale-95 transition-all disabled:opacity-50">
-                          Add selected ({selectedItems.size})
+                          Adaugă selecția ({selectedItems.size})
                         </button>
                       </div>
                     )}
@@ -314,9 +314,9 @@ export default function NewPostPage() {
           <button type="submit" disabled={saving}
             className="bg-primary-600 text-white font-medium px-6 py-3 min-h-[44px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all duration-150 disabled:opacity-50 flex items-center justify-center gap-2">
             {saving && <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>}
-            {saving ? 'Creating...' : 'Create Post'}
+            {saving ? 'Se creează...' : 'Creează postare'}
           </button>
-          <Link href={`/admin/groups/${groupId}`} className="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-3 min-h-[44px] flex items-center justify-center">Cancel</Link>
+          <Link href={`/admin/groups/${groupId}`} className="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-3 min-h-[44px] flex items-center justify-center">Anulează</Link>
         </div>
       </form>
     </div>

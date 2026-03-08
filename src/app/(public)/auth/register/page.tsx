@@ -6,9 +6,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 const errorMessages: Record<string, string> = {
-  'User already registered': 'An account with this email already exists.',
-  'Password should be at least 6 characters': 'Password must be at least 6 characters.',
-  'Unable to validate email address: invalid format': 'Please enter a valid email address.',
+  'User already registered': 'Un cont cu acest email există deja.',
+  'Password should be at least 6 characters': 'Parola trebuie să aibă cel puțin 6 caractere.',
+  'Unable to validate email address: invalid format': 'Introdu o adresă de email validă.',
 };
 
 function friendlyError(msg: string): string {
@@ -31,12 +31,12 @@ export default function RegisterPage() {
     setError('');
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+      setError('Parolele nu se potrivesc.');
       return;
     }
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
+      setError('Parola trebuie să aibă cel puțin 6 caractere.');
       return;
     }
 
@@ -75,13 +75,13 @@ export default function RegisterPage() {
       <div className="flex-1 flex items-center justify-center px-4 pb-12">
         <div className="w-full max-w-md">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">Create your account</h1>
-            <p className="text-gray-500 mb-8">Start your learning journey today.</p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">Creează-ți contul</h1>
+            <p className="text-gray-500 mb-8">Începe-ți călătoria de învățare astăzi.</p>
 
             <form onSubmit={handleRegister} className="space-y-5">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Full Name
+                  Nume complet
                 </label>
                 <input
                   type="text"
@@ -89,7 +89,7 @@ export default function RegisterPage() {
                   onChange={(e) => setFullName(e.target.value)}
                   required
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-gray-900 placeholder:text-gray-400"
-                  placeholder="John Doe"
+                  placeholder="Ion Popescu"
                 />
               </div>
 
@@ -109,7 +109,7 @@ export default function RegisterPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Password
+                  Parolă
                 </label>
                 <div className="relative">
                   <input
@@ -119,7 +119,7 @@ export default function RegisterPage() {
                     required
                     minLength={6}
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-gray-900 placeholder:text-gray-400 pr-12"
-                    placeholder="Min. 6 characters"
+                    placeholder="Min. 6 caractere"
                   />
                   <button
                     type="button"
@@ -142,7 +142,7 @@ export default function RegisterPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Confirm Password
+                  Confirmă parola
                 </label>
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -150,7 +150,7 @@ export default function RegisterPage() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-gray-900 placeholder:text-gray-400"
-                  placeholder="Repeat your password"
+                  placeholder="Repetă parola"
                 />
               </div>
 
@@ -174,19 +174,19 @@ export default function RegisterPage() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
-                    Creating account...
+                    Se creează contul...
                   </span>
                 ) : (
-                  'Create Account'
+                  'Creează cont'
                 )}
               </button>
             </form>
 
             <div className="mt-6 pt-6 border-t border-gray-100 text-center">
               <p className="text-sm text-gray-500">
-                Already have an account?{' '}
+                Ai deja un cont?{' '}
                 <Link href="/auth/login" className="text-primary-600 font-medium hover:underline">
-                  Log in
+                  Autentifică-te
                 </Link>
               </p>
             </div>

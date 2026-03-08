@@ -18,9 +18,9 @@ export default function NewMeetingPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!title.trim()) { setError('Title is required.'); return; }
-    if (!meetLink.trim()) { setError('Meet link is required.'); return; }
-    if (!scheduledAt) { setError('Date & time is required.'); return; }
+    if (!title.trim()) { setError('Titlul este obligatoriu.'); return; }
+    if (!meetLink.trim()) { setError('Link-ul Meet este obligatoriu.'); return; }
+    if (!scheduledAt) { setError('Data și ora sunt obligatorii.'); return; }
     setSaving(true);
     setError('');
 
@@ -30,35 +30,35 @@ export default function NewMeetingPage() {
         .from('meetings')
         .insert({ group_id: groupId, title: title.trim(), meet_link: meetLink.trim(), scheduled_at: scheduledAt });
 
-      if (err) { setError(err.message || 'Failed to schedule meeting.'); setSaving(false); return; }
+      if (err) { setError(err.message || 'Nu s-a putut programa întâlnirea.'); setSaving(false); return; }
       router.push(`/admin/groups/${groupId}`);
     } catch {
-      setError('Something went wrong.');
+      setError('Ceva nu a funcționat.');
       setSaving(false);
     }
   }
 
   return (
     <div className="max-w-xl">
-      <Link href={`/admin/groups/${groupId}`} className="text-sm text-primary-600 hover:underline mb-6 inline-block">&larr; Back to group</Link>
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Schedule Meeting</h1>
-      <p className="text-gray-500 mb-8">Set up a Google Meet session for this group.</p>
+      <Link href={`/admin/groups/${groupId}`} className="text-sm text-primary-600 hover:underline mb-6 inline-block">&larr; Înapoi la grup</Link>
+      <h1 className="text-2xl font-bold text-gray-900 mb-1">Programează întâlnire</h1>
+      <p className="text-gray-500 mb-8">Configurează o sesiune Google Meet pentru acest grup.</p>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Title *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Titlu *</label>
           <input type="text" value={title} onChange={(e) => setTitle(e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
-            placeholder="e.g. Pregătire test Capitolul 5" />
+            placeholder="ex. Pregătire test Capitolul 5" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Google Meet Link *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Link Google Meet *</label>
           <input type="url" value={meetLink} onChange={(e) => setMeetLink(e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
             placeholder="https://meet.google.com/abc-defg-hij" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Date & Time *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Data și ora *</label>
           <input type="datetime-local" value={scheduledAt} onChange={(e) => setScheduledAt(e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" />
         </div>
@@ -69,9 +69,9 @@ export default function NewMeetingPage() {
           <button type="submit" disabled={saving}
             className="bg-primary-600 text-white font-medium px-6 py-3 min-h-[44px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all duration-150 disabled:opacity-50 flex items-center justify-center gap-2">
             {saving && <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>}
-            {saving ? 'Scheduling...' : 'Schedule Meeting'}
+            {saving ? 'Se programează...' : 'Programează întâlnire'}
           </button>
-          <Link href={`/admin/groups/${groupId}`} className="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-3 min-h-[44px] flex items-center justify-center">Cancel</Link>
+          <Link href={`/admin/groups/${groupId}`} className="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-3 min-h-[44px] flex items-center justify-center">Anulează</Link>
         </div>
       </form>
     </div>

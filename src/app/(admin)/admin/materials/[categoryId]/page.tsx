@@ -142,14 +142,14 @@ export default function CategoryDetailPage() {
           }).select().single() as { data: MaterialItem | null };
           setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, uploading: false, progress: 100, done: true, isExisting: true, dbId: inserted?.id, fileUrl: result.url, fileName: saveName, displayName: saveName } : pf));
         } else {
-          setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, uploading: false, error: 'Upload failed' } : pf));
+          setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, uploading: false, error: 'Încărcare eșuată' } : pf));
         }
       }
 
-      setSuccessMsg('Saved!');
+      setSuccessMsg('Salvat!');
       setTimeout(() => setSuccessMsg(''), 2000);
     } catch {
-      setError('Something went wrong.');
+      setError('Ceva nu a funcționat.');
     }
     setSaving(false);
   }
@@ -165,7 +165,7 @@ export default function CategoryDetailPage() {
       const { data: items } = await (supabase as any).from('material_items').select('*').eq('category_id', categoryId).order('sort_order') as { data: MaterialItem[] | null };
 
       if (!items || items.length === 0) {
-        setError('No files to send. Upload files first.');
+        setError('Nu există fișiere de trimis. Încarcă fișiere mai întâi.');
         setSendingTo(null);
         return;
       }
@@ -178,7 +178,7 @@ export default function CategoryDetailPage() {
         .select().single() as { data: Post | null; error: { message: string } | null };
 
       if (postErr || !post) {
-        setError(postErr?.message || 'Failed to create post.');
+        setError(postErr?.message || 'Nu s-a putut crea postarea.');
         setSendingTo(null);
         return;
       }
@@ -195,7 +195,7 @@ export default function CategoryDetailPage() {
       setShowGroupPicker(false);
       router.push(`/admin/groups/${groupId}`);
     } catch {
-      setError('Something went wrong.');
+      setError('Ceva nu a funcționat.');
       setSendingTo(null);
     }
   }
@@ -215,7 +215,7 @@ export default function CategoryDetailPage() {
 
   return (
     <div className="max-w-3xl">
-      <Link href="/admin/materials" className="text-sm text-primary-600 hover:underline mb-6 inline-block">&larr; Back to materials</Link>
+      <Link href="/admin/materials" className="text-sm text-primary-600 hover:underline mb-6 inline-block">&larr; Înapoi la materiale</Link>
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
@@ -228,7 +228,7 @@ export default function CategoryDetailPage() {
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
             </svg>
-            Send to Group
+            Trimite la grup
           </button>
         )}
       </div>
@@ -236,7 +236,7 @@ export default function CategoryDetailPage() {
       {/* Group Picker */}
       {showGroupPicker && (
         <div className="bg-white border border-gray-200 rounded-2xl p-5 mb-6">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">Choose a group to send this content to:</h3>
+          <h3 className="text-sm font-semibold text-gray-700 mb-3">Alege un grup pentru a trimite acest conținut:</h3>
           {groups.length > 0 ? (
             <div className="space-y-2">
               {groups.map((g) => (
@@ -255,7 +255,7 @@ export default function CategoryDetailPage() {
               ))}
             </div>
           ) : (
-            <p className="text-gray-400 text-sm">No groups created yet. Create a group first.</p>
+            <p className="text-gray-400 text-sm">Încă nu există grupuri. Creează mai întâi un grup.</p>
           )}
         </div>
       )}
@@ -266,7 +266,7 @@ export default function CategoryDetailPage() {
       {/* Files */}
       <div className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Files</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Fișiere</label>
           {files.length > 0 && (
             <div className="space-y-2 mb-4">
               {files.map((f, idx) => (
@@ -294,17 +294,17 @@ export default function CategoryDetailPage() {
                           autoFocus
                           className="flex-1 text-sm text-gray-700 bg-white border border-gray-200 rounded px-2 py-1 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                         />
-                        <button type="button" onClick={() => saveExistingName(f)} className="text-xs text-primary-600 font-medium hover:underline">Save</button>
-                        <button type="button" onClick={() => setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, displayName: f.fileName, editingName: false } : pf))} className="text-xs text-gray-400 hover:text-gray-600">Cancel</button>
+                        <button type="button" onClick={() => saveExistingName(f)} className="text-xs text-primary-600 font-medium hover:underline">Salvează</button>
+                        <button type="button" onClick={() => setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, displayName: f.fileName, editingName: false } : pf))} className="text-xs text-gray-400 hover:text-gray-600">Anulează</button>
                       </div>
                     ) : (
                       <p className="text-sm text-gray-700 truncate cursor-pointer hover:text-primary-600" onClick={() => setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, editingName: true } : pf))}>
                         {f.displayName}
                       </p>
                     )}
-                    {f.isExisting && !f.editingName && <p className="text-xs text-gray-400 mt-0.5">Saved — click name to rename</p>}
+                    {f.isExisting && !f.editingName && <p className="text-xs text-gray-400 mt-0.5">Salvat — click pe nume pentru a redenumi</p>}
                     {f.uploading && <div className="mt-1.5 h-1.5 bg-gray-200 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full" style={{ width: `${f.progress}%` }} /></div>}
-                    {!f.isExisting && f.done && <p className="text-xs text-green-600 mt-0.5">Uploaded</p>}
+                    {!f.isExisting && f.done && <p className="text-xs text-green-600 mt-0.5">Încărcat</p>}
                     {f.error && <p className="text-xs text-red-500 mt-0.5">{f.error}</p>}
                   </div>
                   <button type="button" onClick={() => removeFile(f)} className="text-gray-400 hover:text-red-500 flex-shrink-0">
@@ -317,7 +317,7 @@ export default function CategoryDetailPage() {
           <label className="flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-lg p-6 cursor-pointer hover:border-primary-300 hover:bg-primary-50/30 transition-colors">
             <input type="file" multiple className="hidden" accept="image/*,application/pdf,video/*" onChange={(e) => addFiles(e.target.files)} />
             <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
-            <span className="text-sm text-gray-500">Click to add files</span>
+            <span className="text-sm text-gray-500">Click pentru a adăuga fișiere</span>
           </label>
         </div>
 
@@ -325,9 +325,9 @@ export default function CategoryDetailPage() {
           <button onClick={handleSave} disabled={saving}
             className="bg-primary-600 text-white font-medium px-6 py-3 min-h-[44px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all duration-150 disabled:opacity-50 flex items-center justify-center gap-2">
             {saving && <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>}
-            {saving ? 'Saving...' : 'Save'}
+            {saving ? 'Se salvează...' : 'Salvează'}
           </button>
-          <Link href="/admin/materials" className="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-3 min-h-[44px] flex items-center justify-center">Back</Link>
+          <Link href="/admin/materials" className="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-3 min-h-[44px] flex items-center justify-center">Înapoi</Link>
         </div>
       </div>
     </div>

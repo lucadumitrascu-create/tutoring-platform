@@ -7,9 +7,9 @@ import Link from 'next/link';
 type LoginType = 'student' | 'admin';
 
 const errorMessages: Record<string, string> = {
-  'Invalid login credentials': 'Incorrect email or password. Please try again.',
-  'Email not confirmed': 'Please check your email and confirm your account first.',
-  'Too many requests': 'Too many attempts. Please wait a moment and try again.',
+  'Invalid login credentials': 'Email sau parolă incorectă. Încearcă din nou.',
+  'Email not confirmed': 'Verifică-ți emailul și confirmă-ți contul mai întâi.',
+  'Too many requests': 'Prea multe încercări. Așteaptă un moment și încearcă din nou.',
 };
 
 function friendlyError(msg: string): string {
@@ -72,8 +72,8 @@ export default function LoginPage() {
       <div className="flex-1 flex items-center justify-center px-4 pb-12">
         <div className="w-full max-w-md">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">Welcome back</h1>
-            <p className="text-gray-500 mb-6">Log in to access your account.</p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">Bine ai revenit</h1>
+            <p className="text-gray-500 mb-6">Autentifică-te pentru a accesa contul tău.</p>
 
             {/* Login type tabs */}
             <div className="flex bg-gray-100 rounded-lg p-1 mb-8">
@@ -86,7 +86,7 @@ export default function LoginPage() {
                     : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
-                Student
+                Elev
               </button>
               <button
                 type="button"
@@ -118,7 +118,7 @@ export default function LoginPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Password
+                  Parolă
                 </label>
                 <div className="relative">
                   <input
@@ -127,7 +127,7 @@ export default function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-gray-900 placeholder:text-gray-400 pr-12"
-                    placeholder="Your password"
+                    placeholder="Parola ta"
                   />
                   <button
                     type="button"
@@ -168,10 +168,10 @@ export default function LoginPage() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
-                    Logging in...
+                    Se autentifică...
                   </span>
                 ) : (
-                  loginType === 'admin' ? 'Log In as Administrator' : 'Log In as Student'
+                  loginType === 'admin' ? 'Autentificare ca Administrator' : 'Autentificare ca Elev'
                 )}
               </button>
             </form>
@@ -179,9 +179,9 @@ export default function LoginPage() {
             {loginType === 'student' && (
               <div className="mt-6 pt-6 border-t border-gray-100 text-center">
                 <p className="text-sm text-gray-500">
-                  Don&apos;t have an account?{' '}
+                  Nu ai cont?{' '}
                   <Link href="/auth/register" className="text-primary-600 font-medium hover:underline">
-                    Sign up
+                    Înregistrează-te
                   </Link>
                 </p>
               </div>
