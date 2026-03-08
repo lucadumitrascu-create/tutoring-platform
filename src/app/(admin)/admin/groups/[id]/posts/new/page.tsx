@@ -38,6 +38,9 @@ export default function NewPostPage() {
   // Materials library
   const [categories, setCategories] = useState<CategoryWithItems[]>([]);
   const [showLibrary, setShowLibrary] = useState(false);
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [categoryItems, setCategoryItems] = useState<Record<string, MaterialItem[]>>({});
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [loadingCategory, setLoadingCategory] = useState<string | null>(null);
 
   useEffect(() => {
@@ -52,22 +55,53 @@ export default function NewPostPage() {
     loadCategories();
   }, []);
 
-  async function addFromCategory(catId: string, catName: string) {
-    setLoadingCategory(catId);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: items } = await (supabase as any).from('material_items').select('*').eq('category_id', catId).order('sort_order') as { data: MaterialItem[] | null };
-
-    if (items && items.length > 0) {
-      const libraryFiles: PendingFile[] = items.map((item) => ({
-        id: crypto.randomUUID(), file: null, fileName: item.file_name, fileType: item.file_type,
-        source: 'library' as const, uploading: false, progress: 100, error: '', done: true,
-        libraryUrl: item.file_url,
-      }));
-      setFiles((prev) => [...prev, ...libraryFiles]);
-      if (!title.trim()) setTitle(catName);
+  async function toggleCategory(catId: string) {
+    if (expandedCategory === catId) {
+      setExpandedCategory(null);
+      setSelectedItems(new Set());
+      return;
     }
-    setLoadingCategory(null);
-    setShowLibrary(false);
+
+    setExpandedCategory(catId);
+
+    if (!categoryItems[catId]) {
+      setLoadingCategory(catId);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: items } = await (supabase as any).from('material_items').select('*').eq('category_id', catId).order('sort_order') as { data: MaterialItem[] | null };
+      const fetched = items ?? [];
+      setCategoryItems((prev) => ({ ...prev, [catId]: fetched }));
+      setSelectedItems(new Set(fetched.map((i) => i.id)));
+      setLoadingCategory(null);
+    } else {
+      setSelectedItems(new Set(categoryItems[catId].map((i) => i.id)));
+    }
+  }
+
+  function toggleItem(itemId: string) {
+    setSelectedItems((prev) => {
+      const next = new Set(prev);
+      if (next.has(itemId)) next.delete(itemId); else next.add(itemId);
+      return next;
+    });
+  }
+
+  function addSelectedItems() {
+    if (!expandedCategory || !categoryItems[expandedCategory]) return;
+    const items = categoryItems[expandedCategory].filter((i) => selectedItems.has(i.id));
+    if (items.length === 0) return;
+
+    const libraryFiles: PendingFile[] = items.map((item) => ({
+      id: crypto.randomUUID(), file: null, fileName: item.file_name, fileType: item.file_type,
+      source: 'library' as const, uploading: false, progress: 100, error: '', done: true,
+      libraryUrl: item.file_url,
+    }));
+    setFiles((prev) => [...prev, ...libraryFiles]);
+
+    const cat = categories.find((c) => c.id === expandedCategory);
+    if (!title.trim() && cat) setTitle(cat.name);
+
+    setExpandedCategory(null);
+    setSelectedItems(new Set());
   }
 
   function addFiles(fileList: FileList | null) {
@@ -150,6 +184,13 @@ export default function NewPostPage() {
     }
   }
 
+  function getFileIcon(fileType: string) {
+    if (fileType.startsWith('video/')) return <svg className="w-4 h-4 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>;
+    if (fileType === 'application/pdf') return <svg className="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>;
+    if (fileType.startsWith('image/')) return <svg className="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0 0 22.5 18.75V5.25A2.25 2.25 0 0 0 20.25 3H3.75A2.25 2.25 0 0 0 1.5 5.25v13.5A2.25 2.25 0 0 0 3.75 21Z" /></svg>;
+    return <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>;
+  }
+
   return (
     <div className="max-w-3xl">
       <Link href={`/admin/groups/${groupId}`} className="text-sm text-primary-600 hover:underline mb-6 inline-block">&larr; Back to group</Link>
@@ -186,9 +227,7 @@ export default function NewPostPage() {
                       className="text-gray-400 hover:text-gray-600 disabled:opacity-30"><svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg></button>
                   </div>
                   <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
-                    {f.fileType.startsWith('video/') ? <svg className="w-4 h-4 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
-                      : f.fileType === 'application/pdf' ? <svg className="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
-                      : <svg className="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0 0 22.5 18.75V5.25A2.25 2.25 0 0 0 20.25 3H3.75A2.25 2.25 0 0 0 1.5 5.25v13.5A2.25 2.25 0 0 0 3.75 21Z" /></svg>}
+                    {getFileIcon(f.fileType)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-gray-700 truncate">{f.fileName}</p>
@@ -231,18 +270,38 @@ export default function NewPostPage() {
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Choose a category</p>
               <div className="space-y-1.5">
                 {categories.map((cat) => (
-                  <button key={cat.id} type="button" onClick={() => addFromCategory(cat.id, cat.name)} disabled={loadingCategory !== null}
-                    className="w-full text-left flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3.5 min-h-[44px] hover:bg-primary-50 border border-gray-100 hover:border-primary-200 active:scale-[0.98] transition-all duration-150 disabled:opacity-50">
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">{cat.name}</p>
-                      <p className="text-xs text-gray-400">{cat.itemCount} file{cat.itemCount !== 1 ? 's' : ''}</p>
-                    </div>
-                    {loadingCategory === cat.id ? (
-                      <svg className="animate-spin w-4 h-4 text-primary-600" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
-                    ) : (
-                      <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                  <div key={cat.id}>
+                    <button type="button" onClick={() => toggleCategory(cat.id)} disabled={loadingCategory !== null}
+                      className={`w-full text-left flex items-center justify-between rounded-xl px-4 py-3.5 min-h-[44px] border active:scale-[0.98] transition-all duration-150 disabled:opacity-50 ${expandedCategory === cat.id ? 'bg-primary-50 border-primary-200' : 'bg-gray-50 border-gray-100 hover:bg-primary-50 hover:border-primary-200'}`}>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{cat.name}</p>
+                        <p className="text-xs text-gray-400">{cat.itemCount} file{cat.itemCount !== 1 ? 's' : ''}</p>
+                      </div>
+                      {loadingCategory === cat.id ? (
+                        <svg className="animate-spin w-4 h-4 text-primary-600" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                      ) : (
+                        <svg className={`w-4 h-4 text-gray-400 transition-transform ${expandedCategory === cat.id ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                      )}
+                    </button>
+
+                    {/* Expanded file list */}
+                    {expandedCategory === cat.id && categoryItems[cat.id] && (
+                      <div className="mt-1 ml-2 border-l-2 border-primary-100 pl-3 py-2 space-y-1">
+                        {categoryItems[cat.id].map((item) => (
+                          <label key={item.id} className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                            <input type="checkbox" checked={selectedItems.has(item.id)} onChange={() => toggleItem(item.id)}
+                              className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
+                            <div className="flex-shrink-0">{getFileIcon(item.file_type)}</div>
+                            <span className="text-sm text-gray-700 truncate">{item.file_name}</span>
+                          </label>
+                        ))}
+                        <button type="button" onClick={addSelectedItems} disabled={selectedItems.size === 0}
+                          className="mt-2 w-full bg-primary-600 text-white text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-primary-700 active:scale-95 transition-all disabled:opacity-50">
+                          Add selected ({selectedItems.size})
+                        </button>
+                      </div>
                     )}
-                  </button>
+                  </div>
                 ))}
               </div>
             </div>

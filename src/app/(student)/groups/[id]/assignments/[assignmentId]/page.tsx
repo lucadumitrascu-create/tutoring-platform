@@ -181,10 +181,16 @@ export default function StudentAssignmentPage() {
             </div>
             <p className="text-xs text-gray-400">Submitted {new Date(submission.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
 
-            {submission.feedback && (
+            {(submission.feedback || submission.feedback_file_url) && (
               <div className="bg-gray-50 rounded-xl px-4 py-3 mt-3">
                 <p className="text-xs font-medium text-gray-500 mb-1">Feedback</p>
-                <p className="text-sm text-gray-700">{submission.feedback}</p>
+                {submission.feedback && <p className="text-sm text-gray-700">{submission.feedback}</p>}
+                {submission.feedback_file_url && (
+                  <a href={submission.feedback_file_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-primary-600 hover:underline mt-1">
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" /></svg>
+                    {submission.feedback_file_name || 'Attached file'}
+                  </a>
+                )}
               </div>
             )}
 

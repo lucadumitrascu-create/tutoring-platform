@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase-client';
-import type { User, AccessStatus } from '@/types/database';
+import type { User, AccessStatus, Group } from '@/types/database';
 import { SkeletonTable } from '@/components/ui/Skeleton';
 
 type FilterTab = 'all' | 'pending' | 'approved' | 'none';
@@ -20,10 +20,16 @@ export default function AdminStudentsPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [filter, setFilter] = useState<FilterTab>('all');
+  const [selectedStudents, setSelectedStudents] = useState<Set<string>>(new Set());
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [showGroupPicker, setShowGroupPicker] = useState(false);
+  const [addingToGroup, setAddingToGroup] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState('');
   const supabase = createClient();
 
   useEffect(() => {
     loadStudents();
+    loadGroups();
   }, []);
 
   async function loadStudents() {
@@ -39,6 +45,12 @@ export default function AdminStudentsPage() {
       setError('Failed to load students.');
     }
     setLoading(false);
+  }
+
+  async function loadGroups() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data } = await (supabase as any).from('groups').select('*').order('name') as { data: Group[] | null };
+    setGroups(data ?? []);
   }
 
   async function handleAction(studentId: string, action: 'approve' | 'reject' | 'revoke' | 'grant') {
@@ -81,6 +93,56 @@ export default function AdminStudentsPage() {
     setActionLoading(null);
   }
 
+  function toggleStudent(id: string) {
+    setSelectedStudents((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAll() {
+    const approvedInView = filteredStudents.filter((s) => s.access_status === 'approved');
+    const allSelected = approvedInView.every((s) => selectedStudents.has(s.id));
+    if (allSelected) {
+      setSelectedStudents(new Set());
+    } else {
+      setSelectedStudents(new Set(approvedInView.map((s) => s.id)));
+    }
+  }
+
+  async function addToGroup(groupId: string) {
+    setAddingToGroup(groupId);
+    setError('');
+
+    try {
+      const ids = Array.from(selectedStudents);
+      for (const userId of ids) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: existing } = await (supabase as any)
+          .from('group_members')
+          .select('id')
+          .eq('group_id', groupId)
+          .eq('user_id', userId)
+          .maybeSingle() as { data: { id: string } | null };
+
+        if (!existing) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (supabase as any).from('group_members').insert({ group_id: groupId, user_id: userId });
+        }
+      }
+
+      const group = groups.find((g) => g.id === groupId);
+      setSuccessMsg(`${ids.length} student${ids.length > 1 ? 's' : ''} added to ${group?.name || 'group'}.`);
+      setTimeout(() => setSuccessMsg(''), 3000);
+      setSelectedStudents(new Set());
+      setShowGroupPicker(false);
+    } catch {
+      setError('Failed to add students to group.');
+    }
+    setAddingToGroup(null);
+  }
+
   const filteredStudents = students.filter((s) => {
     if (filter === 'all') return true;
     if (filter === 'none') return s.access_status === 'none' || s.access_status === 'rejected';
@@ -90,6 +152,8 @@ export default function AdminStudentsPage() {
   const pendingCount = students.filter((s) => s.access_status === 'pending').length;
   const activeCount = students.filter((s) => s.access_status === 'approved').length;
   const noAccessCount = students.filter((s) => s.access_status === 'none' || s.access_status === 'rejected').length;
+  const approvedInView = filteredStudents.filter((s) => s.access_status === 'approved');
+  const allApprovedSelected = approvedInView.length > 0 && approvedInView.every((s) => selectedStudents.has(s.id));
 
   const tabs: { key: FilterTab; label: string; count: number }[] = [
     { key: 'all', label: 'All', count: students.length },
@@ -112,6 +176,9 @@ export default function AdminStudentsPage() {
     <div>
       {error && (
         <div className="bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg mb-6">{error}</div>
+      )}
+      {successMsg && (
+        <div className="bg-green-50 text-green-700 text-sm px-4 py-3 rounded-lg mb-6">{successMsg}</div>
       )}
       <h1 className="text-2xl font-bold text-gray-900 mb-1">Students</h1>
       <p className="text-gray-500 mb-6">Manage student access to the platform.</p>
@@ -141,6 +208,12 @@ export default function AdminStudentsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100">
+                <th className="text-left font-medium text-gray-500 px-5 py-3 w-10">
+                  {approvedInView.length > 0 && (
+                    <input type="checkbox" checked={allApprovedSelected} onChange={toggleAll}
+                      className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer" />
+                  )}
+                </th>
                 <th className="text-left font-medium text-gray-500 px-5 py-3">Student</th>
                 <th className="text-left font-medium text-gray-500 px-5 py-3 hidden sm:table-cell">Status</th>
                 <th className="text-left font-medium text-gray-500 px-5 py-3 hidden md:table-cell">Joined</th>
@@ -151,9 +224,16 @@ export default function AdminStudentsPage() {
               {filteredStudents.map((student) => {
                 const status = statusConfig[student.access_status];
                 const isLoading = actionLoading?.startsWith(student.id);
+                const isApproved = student.access_status === 'approved';
 
                 return (
                   <tr key={student.id} className="border-b border-gray-50 last:border-0">
+                    <td className="px-5 py-4">
+                      {isApproved && (
+                        <input type="checkbox" checked={selectedStudents.has(student.id)} onChange={() => toggleStudent(student.id)}
+                          className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer" />
+                      )}
+                    </td>
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -233,6 +313,41 @@ export default function AdminStudentsPage() {
           <p className="text-gray-400 text-lg">
             {filter === 'all' ? 'No students registered yet.' : `No ${tabs.find(t => t.key === filter)?.label.toLowerCase()} students.`}
           </p>
+        </div>
+      )}
+
+      {/* Floating bar when students are selected */}
+      {selectedStudents.size > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+          <div className="bg-gray-900 text-white rounded-2xl shadow-2xl px-6 py-3.5 flex items-center gap-4">
+            <span className="text-sm font-medium">{selectedStudents.size} selected</span>
+            <div className="w-px h-5 bg-gray-700" />
+            <div className="relative">
+              <button onClick={() => setShowGroupPicker(!showGroupPicker)}
+                className="bg-primary-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-primary-700 active:scale-95 transition-all">
+                Add to Group
+              </button>
+              {showGroupPicker && (
+                <div className="absolute bottom-full mb-2 right-0 w-64 bg-white border border-gray-200 rounded-xl shadow-xl p-2 max-h-64 overflow-y-auto">
+                  {groups.length > 0 ? groups.map((g) => (
+                    <button key={g.id} onClick={() => addToGroup(g.id)} disabled={addingToGroup !== null}
+                      className="w-full text-left px-3 py-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 flex items-center justify-between">
+                      <span>{g.name}</span>
+                      {addingToGroup === g.id && (
+                        <svg className="animate-spin w-4 h-4 text-primary-600" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                      )}
+                    </button>
+                  )) : (
+                    <p className="text-sm text-gray-400 px-3 py-2">No groups yet.</p>
+                  )}
+                </div>
+              )}
+            </div>
+            <button onClick={() => { setSelectedStudents(new Set()); setShowGroupPicker(false); }}
+              className="text-gray-400 hover:text-white transition-colors">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
         </div>
       )}
     </div>

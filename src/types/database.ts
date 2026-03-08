@@ -70,6 +70,8 @@ export interface AssignmentSubmission {
   file_name: string;
   status: SubmissionStatus;
   feedback: string | null;
+  feedback_file_url: string | null;
+  feedback_file_name: string | null;
   created_at: string;
 }
 

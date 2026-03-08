@@ -12,6 +12,7 @@ interface PendingFile {
   id: string;
   file: File | null;
   fileName: string;
+  displayName: string;
   fileType: string;
   source: 'bunny';
   uploading: boolean;
@@ -21,6 +22,7 @@ interface PendingFile {
   isExisting: boolean;
   dbId?: string;
   fileUrl?: string;
+  editingName: boolean;
 }
 
 export default function CategoryDetailPage() {
@@ -48,9 +50,9 @@ export default function CategoryDetailPage() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: items } = await (supabase as any).from('material_items').select('*').eq('category_id', categoryId).order('sort_order') as { data: MaterialItem[] | null };
       setFiles((items ?? []).map((f) => ({
-        id: crypto.randomUUID(), file: null, fileName: f.file_name, fileType: f.file_type,
+        id: crypto.randomUUID(), file: null, fileName: f.file_name, displayName: f.file_name, fileType: f.file_type,
         source: 'bunny' as const,
-        uploading: false, progress: 100, error: '', done: true, isExisting: true, dbId: f.id, fileUrl: f.file_url,
+        uploading: false, progress: 100, error: '', done: true, isExisting: true, dbId: f.id, fileUrl: f.file_url, editingName: false,
       })));
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -65,9 +67,9 @@ export default function CategoryDetailPage() {
   function addFiles(fileList: FileList | null) {
     if (!fileList) return;
     const newFiles: PendingFile[] = Array.from(fileList).map((file) => ({
-      id: crypto.randomUUID(), file, fileName: file.name, fileType: file.type,
+      id: crypto.randomUUID(), file, fileName: file.name, displayName: file.name, fileType: file.type,
       source: 'bunny' as const,
-      uploading: false, progress: 0, error: '', done: false, isExisting: false,
+      uploading: false, progress: 0, error: '', done: false, isExisting: false, editingName: false,
     }));
     setFiles((prev) => [...prev, ...newFiles]);
   }
@@ -90,6 +92,20 @@ export default function CategoryDetailPage() {
       [copy[idx], copy[newIdx]] = [copy[newIdx], copy[idx]];
       return copy;
     });
+  }
+
+  function updateDisplayName(fileId: string, name: string) {
+    setFiles((prev) => prev.map((f) => f.id === fileId ? { ...f, displayName: name } : f));
+  }
+
+  async function saveExistingName(f: PendingFile) {
+    if (f.isExisting && f.dbId && f.displayName.trim() && f.displayName !== f.fileName) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase as any).from('material_items').update({ file_name: f.displayName.trim() }).eq('id', f.dbId);
+      setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, fileName: f.displayName.trim(), editingName: false } : pf));
+    } else {
+      setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, displayName: f.fileName, editingName: false } : pf));
+    }
   }
 
   async function uploadFile(f: PendingFile): Promise<{ url: string; fileName: string } | null> {
@@ -119,11 +135,12 @@ export default function CategoryDetailPage() {
 
         const result = await uploadFile(f);
         if (result) {
+          const saveName = f.displayName.trim() || result.fileName;
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const { data: inserted } = await (supabase as any).from('material_items').insert({
-            category_id: categoryId, file_url: result.url, file_type: f.fileType, file_name: result.fileName, sort_order: i,
+            category_id: categoryId, file_url: result.url, file_type: f.fileType, file_name: saveName, sort_order: i,
           }).select().single() as { data: MaterialItem | null };
-          setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, uploading: false, progress: 100, done: true, isExisting: true, dbId: inserted?.id, fileUrl: result.url } : pf));
+          setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, uploading: false, progress: 100, done: true, isExisting: true, dbId: inserted?.id, fileUrl: result.url, fileName: saveName, displayName: saveName } : pf));
         } else {
           setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, uploading: false, error: 'Upload failed' } : pf));
         }
@@ -259,8 +276,33 @@ export default function CategoryDetailPage() {
                     <button type="button" onClick={() => moveFile(f.id, 'down')} disabled={idx === files.length - 1} className="text-gray-400 hover:text-gray-600 disabled:opacity-30"><svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg></button>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-gray-700 truncate">{f.fileName}</p>
-                    {f.isExisting && <p className="text-xs text-gray-400 mt-0.5">Saved</p>}
+                    {/* Editable name for new files (not yet uploaded) */}
+                    {!f.isExisting && !f.done ? (
+                      <input
+                        type="text"
+                        value={f.displayName}
+                        onChange={(e) => updateDisplayName(f.id, e.target.value)}
+                        className="w-full text-sm text-gray-700 bg-white border border-gray-200 rounded px-2 py-1 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                      />
+                    ) : f.editingName ? (
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={f.displayName}
+                          onChange={(e) => updateDisplayName(f.id, e.target.value)}
+                          onKeyDown={(e) => { if (e.key === 'Enter') saveExistingName(f); if (e.key === 'Escape') setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, displayName: f.fileName, editingName: false } : pf)); }}
+                          autoFocus
+                          className="flex-1 text-sm text-gray-700 bg-white border border-gray-200 rounded px-2 py-1 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                        />
+                        <button type="button" onClick={() => saveExistingName(f)} className="text-xs text-primary-600 font-medium hover:underline">Save</button>
+                        <button type="button" onClick={() => setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, displayName: f.fileName, editingName: false } : pf))} className="text-xs text-gray-400 hover:text-gray-600">Cancel</button>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-700 truncate cursor-pointer hover:text-primary-600" onClick={() => setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, editingName: true } : pf))}>
+                        {f.displayName}
+                      </p>
+                    )}
+                    {f.isExisting && !f.editingName && <p className="text-xs text-gray-400 mt-0.5">Saved — click name to rename</p>}
                     {f.uploading && <div className="mt-1.5 h-1.5 bg-gray-200 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full" style={{ width: `${f.progress}%` }} /></div>}
                     {!f.isExisting && f.done && <p className="text-xs text-green-600 mt-0.5">Uploaded</p>}
                     {f.error && <p className="text-xs text-red-500 mt-0.5">{f.error}</p>}

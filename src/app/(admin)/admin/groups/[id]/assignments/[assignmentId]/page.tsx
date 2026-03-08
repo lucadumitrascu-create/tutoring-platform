@@ -6,13 +6,14 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { Assignment, AssignmentFile, AssignmentSubmission, User } from '@/types/database';
 import { SkeletonLine, SkeletonList } from '@/components/ui/Skeleton';
+import { uploadToBunny } from '@/lib/bunny';
 
 interface PendingFile {
   id: string;
   file: File | null;
   fileName: string;
   fileType: string;
-  source: 'supabase' | 'bunny';
+  source: 'bunny';
   uploading: boolean;
   progress: number;
   error: string;
@@ -43,6 +44,7 @@ export default function ManageAssignmentPage() {
   const [error, setError] = useState('');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [feedbackMap, setFeedbackMap] = useState<Record<string, string>>({});
+  const [feedbackFiles, setFeedbackFiles] = useState<Record<string, File | null>>({});
 
   useEffect(() => {
     async function load() {
@@ -57,7 +59,7 @@ export default function ManageAssignmentPage() {
       const { data: existingFiles } = await (supabase as any).from('assignment_files').select('*').eq('assignment_id', assignmentId).order('sort_order') as { data: AssignmentFile[] | null };
       setFiles((existingFiles ?? []).map((f) => ({
         id: crypto.randomUUID(), file: null, fileName: f.file_name, fileType: f.file_type,
-        source: f.file_type.startsWith('video/') ? 'bunny' as const : 'supabase' as const,
+        source: 'bunny' as const,
         uploading: false, progress: 100, error: '', done: true, isExisting: true, dbId: f.id,
       })));
 
@@ -77,7 +79,7 @@ export default function ManageAssignmentPage() {
     if (!fileList) return;
     const newFiles: PendingFile[] = Array.from(fileList).map((file) => ({
       id: crypto.randomUUID(), file, fileName: file.name, fileType: file.type,
-      source: file.type.startsWith('video/') ? 'bunny' as const : 'supabase' as const,
+      source: 'bunny' as const,
       uploading: false, progress: 0, error: '', done: false, isExisting: false,
     }));
     setFiles((prev) => [...prev, ...newFiles]);
@@ -105,20 +107,7 @@ export default function ManageAssignmentPage() {
 
   async function uploadFile(f: PendingFile): Promise<{ url: string; fileName: string } | null> {
     if (!f.file) return null;
-    if (f.source === 'bunny') {
-      const formData = new FormData();
-      formData.append('file', f.file);
-      const res = await fetch('/api/bunny/upload', { method: 'POST', body: formData });
-      if (!res.ok) return null;
-      const data = await res.json();
-      return { url: data.url, fileName: data.fileName };
-    } else {
-      const filePath = `assignments/${Date.now()}_${f.file.name}`;
-      const { error: uploadErr } = await supabase.storage.from('materials').upload(filePath, f.file);
-      if (uploadErr) return null;
-      const { data: urlData } = supabase.storage.from('materials').getPublicUrl(filePath);
-      return { url: urlData.publicUrl, fileName: f.file.name };
-    }
+    return uploadToBunny(f.file, 'assignments');
   }
 
   async function handleSave(e: React.FormEvent) {
@@ -168,8 +157,24 @@ export default function ManageAssignmentPage() {
   async function handleSubmissionAction(subId: string, action: 'approved' | 'rejected') {
     setActionLoading(subId);
     const feedback = feedbackMap[subId]?.trim() || null;
+
+    let feedback_file_url: string | null = null;
+    let feedback_file_name: string | null = null;
+    const feedbackFile = feedbackFiles[subId];
+    if (feedbackFile) {
+      const result = await uploadToBunny(feedbackFile, 'feedback');
+      if (result) {
+        feedback_file_url = result.url;
+        feedback_file_name = result.fileName;
+      }
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).from('assignment_submissions').update({ status: action, feedback }).eq('id', subId);
+    await (supabase as any).from('assignment_submissions').update({
+      status: action, feedback, feedback_file_url, feedback_file_name,
+    }).eq('id', subId);
+
+    setFeedbackFiles((prev) => { const copy = { ...prev }; delete copy[subId]; return copy; });
     await loadSubmissions();
     setActionLoading(null);
   }
@@ -291,10 +296,16 @@ export default function ManageAssignmentPage() {
                     {sub.file_name}
                   </a>
 
-                  {sub.feedback && (
+                  {(sub.feedback || sub.feedback_file_url) && (
                     <div className="bg-gray-50 rounded-lg px-4 py-3 mb-3">
                       <p className="text-xs font-medium text-gray-500 mb-1">Feedback</p>
-                      <p className="text-sm text-gray-700">{sub.feedback}</p>
+                      {sub.feedback && <p className="text-sm text-gray-700">{sub.feedback}</p>}
+                      {sub.feedback_file_url && (
+                        <a href={sub.feedback_file_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-primary-600 hover:underline mt-1">
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" /></svg>
+                          {sub.feedback_file_name || 'Attached file'}
+                        </a>
+                      )}
                     </div>
                   )}
 
@@ -307,6 +318,14 @@ export default function ManageAssignmentPage() {
                         placeholder="Optional feedback..."
                         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none resize-none"
                       />
+                      <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-500 hover:text-gray-700 transition-colors">
+                        <input type="file" className="hidden" onChange={(e) => {
+                          const file = e.target.files?.[0] || null;
+                          setFeedbackFiles((prev) => ({ ...prev, [sub.id]: file }));
+                        }} />
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" /></svg>
+                        {feedbackFiles[sub.id] ? feedbackFiles[sub.id]!.name : 'Attach file'}
+                      </label>
                       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                         <button onClick={() => handleSubmissionAction(sub.id, 'approved')} disabled={actionLoading === sub.id}
                           className="bg-green-600 text-white text-sm font-medium px-4 py-2.5 min-h-[44px] rounded-lg hover:bg-green-700 active:scale-95 transition-all disabled:opacity-50">
