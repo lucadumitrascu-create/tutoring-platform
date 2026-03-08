@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase-client';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { Post, PostFile } from '@/types/database';
+import { uploadToBunny } from '@/lib/bunny';
 
 interface PendingFile {
   id: string;
@@ -84,11 +85,7 @@ export default function EditPostPage() {
 
   async function uploadFile(f: PendingFile): Promise<{ url: string; fileName: string } | null> {
     if (!f.file) return null;
-    const params = new URLSearchParams({ folder: 'posts', name: f.file.name });
-    const res = await fetch(`/api/bunny/upload?${params}`, { method: 'POST', body: f.file });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return { url: data.url, fileName: data.fileName };
+    return uploadToBunny(f.file, 'posts');
   }
 
   async function handleSubmit(e: React.FormEvent) {

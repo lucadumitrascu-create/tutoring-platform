@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import type { Assignment, AssignmentFile, AssignmentSubmission } from '@/types/database';
 import { getRelativeTime, assignmentStatusConfig } from '@/lib/utils';
+import { uploadToBunny } from '@/lib/bunny';
 import { SkeletonLine } from '@/components/ui/Skeleton';
 
 export default function StudentAssignmentPage() {
@@ -49,10 +50,9 @@ export default function StudentAssignmentPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setError('Not logged in.'); setUploading(false); return; }
 
-      const params = new URLSearchParams({ folder: `homework/${user.id}/${assignmentId}`, name: file.name });
-      const res = await fetch(`/api/bunny/upload?${params}`, { method: 'POST', body: file });
-      if (!res.ok) { setError('Upload failed.'); setUploading(false); return; }
-      const { url: fileUrl, fileName } = await res.json();
+      const result = await uploadToBunny(file, `homework/${user.id}/${assignmentId}`);
+      if (!result) { setError('Upload failed.'); setUploading(false); return; }
+      const { url: fileUrl, fileName } = result;
 
       if (submission) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
