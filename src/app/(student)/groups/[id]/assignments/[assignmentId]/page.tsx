@@ -49,10 +49,8 @@ export default function StudentAssignmentPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setError('Not logged in.'); setUploading(false); return; }
 
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('folder', `homework/${user.id}/${assignmentId}`);
-      const res = await fetch('/api/bunny/upload', { method: 'POST', body: formData });
+      const params = new URLSearchParams({ folder: `homework/${user.id}/${assignmentId}`, name: file.name });
+      const res = await fetch(`/api/bunny/upload?${params}`, { method: 'POST', body: file });
       if (!res.ok) { setError('Upload failed.'); setUploading(false); return; }
       const { url: fileUrl, fileName } = await res.json();
 

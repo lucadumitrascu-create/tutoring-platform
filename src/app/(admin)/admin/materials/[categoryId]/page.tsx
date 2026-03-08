@@ -93,10 +93,8 @@ export default function CategoryDetailPage() {
 
   async function uploadFile(f: PendingFile): Promise<{ url: string; fileName: string } | null> {
     if (!f.file) return null;
-    const formData = new FormData();
-    formData.append('file', f.file);
-    formData.append('folder', 'library');
-    const res = await fetch('/api/bunny/upload', { method: 'POST', body: formData });
+    const params = new URLSearchParams({ folder: 'library', name: f.file.name });
+    const res = await fetch(`/api/bunny/upload?${params}`, { method: 'POST', body: f.file });
     if (!res.ok) return null;
     const data = await res.json();
     return { url: data.url, fileName: data.fileName };
