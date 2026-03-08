@@ -122,8 +122,22 @@ export default function NewAssignmentPage() {
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1.5">Deadline</label>
-          <input type="datetime-local" value={deadline} onChange={(e) => setDeadline(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" />
+          {deadline ? (
+            <div className="flex items-center gap-2">
+              <input type="datetime-local" value={deadline} onChange={(e) => setDeadline(e.target.value)}
+                className="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" />
+              <button type="button" onClick={() => setDeadline('')}
+                className="text-sm text-gray-400 hover:text-red-500 px-3 py-2.5 min-h-[44px] rounded-lg hover:bg-gray-100 transition-colors flex-shrink-0"
+                title="Remove deadline">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+          ) : (
+            <button type="button" onClick={() => setDeadline(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16))}
+              className="w-full border-2 border-dashed border-gray-200 rounded-lg px-4 py-3 text-sm text-gray-400 hover:border-primary-300 hover:text-primary-600 transition-colors text-left">
+              No deadline — click to add one
+            </button>
+          )}
         </div>
 
         {/* Files */}
