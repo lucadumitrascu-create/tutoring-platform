@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase-client';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { Assignment, AssignmentFile, AssignmentSubmission, User } from '@/types/database';
+import { SkeletonLine, SkeletonList } from '@/components/ui/Skeleton';
 
 interface PendingFile {
   id: string;
@@ -173,7 +174,15 @@ export default function ManageAssignmentPage() {
     setActionLoading(null);
   }
 
-  if (loading) return <div className="flex items-center justify-center py-20"><svg className="animate-spin w-6 h-6 text-primary-600" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg></div>;
+  if (loading) return (
+    <div>
+      <SkeletonLine className="h-4 w-24 mb-4" />
+      <SkeletonLine className="h-8 w-56 mb-2" />
+      <SkeletonLine className="h-5 w-40 mb-6 rounded-full" />
+      <SkeletonLine className="h-10 w-72 rounded-lg mb-6" />
+      <SkeletonList rows={3} />
+    </div>
+  );
 
   const statusColors: Record<string, string> = {
     submitted: 'bg-yellow-100 text-yellow-700',

@@ -5,6 +5,9 @@ import { createClient } from '@/lib/supabase-client';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import type { Group, Post, Assignment, Meeting, User } from '@/types/database';
+import { SkeletonLine, SkeletonList } from '@/components/ui/Skeleton';
+import SearchInput from '@/components/ui/SearchInput';
+import EmptyState from '@/components/ui/EmptyState';
 
 type Tab = 'posts' | 'assignments' | 'meetings' | 'members';
 
@@ -28,6 +31,7 @@ export default function AdminGroupDetailPage() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState('');
+  const [search, setSearch] = useState('');
 
   useEffect(() => { loadGroup(); }, [id]);
   useEffect(() => { loadTabData(); }, [tab, id]);
@@ -111,7 +115,15 @@ export default function AdminGroupDetailPage() {
   }
 
   if (loading) {
-    return <div className="flex items-center justify-center py-20"><svg className="animate-spin w-6 h-6 text-primary-600" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg></div>;
+    return (
+      <div>
+        <SkeletonLine className="h-4 w-24 mb-4" />
+        <SkeletonLine className="h-8 w-48 mb-2" />
+        <SkeletonLine className="h-5 w-64 mb-6" />
+        <SkeletonLine className="h-10 w-80 rounded-lg mb-6" />
+        <SkeletonList rows={3} />
+      </div>
+    );
   }
 
   if (!group) return <p className="text-gray-500 py-12 text-center">Group not found.</p>;
@@ -145,30 +157,49 @@ export default function AdminGroupDetailPage() {
       </div>
 
       {/* POSTS TAB */}
-      {tab === 'posts' && (
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Lessons / Posts</h2>
-            <Link href={`/admin/groups/${id}/posts/new`} className="bg-primary-600 text-white text-sm font-medium px-4 py-2.5 min-h-[44px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all duration-150 flex items-center">New Post</Link>
-          </div>
-          {posts.length > 0 ? (
-            <div className="space-y-2">
-              {posts.map((post) => (
-                <div key={post.id} className="bg-white border border-gray-200 hover:border-gray-300 rounded-2xl px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:shadow-sm transition-all duration-200">
-                  <div>
-                    <p className="font-medium text-gray-900">{post.title}</p>
-                    <p className="text-xs text-gray-400">{new Date(post.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Link href={`/admin/groups/${id}/posts/${post.id}/edit`} className="text-sm text-primary-600 font-medium hover:underline py-1.5 px-2">Edit</Link>
-                    <button onClick={() => deletePost(post.id)} disabled={actionLoading === `del-post-${post.id}`} className="text-sm text-red-500 font-medium hover:underline disabled:opacity-50 py-1.5 px-2">Delete</button>
-                  </div>
-                </div>
-              ))}
+      {tab === 'posts' && (() => {
+        const filteredPosts = posts.filter((p) =>
+          !search || p.title.toLowerCase().includes(search.toLowerCase()) || p.description?.toLowerCase().includes(search.toLowerCase())
+        );
+        return (
+          <div>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+              <h2 className="text-lg font-semibold text-gray-900">Lessons / Posts</h2>
+              <Link href={`/admin/groups/${id}/posts/new`} className="bg-primary-600 text-white text-sm font-medium px-4 py-2.5 min-h-[44px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all duration-150 flex items-center justify-center">New Post</Link>
             </div>
-          ) : <p className="text-gray-400 text-sm">No posts yet.</p>}
-        </div>
-      )}
+            {posts.length > 0 && (
+              <div className="mb-4">
+                <SearchInput value={search} onChange={setSearch} placeholder="Search posts..." />
+              </div>
+            )}
+            {filteredPosts.length > 0 ? (
+              <div className="space-y-2">
+                {filteredPosts.map((post) => (
+                  <div key={post.id} className="bg-white border border-gray-200 hover:border-gray-300 rounded-2xl px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:shadow-sm transition-all duration-200">
+                    <div>
+                      <p className="font-medium text-gray-900">{post.title}</p>
+                      <p className="text-xs text-gray-400">{new Date(post.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Link href={`/admin/groups/${id}/posts/${post.id}/edit`} className="text-sm text-primary-600 font-medium hover:underline py-1.5 px-2">Edit</Link>
+                      <button onClick={() => deletePost(post.id)} disabled={actionLoading === `del-post-${post.id}`} className="text-sm text-red-500 font-medium hover:underline disabled:opacity-50 py-1.5 px-2">Delete</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : posts.length > 0 ? (
+              <p className="text-gray-400 text-sm text-center py-8">No results for &ldquo;{search}&rdquo;</p>
+            ) : (
+              <EmptyState
+                icon={<svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" /></svg>}
+                title="No posts yet"
+                description="Create your first post for this group."
+                action={<Link href={`/admin/groups/${id}/posts/new`} className="inline-block bg-primary-600 text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-primary-700 active:scale-95 transition-all">New Post</Link>}
+              />
+            )}
+          </div>
+        );
+      })()}
 
       {/* ASSIGNMENTS TAB */}
       {tab === 'assignments' && (
@@ -195,7 +226,13 @@ export default function AdminGroupDetailPage() {
                 </div>
               ))}
             </div>
-          ) : <p className="text-gray-400 text-sm">No assignments yet.</p>}
+          ) : (
+            <EmptyState
+              icon={<svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" /></svg>}
+              title="No assignments yet"
+              action={<Link href={`/admin/groups/${id}/assignments/new`} className="inline-block bg-primary-600 text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-primary-700 active:scale-95 transition-all">New Assignment</Link>}
+            />
+          )}
         </div>
       )}
 
@@ -227,7 +264,13 @@ export default function AdminGroupDetailPage() {
                 );
               })}
             </div>
-          ) : <p className="text-gray-400 text-sm">No meetings scheduled.</p>}
+          ) : (
+            <EmptyState
+              icon={<svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>}
+              title="No meetings scheduled"
+              action={<Link href={`/admin/groups/${id}/meetings/new`} className="inline-block bg-primary-600 text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-primary-700 active:scale-95 transition-all">Schedule Meeting</Link>}
+            />
+          )}
         </div>
       )}
 

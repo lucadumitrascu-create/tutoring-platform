@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase-client';
 import type { User, AccessStatus } from '@/types/database';
+import { SkeletonTable } from '@/components/ui/Skeleton';
 
 type FilterTab = 'all' | 'pending' | 'approved' | 'none';
 
@@ -99,11 +100,10 @@ export default function AdminStudentsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <svg className="animate-spin w-6 h-6 text-primary-600" viewBox="0 0 24 24" fill="none">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-        </svg>
+      <div>
+        <div className="space-y-2 mb-6"><div className="animate-pulse bg-gray-200 rounded h-8 w-32" /><div className="animate-pulse bg-gray-200 rounded h-5 w-56" /></div>
+        <div className="animate-pulse bg-gray-200 rounded-lg h-10 w-72 mb-6" />
+        <SkeletonTable rows={5} />
       </div>
     );
   }

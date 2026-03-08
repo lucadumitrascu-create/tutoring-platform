@@ -99,6 +99,13 @@ export interface MaterialItem {
   created_at: string;
 }
 
+export interface PostRead {
+  id: string;
+  user_id: string;
+  post_id: string;
+  read_at: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -166,6 +173,12 @@ export interface Database {
         Row: MaterialItem;
         Insert: Omit<MaterialItem, 'id' | 'created_at'>;
         Update: Partial<Omit<MaterialItem, 'id' | 'created_at'>>;
+        Relationships: [];
+      };
+      post_reads: {
+        Row: PostRead;
+        Insert: Omit<PostRead, 'id' | 'read_at'>;
+        Update: Partial<Omit<PostRead, 'id' | 'read_at'>>;
         Relationships: [];
       };
     };
