@@ -155,11 +155,39 @@ export default function AdminStudentsPage() {
   const approvedInView = filteredStudents.filter((s) => s.access_status === 'approved');
   const allApprovedSelected = approvedInView.length > 0 && approvedInView.every((s) => selectedStudents.has(s.id));
 
-  const tabs: { key: FilterTab; label: string; count: number }[] = [
-    { key: 'all', label: 'All', count: students.length },
-    { key: 'pending', label: 'Pending', count: pendingCount },
-    { key: 'approved', label: 'Active', count: activeCount },
-    { key: 'none', label: 'No Access', count: noAccessCount },
+  const tabs: { key: FilterTab; label: string; count: number; icon: React.ReactNode }[] = [
+    {
+      key: 'all', label: 'All', count: students.length,
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+        </svg>
+      ),
+    },
+    {
+      key: 'pending', label: 'Pending', count: pendingCount,
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+    },
+    {
+      key: 'approved', label: 'Active', count: activeCount,
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+    },
+    {
+      key: 'none', label: 'No Access', count: noAccessCount,
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+    },
   ];
 
   if (loading) {
@@ -183,20 +211,25 @@ export default function AdminStudentsPage() {
       <h1 className="text-2xl font-bold text-gray-900 mb-1">Students</h1>
       <p className="text-gray-500 mb-6">Manage student access to the platform.</p>
 
-      {/* Filter tabs */}
-      <div className="flex gap-1 bg-gray-100 rounded-lg p-1 mb-6 overflow-x-auto scrollbar-hide">
+      {/* Filter icons */}
+      <div className="flex gap-2 mb-6">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setFilter(tab.key)}
-            className={`px-4 py-2.5 min-h-[44px] text-sm font-medium rounded-md whitespace-nowrap flex-shrink-0 transition-all duration-150 active:scale-95 ${
+            title={tab.label}
+            className={`relative p-2.5 min-h-[44px] min-w-[44px] rounded-xl transition-all duration-150 active:scale-95 ${
               filter === tab.key
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'bg-primary-100 text-primary-700'
+                : 'bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600'
             }`}
           >
-            {tab.label}
-            <span className={`ml-1.5 text-xs ${filter === tab.key ? 'text-gray-500' : 'text-gray-400'}`}>
+            {tab.icon}
+            <span className={`absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold rounded-full px-1 ${
+              filter === tab.key
+                ? 'bg-primary-600 text-white'
+                : 'bg-gray-300 text-gray-700'
+            }`}>
               {tab.count}
             </span>
           </button>
