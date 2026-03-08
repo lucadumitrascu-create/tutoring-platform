@@ -12,7 +12,7 @@ interface PendingFile {
   file: File | null;
   fileName: string;
   fileType: string;
-  source: 'supabase' | 'bunny';
+  source: 'bunny';
   uploading: boolean;
   progress: number;
   error: string;
@@ -48,7 +48,7 @@ export default function CategoryDetailPage() {
       const { data: items } = await (supabase as any).from('material_items').select('*').eq('category_id', categoryId).order('sort_order') as { data: MaterialItem[] | null };
       setFiles((items ?? []).map((f) => ({
         id: crypto.randomUUID(), file: null, fileName: f.file_name, fileType: f.file_type,
-        source: f.file_type.startsWith('video/') ? 'bunny' as const : 'supabase' as const,
+        source: 'bunny' as const,
         uploading: false, progress: 100, error: '', done: true, isExisting: true, dbId: f.id, fileUrl: f.file_url,
       })));
 
@@ -65,7 +65,7 @@ export default function CategoryDetailPage() {
     if (!fileList) return;
     const newFiles: PendingFile[] = Array.from(fileList).map((file) => ({
       id: crypto.randomUUID(), file, fileName: file.name, fileType: file.type,
-      source: file.type.startsWith('video/') ? 'bunny' as const : 'supabase' as const,
+      source: 'bunny' as const,
       uploading: false, progress: 0, error: '', done: false, isExisting: false,
     }));
     setFiles((prev) => [...prev, ...newFiles]);
@@ -93,20 +93,13 @@ export default function CategoryDetailPage() {
 
   async function uploadFile(f: PendingFile): Promise<{ url: string; fileName: string } | null> {
     if (!f.file) return null;
-    if (f.source === 'bunny') {
-      const formData = new FormData();
-      formData.append('file', f.file);
-      const res = await fetch('/api/bunny/upload', { method: 'POST', body: formData });
-      if (!res.ok) return null;
-      const data = await res.json();
-      return { url: data.url, fileName: data.fileName };
-    } else {
-      const filePath = `library/${Date.now()}_${f.file.name}`;
-      const { error: uploadErr } = await supabase.storage.from('materials').upload(filePath, f.file);
-      if (uploadErr) return null;
-      const { data: urlData } = supabase.storage.from('materials').getPublicUrl(filePath);
-      return { url: urlData.publicUrl, fileName: f.file.name };
-    }
+    const formData = new FormData();
+    formData.append('file', f.file);
+    formData.append('folder', 'library');
+    const res = await fetch('/api/bunny/upload', { method: 'POST', body: formData });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return { url: data.url, fileName: data.fileName };
   }
 
   async function handleSave() {

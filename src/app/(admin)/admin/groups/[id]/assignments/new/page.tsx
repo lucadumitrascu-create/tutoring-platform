@@ -11,7 +11,7 @@ interface PendingFile {
   file: File | null;
   fileName: string;
   fileType: string;
-  source: 'supabase' | 'bunny';
+  source: 'bunny';
   uploading: boolean;
   progress: number;
   error: string;
@@ -34,7 +34,7 @@ export default function NewAssignmentPage() {
     if (!fileList) return;
     const newFiles: PendingFile[] = Array.from(fileList).map((file) => ({
       id: crypto.randomUUID(), file, fileName: file.name, fileType: file.type,
-      source: file.type.startsWith('video/') ? 'bunny' as const : 'supabase' as const,
+      source: 'bunny' as const,
       uploading: false, progress: 0, error: '', done: false,
     }));
     setFiles((prev) => [...prev, ...newFiles]);
@@ -58,20 +58,13 @@ export default function NewAssignmentPage() {
 
   async function uploadFile(f: PendingFile): Promise<{ url: string; fileName: string } | null> {
     if (!f.file) return null;
-    if (f.source === 'bunny') {
-      const formData = new FormData();
-      formData.append('file', f.file);
-      const res = await fetch('/api/bunny/upload', { method: 'POST', body: formData });
-      if (!res.ok) return null;
-      const data = await res.json();
-      return { url: data.url, fileName: data.fileName };
-    } else {
-      const filePath = `assignments/${Date.now()}_${f.file.name}`;
-      const { error: uploadErr } = await supabase.storage.from('materials').upload(filePath, f.file);
-      if (uploadErr) return null;
-      const { data: urlData } = supabase.storage.from('materials').getPublicUrl(filePath);
-      return { url: urlData.publicUrl, fileName: f.file.name };
-    }
+    const formData = new FormData();
+    formData.append('file', f.file);
+    formData.append('folder', 'assignments');
+    const res = await fetch('/api/bunny/upload', { method: 'POST', body: formData });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return { url: data.url, fileName: data.fileName };
   }
 
   async function handleSubmit(e: React.FormEvent) {

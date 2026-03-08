@@ -49,22 +49,23 @@ export default function StudentAssignmentPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setError('Not logged in.'); setUploading(false); return; }
 
-      const filePath = `homework/${user.id}/${assignmentId}/${Date.now()}_${file.name}`;
-      const { error: uploadErr } = await supabase.storage.from('materials').upload(filePath, file);
-      if (uploadErr) { setError('Upload failed.'); setUploading(false); return; }
-
-      const { data: urlData } = supabase.storage.from('materials').getPublicUrl(filePath);
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('folder', `homework/${user.id}/${assignmentId}`);
+      const res = await fetch('/api/bunny/upload', { method: 'POST', body: formData });
+      if (!res.ok) { setError('Upload failed.'); setUploading(false); return; }
+      const { url: fileUrl, fileName } = await res.json();
 
       if (submission) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await (supabase as any).from('assignment_submissions').update({
-          file_url: urlData.publicUrl, file_name: file.name, status: 'submitted', feedback: null,
+          file_url: fileUrl, file_name: fileName, status: 'submitted', feedback: null,
         }).eq('id', submission.id);
       } else {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await (supabase as any).from('assignment_submissions').insert({
           assignment_id: assignmentId, student_id: user.id,
-          file_url: urlData.publicUrl, file_name: file.name,
+          file_url: fileUrl, file_name: fileName,
         });
       }
 

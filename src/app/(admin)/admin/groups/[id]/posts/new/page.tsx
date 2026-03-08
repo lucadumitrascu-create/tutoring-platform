@@ -11,7 +11,7 @@ interface PendingFile {
   file: File | null;
   fileName: string;
   fileType: string;
-  source: 'supabase' | 'bunny' | 'library';
+  source: 'bunny' | 'library';
   uploading: boolean;
   progress: number;
   error: string;
@@ -73,7 +73,7 @@ export default function NewPostPage() {
     if (!fileList) return;
     const newFiles: PendingFile[] = Array.from(fileList).map((file) => ({
       id: crypto.randomUUID(), file, fileName: file.name, fileType: file.type,
-      source: file.type.startsWith('video/') ? 'bunny' as const : 'supabase' as const,
+      source: 'bunny' as const,
       uploading: false, progress: 0, error: '', done: false,
     }));
     setFiles((prev) => [...prev, ...newFiles]);
@@ -97,20 +97,13 @@ export default function NewPostPage() {
 
   async function uploadFile(f: PendingFile): Promise<{ url: string; fileName: string } | null> {
     if (!f.file) return null;
-    if (f.source === 'bunny') {
-      const formData = new FormData();
-      formData.append('file', f.file);
-      const res = await fetch('/api/bunny/upload', { method: 'POST', body: formData });
-      if (!res.ok) return null;
-      const data = await res.json();
-      return { url: data.url, fileName: data.fileName };
-    } else {
-      const filePath = `posts/${Date.now()}_${f.file.name}`;
-      const { error: uploadErr } = await supabase.storage.from('materials').upload(filePath, f.file);
-      if (uploadErr) return null;
-      const { data: urlData } = supabase.storage.from('materials').getPublicUrl(filePath);
-      return { url: urlData.publicUrl, fileName: f.file.name };
-    }
+    const formData = new FormData();
+    formData.append('file', f.file);
+    formData.append('folder', 'posts');
+    const res = await fetch('/api/bunny/upload', { method: 'POST', body: formData });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return { url: data.url, fileName: data.fileName };
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -210,7 +203,7 @@ export default function NewPostPage() {
                     {f.error && <p className="text-xs text-red-500 mt-0.5">{f.error}</p>}
                   </div>
                   <span className="text-[10px] font-medium text-gray-400 uppercase flex-shrink-0">
-                    {f.source === 'library' ? 'LIB' : f.source === 'bunny' ? 'Video' : f.fileType.split('/')[1]?.toUpperCase() || 'FILE'}
+                    {f.source === 'library' ? 'LIB' : f.fileType.split('/')[1]?.toUpperCase() || 'FILE'}
                   </span>
                   {!f.uploading && (f.source === 'library' || !f.done) && (
                     <button type="button" onClick={() => removeFile(f.id)} className="text-gray-400 hover:text-red-500 flex-shrink-0">

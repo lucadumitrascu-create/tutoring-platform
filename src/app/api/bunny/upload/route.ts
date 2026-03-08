@@ -3,25 +3,16 @@ import { createClient } from '@/lib/supabase-server';
 
 export async function POST(request: NextRequest) {
   try {
-    // Verify admin authentication
+    // Verify authentication (any logged-in user can upload)
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    const { data: profile } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single() as { data: { role: string } | null };
-
-    if (profile?.role !== 'admin') {
-      return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
-    }
-
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
+    const folder = (formData.get('folder') as string) || '';
 
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
@@ -31,16 +22,18 @@ export async function POST(request: NextRequest) {
     const storageZone = process.env.BUNNY_STORAGE_ZONE_NAME;
     const cdnUrl = process.env.BUNNY_CDN_URL;
 
-    if (!apiKey || !storageZone || apiKey === 'xxx') {
+    if (!apiKey || !storageZone || !cdnUrl) {
       return NextResponse.json({ error: 'Bunny.net is not configured' }, { status: 500 });
     }
 
-    const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+    const sanitizedName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const fileName = `${Date.now()}_${sanitizedName}`;
+    const path = folder ? `${folder}/${fileName}` : fileName;
     const buffer = Buffer.from(await file.arrayBuffer());
 
     // Upload to Bunny Storage
     const uploadRes = await fetch(
-      `https://storage.bunnycdn.com/${storageZone}/${fileName}`,
+      `https://storage.bunnycdn.com/${storageZone}/${path}`,
       {
         method: 'PUT',
         headers: {
@@ -57,7 +50,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Upload to Bunny failed' }, { status: 500 });
     }
 
-    const fileUrl = `${cdnUrl}/${fileName}`;
+    const fileUrl = `${cdnUrl}/${path}`;
     return NextResponse.json({ url: fileUrl, fileName: file.name });
   } catch (error) {
     console.error('Bunny upload error:', error);
