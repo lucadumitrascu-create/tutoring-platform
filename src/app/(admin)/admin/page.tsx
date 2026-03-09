@@ -27,11 +27,10 @@ export default function AdminDashboardPage() {
 
   async function loadStats() {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const [groups, students, submissions, pending] = await Promise.all([
-        (supabase as any).from('groups').select('id', { count: 'exact', head: true }),
+        supabase.from('groups').select('id', { count: 'exact', head: true }),
         supabase.from('users').select('id', { count: 'exact', head: true }).eq('role', 'student'),
-        (supabase as any).from('assignment_submissions').select('id', { count: 'exact', head: true }).eq('status', 'submitted'),
+        supabase.from('assignment_submissions').select('id', { count: 'exact', head: true }).eq('status', 'submitted'),
         supabase.from('users').select('id', { count: 'exact', head: true }).eq('role', 'student').eq('access_status', 'pending'),
       ]);
 

@@ -2,38 +2,38 @@ export type UserRole = 'admin' | 'student';
 export type AccessStatus = 'none' | 'pending' | 'approved' | 'rejected';
 export type SubmissionStatus = 'submitted' | 'approved' | 'rejected';
 
-export interface User {
+export type User = {
   id: string;
   email: string;
   role: UserRole;
   full_name: string;
   access_status: AccessStatus;
   created_at: string;
-}
+};
 
-export interface Group {
+export type Group = {
   id: string;
   name: string;
   description: string;
   created_at: string;
-}
+};
 
-export interface GroupMember {
+export type GroupMember = {
   id: string;
   group_id: string;
   user_id: string;
   created_at: string;
-}
+};
 
-export interface Post {
+export type Post = {
   id: string;
   group_id: string;
   title: string;
   description: string;
   created_at: string;
-}
+};
 
-export interface PostFile {
+export type PostFile = {
   id: string;
   post_id: string;
   file_url: string;
@@ -41,18 +41,18 @@ export interface PostFile {
   file_name: string;
   sort_order: number;
   created_at: string;
-}
+};
 
-export interface Assignment {
+export type Assignment = {
   id: string;
   group_id: string;
   title: string;
   description: string;
   deadline: string | null;
   created_at: string;
-}
+};
 
-export interface AssignmentFile {
+export type AssignmentFile = {
   id: string;
   assignment_id: string;
   file_url: string;
@@ -60,9 +60,9 @@ export interface AssignmentFile {
   file_name: string;
   sort_order: number;
   created_at: string;
-}
+};
 
-export interface AssignmentSubmission {
+export type AssignmentSubmission = {
   id: string;
   assignment_id: string;
   student_id: string;
@@ -74,25 +74,25 @@ export interface AssignmentSubmission {
   feedback_file_url: string | null;
   feedback_file_name: string | null;
   created_at: string;
-}
+};
 
-export interface Meeting {
+export type Meeting = {
   id: string;
   group_id: string;
   title: string;
   meet_link: string;
   scheduled_at: string;
   created_at: string;
-}
+};
 
-export interface MaterialCategory {
+export type MaterialCategory = {
   id: string;
   name: string;
   description: string;
   created_at: string;
-}
+};
 
-export interface MaterialItem {
+export type MaterialItem = {
   id: string;
   category_id: string;
   file_url: string;
@@ -100,88 +100,254 @@ export interface MaterialItem {
   file_name: string;
   sort_order: number;
   created_at: string;
-}
+};
 
-export interface PostRead {
+export type PostRead = {
   id: string;
   user_id: string;
   post_id: string;
   read_at: string;
-}
+};
 
-export interface Database {
+export type Database = {
   public: {
     Tables: {
       users: {
         Row: User;
-        Insert: Omit<User, 'created_at'>;
-        Update: Partial<Omit<User, 'id' | 'created_at'>>;
+        Insert: {
+          id: string;
+          email: string;
+          role?: UserRole;
+          full_name?: string;
+          access_status?: AccessStatus;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          email?: string;
+          role?: UserRole;
+          full_name?: string;
+          access_status?: AccessStatus;
+          created_at?: string;
+        };
         Relationships: [];
       };
       groups: {
         Row: Group;
-        Insert: Omit<Group, 'id' | 'created_at'>;
-        Update: Partial<Omit<Group, 'id' | 'created_at'>>;
+        Insert: {
+          id?: string;
+          name: string;
+          description?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          description?: string;
+          created_at?: string;
+        };
         Relationships: [];
       };
       group_members: {
         Row: GroupMember;
-        Insert: Omit<GroupMember, 'id' | 'created_at'>;
-        Update: Partial<Omit<GroupMember, 'id' | 'created_at'>>;
+        Insert: {
+          id?: string;
+          group_id: string;
+          user_id: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          group_id?: string;
+          user_id?: string;
+          created_at?: string;
+        };
         Relationships: [];
       };
       posts: {
         Row: Post;
-        Insert: Omit<Post, 'id' | 'created_at'>;
-        Update: Partial<Omit<Post, 'id' | 'created_at'>>;
+        Insert: {
+          id?: string;
+          group_id: string;
+          title: string;
+          description?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          group_id?: string;
+          title?: string;
+          description?: string;
+          created_at?: string;
+        };
         Relationships: [];
       };
       post_files: {
         Row: PostFile;
-        Insert: Omit<PostFile, 'id' | 'created_at'>;
-        Update: Partial<Omit<PostFile, 'id' | 'created_at'>>;
+        Insert: {
+          id?: string;
+          post_id: string;
+          file_url: string;
+          file_type: string;
+          file_name: string;
+          sort_order?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          post_id?: string;
+          file_url?: string;
+          file_type?: string;
+          file_name?: string;
+          sort_order?: number;
+          created_at?: string;
+        };
         Relationships: [];
       };
       assignments: {
         Row: Assignment;
-        Insert: Omit<Assignment, 'id' | 'created_at'>;
-        Update: Partial<Omit<Assignment, 'id' | 'created_at'>>;
+        Insert: {
+          id?: string;
+          group_id: string;
+          title: string;
+          description?: string;
+          deadline?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          group_id?: string;
+          title?: string;
+          description?: string;
+          deadline?: string | null;
+          created_at?: string;
+        };
         Relationships: [];
       };
       assignment_files: {
         Row: AssignmentFile;
-        Insert: Omit<AssignmentFile, 'id' | 'created_at'>;
-        Update: Partial<Omit<AssignmentFile, 'id' | 'created_at'>>;
+        Insert: {
+          id?: string;
+          assignment_id: string;
+          file_url: string;
+          file_type: string;
+          file_name: string;
+          sort_order?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          assignment_id?: string;
+          file_url?: string;
+          file_type?: string;
+          file_name?: string;
+          sort_order?: number;
+          created_at?: string;
+        };
         Relationships: [];
       };
       assignment_submissions: {
         Row: AssignmentSubmission;
-        Insert: Omit<AssignmentSubmission, 'id' | 'created_at'>;
-        Update: Partial<Omit<AssignmentSubmission, 'id' | 'created_at'>>;
+        Insert: {
+          id?: string;
+          assignment_id: string;
+          student_id: string;
+          file_url?: string | null;
+          file_name?: string | null;
+          text_answer?: string | null;
+          status?: SubmissionStatus;
+          feedback?: string | null;
+          feedback_file_url?: string | null;
+          feedback_file_name?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          assignment_id?: string;
+          student_id?: string;
+          file_url?: string | null;
+          file_name?: string | null;
+          text_answer?: string | null;
+          status?: SubmissionStatus;
+          feedback?: string | null;
+          feedback_file_url?: string | null;
+          feedback_file_name?: string | null;
+          created_at?: string;
+        };
         Relationships: [];
       };
       meetings: {
         Row: Meeting;
-        Insert: Omit<Meeting, 'id' | 'created_at'>;
-        Update: Partial<Omit<Meeting, 'id' | 'created_at'>>;
+        Insert: {
+          id?: string;
+          group_id: string;
+          title: string;
+          meet_link: string;
+          scheduled_at: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          group_id?: string;
+          title?: string;
+          meet_link?: string;
+          scheduled_at?: string;
+          created_at?: string;
+        };
         Relationships: [];
       };
       material_categories: {
         Row: MaterialCategory;
-        Insert: Omit<MaterialCategory, 'id' | 'created_at'>;
-        Update: Partial<Omit<MaterialCategory, 'id' | 'created_at'>>;
+        Insert: {
+          id?: string;
+          name: string;
+          description?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          description?: string;
+          created_at?: string;
+        };
         Relationships: [];
       };
       material_items: {
         Row: MaterialItem;
-        Insert: Omit<MaterialItem, 'id' | 'created_at'>;
-        Update: Partial<Omit<MaterialItem, 'id' | 'created_at'>>;
+        Insert: {
+          id?: string;
+          category_id: string;
+          file_url: string;
+          file_type: string;
+          file_name: string;
+          sort_order?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          category_id?: string;
+          file_url?: string;
+          file_type?: string;
+          file_name?: string;
+          sort_order?: number;
+          created_at?: string;
+        };
         Relationships: [];
       };
       post_reads: {
         Row: PostRead;
-        Insert: Omit<PostRead, 'id' | 'read_at'>;
-        Update: Partial<Omit<PostRead, 'id' | 'read_at'>>;
+        Insert: {
+          id?: string;
+          user_id: string;
+          post_id: string;
+          read_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          post_id?: string;
+          read_at?: string;
+        };
         Relationships: [];
       };
     };
@@ -190,4 +356,4 @@ export interface Database {
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };
-}
+};

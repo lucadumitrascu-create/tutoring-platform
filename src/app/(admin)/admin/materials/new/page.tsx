@@ -21,8 +21,7 @@ export default function NewCategoryPage() {
     setError('');
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: cat, error: err } = await (supabase as any)
+      const { data: cat, error: err } = await supabase
         .from('material_categories')
         .insert({ name: name.trim(), description: description.trim() })
         .select()

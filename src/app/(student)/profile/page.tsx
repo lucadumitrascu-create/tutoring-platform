@@ -32,12 +32,12 @@ export default function ProfilePage() {
 
       // Fetch stats in parallel
       const [membershipsRes, submissionsRes, readsRes] = await Promise.all([
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (supabase as any).from('group_members').select('id', { count: 'exact', head: true }).eq('user_id', authUser.id),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (supabase as any).from('assignment_submissions').select('id', { count: 'exact', head: true }).eq('student_id', authUser.id),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (supabase as any).from('post_reads').select('id', { count: 'exact', head: true }).eq('user_id', authUser.id),
+
+        supabase.from('group_members').select('id', { count: 'exact', head: true }).eq('user_id', authUser.id),
+
+        supabase.from('assignment_submissions').select('id', { count: 'exact', head: true }).eq('student_id', authUser.id),
+
+        supabase.from('post_reads').select('id', { count: 'exact', head: true }).eq('user_id', authUser.id),
       ]);
 
       setStats({

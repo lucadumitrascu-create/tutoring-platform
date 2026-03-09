@@ -48,15 +48,13 @@ export default function ManageAssignmentPage() {
 
   useEffect(() => {
     async function load() {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: assignment } = await (supabase as any).from('assignments').select('*').eq('id', assignmentId).single() as { data: Assignment | null };
+      const { data: assignment } = await supabase.from('assignments').select('*').eq('id', assignmentId).single() as { data: Assignment | null };
       if (!assignment) { router.push(`/admin/groups/${groupId}`); return; }
       setTitle(assignment.title);
       setDescription(assignment.description);
       setDeadline(assignment.deadline ? assignment.deadline.slice(0, 16) : '');
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: existingFiles } = await (supabase as any).from('assignment_files').select('*').eq('assignment_id', assignmentId).order('sort_order') as { data: AssignmentFile[] | null };
+      const { data: existingFiles } = await supabase.from('assignment_files').select('*').eq('assignment_id', assignmentId).order('sort_order') as { data: AssignmentFile[] | null };
       setFiles((existingFiles ?? []).map((f) => ({
         id: crypto.randomUUID(), file: null, fileName: f.file_name, fileType: f.file_type,
         source: 'bunny' as const,
@@ -70,8 +68,7 @@ export default function ManageAssignmentPage() {
   }, [assignmentId]);
 
   async function loadSubmissions() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data } = await (supabase as any).from('assignment_submissions').select('*, student:users(*)').eq('assignment_id', assignmentId).order('created_at', { ascending: false }) as { data: SubmissionWithStudent[] | null };
+    const { data } = await supabase.from('assignment_submissions').select('*, student:users(*)').eq('assignment_id', assignmentId).order('created_at', { ascending: false }) as { data: SubmissionWithStudent[] | null };
     setSubmissions(data ?? []);
   }
 
@@ -87,8 +84,7 @@ export default function ManageAssignmentPage() {
 
   async function removeFile(f: PendingFile) {
     if (f.isExisting && f.dbId) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('assignment_files').delete().eq('id', f.dbId);
+      await supabase.from('assignment_files').delete().eq('id', f.dbId);
     }
     setFiles((prev) => prev.filter((pf) => pf.id !== f.id));
   }
@@ -117,16 +113,14 @@ export default function ManageAssignmentPage() {
     setError('');
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('assignments').update({
+      await supabase.from('assignments').update({
         title: title.trim(), description: description.trim(), deadline: deadline || null,
       }).eq('id', assignmentId);
 
       for (let i = 0; i < files.length; i++) {
         const f = files[i];
         if (f.isExisting && f.dbId) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await (supabase as any).from('assignment_files').update({ sort_order: i }).eq('id', f.dbId);
+          await supabase.from('assignment_files').update({ sort_order: i }).eq('id', f.dbId);
         }
       }
 
@@ -137,8 +131,7 @@ export default function ManageAssignmentPage() {
 
         const result = await uploadFile(f);
         if (result) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await (supabase as any).from('assignment_files').insert({
+          await supabase.from('assignment_files').insert({
             assignment_id: assignmentId, file_url: result.url, file_type: f.fileType, file_name: result.fileName, sort_order: i,
           });
           setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, uploading: false, progress: 100, done: true } : pf));
@@ -170,8 +163,7 @@ export default function ManageAssignmentPage() {
       }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error: updateError } = await (supabase as any).from('assignment_submissions').update({
+    const { error: updateError } = await supabase.from('assignment_submissions').update({
       status: action, feedback, feedback_file_url, feedback_file_name,
     }).eq('id', subId);
 
@@ -322,10 +314,10 @@ export default function ManageAssignmentPage() {
                     </a>
                   )}
 
-                  {(sub as any).text_answer && (
+                  {sub.text_answer && (
                     <div className="bg-[#f0e8d8] rounded-lg px-4 py-3 mb-3">
                       <p className="text-xs font-medium text-ink-lighter mb-1">Răspuns text</p>
-                      <p className="text-sm text-ink whitespace-pre-wrap">{(sub as any).text_answer}</p>
+                      <p className="text-sm text-ink whitespace-pre-wrap">{sub.text_answer}</p>
                     </div>
                   )}
 

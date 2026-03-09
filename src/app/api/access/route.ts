@@ -11,8 +11,7 @@ export async function POST() {
     }
 
     // Student can request access if status is 'none' or 'rejected'
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('users')
       .update({ access_status: 'pending' })
       .eq('id', user.id)
@@ -55,8 +54,7 @@ export async function PATCH(request: NextRequest) {
 
     const newStatus = action === 'approve' ? 'approved' : 'rejected';
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('users')
       .update({ access_status: newStatus })
       .eq('id', userId);
@@ -96,8 +94,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'userId required' }, { status: 400 });
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('users')
       .update({ access_status: 'none' })
       .eq('id', userId);

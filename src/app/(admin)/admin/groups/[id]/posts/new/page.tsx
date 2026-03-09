@@ -45,8 +45,7 @@ export default function NewPostPage() {
 
   useEffect(() => {
     async function loadCategories() {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data } = await (supabase as any)
+      const { data } = await supabase
         .from('material_categories')
         .select('*, material_items(count)')
         .order('name') as { data: (MaterialCategory & { material_items: [{ count: number }] })[] | null };
@@ -66,8 +65,7 @@ export default function NewPostPage() {
 
     if (!categoryItems[catId]) {
       setLoadingCategory(catId);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: items } = await (supabase as any).from('material_items').select('*').eq('category_id', catId).order('sort_order') as { data: MaterialItem[] | null };
+      const { data: items } = await supabase.from('material_items').select('*').eq('category_id', catId).order('sort_order') as { data: MaterialItem[] | null };
       const fetched = items ?? [];
       setCategoryItems((prev) => ({ ...prev, [catId]: fetched }));
       setSelectedItems(new Set(fetched.map((i) => i.id)));
@@ -142,8 +140,7 @@ export default function NewPostPage() {
     setError('');
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: post, error: postErr } = await (supabase as any)
+      const { data: post, error: postErr } = await supabase
         .from('posts')
         .insert({ group_id: groupId, title: title.trim(), description: description.trim() })
         .select().single() as { data: Post | null; error: { message: string } | null };
@@ -155,8 +152,7 @@ export default function NewPostPage() {
 
         if (f.source === 'library' && f.libraryUrl) {
           // Library files already have URLs, just create post_file record
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await (supabase as any).from('post_files').insert({
+          await supabase.from('post_files').insert({
             post_id: post.id, file_url: f.libraryUrl, file_type: f.fileType,
             file_name: f.fileName, sort_order: i,
           });
@@ -165,8 +161,7 @@ export default function NewPostPage() {
           setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, uploading: true, progress: 50 } : pf));
           const result = await uploadFile(f);
           if (result) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            await (supabase as any).from('post_files').insert({
+            await supabase.from('post_files').insert({
               post_id: post.id, file_url: result.url, file_type: f.fileType,
               file_name: result.fileName, sort_order: i,
             });

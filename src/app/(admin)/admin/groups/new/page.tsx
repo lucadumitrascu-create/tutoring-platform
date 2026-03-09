@@ -21,8 +21,7 @@ export default function NewGroupPage() {
     setError('');
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: group, error: err } = await (supabase as any)
+      const { data: group, error: err } = await supabase
         .from('groups')
         .insert({ name: name.trim(), description: description.trim() })
         .select()

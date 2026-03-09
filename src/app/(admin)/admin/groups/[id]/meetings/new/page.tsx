@@ -25,8 +25,7 @@ export default function NewMeetingPage() {
     setError('');
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error: err } = await (supabase as any)
+      const { error: err } = await supabase
         .from('meetings')
         .insert({ group_id: groupId, title: title.trim(), meet_link: meetLink.trim(), scheduled_at: scheduledAt });
 

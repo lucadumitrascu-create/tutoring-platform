@@ -8,6 +8,7 @@ import type { Group, Post, Assignment, Meeting, User } from '@/types/database';
 import { SkeletonLine, SkeletonList } from '@/components/ui/Skeleton';
 import SearchInput from '@/components/ui/SearchInput';
 import EmptyState from '@/components/ui/EmptyState';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 type Tab = 'posts' | 'assignments' | 'meetings' | 'members';
 
@@ -32,29 +33,26 @@ export default function AdminGroupDetailPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
+  const [confirmAction, setConfirmAction] = useState<{ title: string; message: string; action: () => void } | null>(null);
 
   useEffect(() => { loadGroup(); }, [id]);
   useEffect(() => { loadTabData(); }, [tab, id]);
 
   async function loadGroup() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data } = await (supabase as any).from('groups').select('*').eq('id', id).single() as { data: Group | null };
+    const { data } = await supabase.from('groups').select('*').eq('id', id).single() as { data: Group | null };
     setGroup(data);
     setLoading(false);
   }
 
   async function loadTabData() {
     if (tab === 'posts') {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data } = await (supabase as any).from('posts').select('*').eq('group_id', id).order('created_at', { ascending: false }) as { data: Post[] | null };
+      const { data } = await supabase.from('posts').select('*').eq('group_id', id).order('created_at', { ascending: false }) as { data: Post[] | null };
       setPosts(data ?? []);
     } else if (tab === 'assignments') {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data } = await (supabase as any).from('assignments').select('*, assignment_submissions(count)').eq('group_id', id).order('created_at', { ascending: false }) as { data: (Assignment & { assignment_submissions: [{ count: number }] })[] | null };
+      const { data } = await supabase.from('assignments').select('*, assignment_submissions(count)').eq('group_id', id).order('created_at', { ascending: false }) as { data: (Assignment & { assignment_submissions: [{ count: number }] })[] | null };
       setAssignments((data ?? []).map((a) => ({ ...a, submissionCount: a.assignment_submissions?.[0]?.count ?? 0 })));
     } else if (tab === 'meetings') {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data } = await (supabase as any).from('meetings').select('*').eq('group_id', id).order('scheduled_at', { ascending: true }) as { data: Meeting[] | null };
+      const { data } = await supabase.from('meetings').select('*').eq('group_id', id).order('scheduled_at', { ascending: true }) as { data: Meeting[] | null };
       setMeetings(data ?? []);
     } else if (tab === 'members') {
       await loadMembers();
@@ -62,8 +60,7 @@ export default function AdminGroupDetailPage() {
   }
 
   async function loadMembers() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: membersData } = await (supabase as any).from('group_members').select('id, user_id, user:users(*)').eq('group_id', id) as { data: MemberWithUser[] | null };
+    const { data: membersData } = await supabase.from('group_members').select('id, user_id, user:users(*)').eq('group_id', id) as { data: MemberWithUser[] | null };
     setMembers(membersData ?? []);
 
     const { data: students } = await supabase.from('users').select('*').eq('role', 'student').eq('access_status', 'approved').order('full_name') as { data: User[] | null };
@@ -72,46 +69,64 @@ export default function AdminGroupDetailPage() {
 
   async function addMember(userId: string) {
     setActionLoading(`add-${userId}`);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error: err } = await (supabase as any).from('group_members').insert({ group_id: id, user_id: userId });
+    const { error: err } = await supabase.from('group_members').insert({ group_id: id, user_id: userId });
     if (err) { setError(err.code === '23505' ? 'Este deja membru.' : 'Nu s-a putut adăuga membrul.'); }
     else { await loadMembers(); }
     setActionLoading(null);
   }
 
-  async function removeMember(membershipId: string) {
+  async function doRemoveMember(membershipId: string) {
     setActionLoading(`rm-${membershipId}`);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).from('group_members').delete().eq('id', membershipId);
+    await supabase.from('group_members').delete().eq('id', membershipId);
     await loadMembers();
     setActionLoading(null);
   }
 
-  async function deletePost(postId: string) {
-    if (!window.confirm('Ștergi această postare?')) return;
-    setActionLoading(`del-post-${postId}`);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).from('posts').delete().eq('id', postId);
-    setPosts((prev) => prev.filter((p) => p.id !== postId));
-    setActionLoading(null);
+  function removeMember(membershipId: string, memberName: string) {
+    setConfirmAction({
+      title: 'Elimină membru',
+      message: `Ești sigur că vrei să elimini pe ${memberName} din grup?`,
+      action: () => doRemoveMember(membershipId),
+    });
   }
 
-  async function deleteAssignment(aId: string) {
-    if (!window.confirm('Ștergi această temă și toate trimiterile?')) return;
-    setActionLoading(`del-asgn-${aId}`);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).from('assignments').delete().eq('id', aId);
-    setAssignments((prev) => prev.filter((a) => a.id !== aId));
-    setActionLoading(null);
+  function deletePost(postId: string) {
+    setConfirmAction({
+      title: 'Șterge postarea',
+      message: 'Ești sigur că vrei să ștergi această postare?',
+      action: async () => {
+        setActionLoading(`del-post-${postId}`);
+        await supabase.from('posts').delete().eq('id', postId);
+        setPosts((prev) => prev.filter((p) => p.id !== postId));
+        setActionLoading(null);
+      },
+    });
   }
 
-  async function deleteMeeting(mId: string) {
-    if (!window.confirm('Ștergi această întâlnire?')) return;
-    setActionLoading(`del-meet-${mId}`);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).from('meetings').delete().eq('id', mId);
-    setMeetings((prev) => prev.filter((m) => m.id !== mId));
-    setActionLoading(null);
+  function deleteAssignment(aId: string) {
+    setConfirmAction({
+      title: 'Șterge tema',
+      message: 'Ești sigur că vrei să ștergi această temă și toate trimiterile?',
+      action: async () => {
+        setActionLoading(`del-asgn-${aId}`);
+        await supabase.from('assignments').delete().eq('id', aId);
+        setAssignments((prev) => prev.filter((a) => a.id !== aId));
+        setActionLoading(null);
+      },
+    });
+  }
+
+  function deleteMeeting(mId: string) {
+    setConfirmAction({
+      title: 'Șterge întâlnirea',
+      message: 'Ești sigur că vrei să ștergi această întâlnire?',
+      action: async () => {
+        setActionLoading(`del-meet-${mId}`);
+        await supabase.from('meetings').delete().eq('id', mId);
+        setMeetings((prev) => prev.filter((m) => m.id !== mId));
+        setActionLoading(null);
+      },
+    });
   }
 
   if (loading) {
@@ -293,7 +308,7 @@ export default function AdminGroupDetailPage() {
                       <p className="text-xs text-ink-muted">{m.user?.email}</p>
                     </div>
                   </div>
-                  <button onClick={() => removeMember(m.id)} disabled={actionLoading === `rm-${m.id}`} className="text-xs text-red-500 font-medium hover:underline disabled:opacity-50 py-1.5 px-2 min-h-[36px]">Elimină</button>
+                  <button onClick={() => removeMember(m.id, m.user?.full_name || 'acest membru')} disabled={actionLoading === `rm-${m.id}`} className="text-xs text-red-500 font-medium hover:underline disabled:opacity-50 py-1.5 px-2 min-h-[36px]">Elimină</button>
                 </div>
               ))}
             </div>
@@ -325,6 +340,18 @@ export default function AdminGroupDetailPage() {
           )}
         </div>
       )}
+
+      <ConfirmModal
+        open={confirmAction !== null}
+        title={confirmAction?.title ?? ''}
+        message={confirmAction?.message ?? ''}
+        danger
+        onConfirm={() => {
+          confirmAction?.action();
+          setConfirmAction(null);
+        }}
+        onCancel={() => setConfirmAction(null)}
+      />
     </div>
   );
 }

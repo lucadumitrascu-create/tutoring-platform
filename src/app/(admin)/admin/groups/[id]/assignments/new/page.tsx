@@ -69,8 +69,7 @@ export default function NewAssignmentPage() {
     setError('');
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: assignment, error: aErr } = await (supabase as any)
+      const { data: assignment, error: aErr } = await supabase
         .from('assignments')
         .insert({ group_id: groupId, title: title.trim(), description: description.trim(), deadline: deadline || null })
         .select().single() as { data: Assignment | null; error: { message: string } | null };
@@ -83,8 +82,7 @@ export default function NewAssignmentPage() {
 
         const result = await uploadFile(f);
         if (result) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await (supabase as any).from('assignment_files').insert({
+          await supabase.from('assignment_files').insert({
             assignment_id: assignment.id, file_url: result.url, file_type: f.fileType,
             file_name: result.fileName, sort_order: i,
           });

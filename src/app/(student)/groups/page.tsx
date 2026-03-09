@@ -23,8 +23,7 @@ export default function StudentGroupsPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: memberships } = await (supabase as any)
+      const { data: memberships } = await supabase
         .from('group_members')
         .select('group:groups(*)')
         .eq('user_id', user.id) as { data: { group: Group }[] | null };
@@ -34,10 +33,8 @@ export default function StudentGroupsPage() {
       if (userGroups.length > 0) {
         const groupIds = userGroups.map((g) => g.id);
         const [assignmentsRes, submissionsRes] = await Promise.all([
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (supabase as any).from('assignments').select('id, group_id').in('group_id', groupIds) as Promise<{ data: Pick<Assignment, 'id' | 'group_id'>[] | null }>,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (supabase as any).from('assignment_submissions').select('assignment_id').eq('student_id', user.id) as Promise<{ data: { assignment_id: string }[] | null }>,
+          supabase.from('assignments').select('id, group_id').in('group_id', groupIds).then((r) => r as unknown as { data: Pick<Assignment, 'id' | 'group_id'>[] | null }),
+          supabase.from('assignment_submissions').select('assignment_id').eq('student_id', user.id).then((r) => r as unknown as { data: { assignment_id: string }[] | null }),
         ]);
 
         const allAssignments = assignmentsRes.data ?? [];

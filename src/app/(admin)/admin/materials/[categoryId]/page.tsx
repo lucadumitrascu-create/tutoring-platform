@@ -42,21 +42,18 @@ export default function CategoryDetailPage() {
 
   useEffect(() => {
     async function load() {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: cat } = await (supabase as any).from('material_categories').select('*').eq('id', categoryId).single() as { data: MaterialCategory | null };
+      const { data: cat } = await supabase.from('material_categories').select('*').eq('id', categoryId).single() as { data: MaterialCategory | null };
       if (!cat) { router.push('/admin/materials'); return; }
       setCategory(cat);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: items } = await (supabase as any).from('material_items').select('*').eq('category_id', categoryId).order('sort_order') as { data: MaterialItem[] | null };
+      const { data: items } = await supabase.from('material_items').select('*').eq('category_id', categoryId).order('sort_order') as { data: MaterialItem[] | null };
       setFiles((items ?? []).map((f) => ({
         id: crypto.randomUUID(), file: null, fileName: f.file_name, displayName: f.file_name, fileType: f.file_type,
         source: 'bunny' as const,
         uploading: false, progress: 100, error: '', done: true, isExisting: true, dbId: f.id, fileUrl: f.file_url, editingName: false,
       })));
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: groupsData } = await (supabase as any).from('groups').select('*').order('name') as { data: Group[] | null };
+      const { data: groupsData } = await supabase.from('groups').select('*').order('name') as { data: Group[] | null };
       setGroups(groupsData ?? []);
 
       setLoading(false);
@@ -76,8 +73,7 @@ export default function CategoryDetailPage() {
 
   async function removeFile(f: PendingFile) {
     if (f.isExisting && f.dbId) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('material_items').delete().eq('id', f.dbId);
+      await supabase.from('material_items').delete().eq('id', f.dbId);
     }
     setFiles((prev) => prev.filter((pf) => pf.id !== f.id));
   }
@@ -100,8 +96,7 @@ export default function CategoryDetailPage() {
 
   async function saveExistingName(f: PendingFile) {
     if (f.isExisting && f.dbId && f.displayName.trim() && f.displayName !== f.fileName) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('material_items').update({ file_name: f.displayName.trim() }).eq('id', f.dbId);
+      await supabase.from('material_items').update({ file_name: f.displayName.trim() }).eq('id', f.dbId);
       setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, fileName: f.displayName.trim(), editingName: false } : pf));
     } else {
       setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, displayName: f.fileName, editingName: false } : pf));
@@ -122,8 +117,7 @@ export default function CategoryDetailPage() {
       for (let i = 0; i < files.length; i++) {
         const f = files[i];
         if (f.isExisting && f.dbId) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await (supabase as any).from('material_items').update({ sort_order: i }).eq('id', f.dbId);
+          await supabase.from('material_items').update({ sort_order: i }).eq('id', f.dbId);
         }
       }
 
@@ -136,8 +130,7 @@ export default function CategoryDetailPage() {
         const result = await uploadFile(f);
         if (result) {
           const saveName = f.displayName.trim() || result.fileName;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const { data: inserted } = await (supabase as any).from('material_items').insert({
+          const { data: inserted } = await supabase.from('material_items').insert({
             category_id: categoryId, file_url: result.url, file_type: f.fileType, file_name: saveName, sort_order: i,
           }).select().single() as { data: MaterialItem | null };
           setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, uploading: false, progress: 100, done: true, isExisting: true, dbId: inserted?.id, fileUrl: result.url, fileName: saveName, displayName: saveName } : pf));
@@ -161,8 +154,7 @@ export default function CategoryDetailPage() {
 
     try {
       // Get all existing material items with URLs
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: items } = await (supabase as any).from('material_items').select('*').eq('category_id', categoryId).order('sort_order') as { data: MaterialItem[] | null };
+      const { data: items } = await supabase.from('material_items').select('*').eq('category_id', categoryId).order('sort_order') as { data: MaterialItem[] | null };
 
       if (!items || items.length === 0) {
         setError('Nu există fișiere de trimis. Încarcă fișiere mai întâi.');
@@ -171,8 +163,7 @@ export default function CategoryDetailPage() {
       }
 
       // Create post in group
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: post, error: postErr } = await (supabase as any)
+      const { data: post, error: postErr } = await supabase
         .from('posts')
         .insert({ group_id: groupId, title: category.name, description: category.description })
         .select().single() as { data: Post | null; error: { message: string } | null };
@@ -186,8 +177,7 @@ export default function CategoryDetailPage() {
       // Copy all files as post_files
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (supabase as any).from('post_files').insert({
+        await supabase.from('post_files').insert({
           post_id: post.id, file_url: item.file_url, file_type: item.file_type, file_name: item.file_name, sort_order: i,
         });
       }

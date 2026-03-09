@@ -35,14 +35,12 @@ export default function EditPostPage() {
 
   useEffect(() => {
     async function load() {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: post } = await (supabase as any).from('posts').select('*').eq('id', postId).single() as { data: Post | null };
+      const { data: post } = await supabase.from('posts').select('*').eq('id', postId).single() as { data: Post | null };
       if (!post) { router.push(`/admin/groups/${groupId}`); return; }
       setTitle(post.title);
       setDescription(post.description);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: existingFiles } = await (supabase as any).from('post_files').select('*').eq('post_id', postId).order('sort_order') as { data: PostFile[] | null };
+      const { data: existingFiles } = await supabase.from('post_files').select('*').eq('post_id', postId).order('sort_order') as { data: PostFile[] | null };
       setFiles((existingFiles ?? []).map((f) => ({
         id: crypto.randomUUID(), file: null, fileName: f.file_name, fileType: f.file_type,
         source: 'bunny' as const,
@@ -65,8 +63,7 @@ export default function EditPostPage() {
 
   async function removeFile(f: PendingFile) {
     if (f.isExisting && f.dbId) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('post_files').delete().eq('id', f.dbId);
+      await supabase.from('post_files').delete().eq('id', f.dbId);
     }
     setFiles((prev) => prev.filter((pf) => pf.id !== f.id));
   }
@@ -95,15 +92,13 @@ export default function EditPostPage() {
     setError('');
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('posts').update({ title: title.trim(), description: description.trim() }).eq('id', postId);
+      await supabase.from('posts').update({ title: title.trim(), description: description.trim() }).eq('id', postId);
 
       // Update sort_order for existing files
       for (let i = 0; i < files.length; i++) {
         const f = files[i];
         if (f.isExisting && f.dbId) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await (supabase as any).from('post_files').update({ sort_order: i }).eq('id', f.dbId);
+          await supabase.from('post_files').update({ sort_order: i }).eq('id', f.dbId);
         }
       }
 
@@ -115,8 +110,7 @@ export default function EditPostPage() {
 
         const result = await uploadFile(f);
         if (result) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await (supabase as any).from('post_files').insert({
+          await supabase.from('post_files').insert({
             post_id: postId, file_url: result.url, file_type: f.fileType, file_name: result.fileName, sort_order: i,
           });
           setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, uploading: false, progress: 100, done: true } : pf));

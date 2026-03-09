@@ -16,6 +16,8 @@ interface SubmissionWithStudent extends AssignmentSubmission {
   student: User;
 }
 
+const PAGE_SIZE = 20;
+
 export default function AdminAssignmentsPage() {
   const supabase = createClient();
 
@@ -29,21 +31,21 @@ export default function AdminAssignmentsPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [subsLoading, setSubsLoading] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [page]);
 
   async function loadData() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [assignmentsRes, groupsRes] = await Promise.all([
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (supabase as any)
+      supabase
         .from('assignments')
-        .select('*, group:groups(name), assignment_submissions(id, status)')
-        .order('created_at', { ascending: false }),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (supabase as any).from('groups').select('*').order('name'),
+        .select('*, group:groups(name), assignment_submissions(id, status)', { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1),
+      supabase.from('groups').select('*').order('name'),
     ]);
 
     const rawAssignments = (assignmentsRes.data ?? []) as (Assignment & {
@@ -59,6 +61,7 @@ export default function AdminAssignmentsPage() {
     }));
 
     setAssignments(mapped);
+    setTotalCount(assignmentsRes.count ?? 0);
     setGroups((groupsRes.data as Group[]) ?? []);
     setLoading(false);
   }
@@ -66,8 +69,7 @@ export default function AdminAssignmentsPage() {
   async function loadSubmissions(assignmentId: string) {
     if (submissions[assignmentId]) return;
     setSubsLoading(assignmentId);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data } = await (supabase as any)
+    const { data } = await supabase
       .from('assignment_submissions')
       .select('*, student:users(*)')
       .eq('assignment_id', assignmentId)
@@ -100,8 +102,7 @@ export default function AdminAssignmentsPage() {
       }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).from('assignment_submissions').update({
+    await supabase.from('assignment_submissions').update({
       status: action, feedback, feedback_file_url, feedback_file_name,
     }).eq('id', subId);
 
@@ -109,8 +110,7 @@ export default function AdminAssignmentsPage() {
     setFeedbackFiles((prev) => { const copy = { ...prev }; delete copy[subId]; return copy; });
 
     // Reload submissions for this assignment
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data } = await (supabase as any)
+    const { data } = await supabase
       .from('assignment_submissions')
       .select('*, student:users(*)')
       .eq('assignment_id', assignmentId)
@@ -322,6 +322,29 @@ export default function AdminAssignmentsPage() {
           <p className="text-ink-muted text-lg">
             {filterGroup ? 'Nu există teme în acest grup.' : 'Încă nu există teme.'}
           </p>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalCount > PAGE_SIZE && (
+        <div className="flex items-center justify-center gap-4 mt-6">
+          <button
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            disabled={page === 0}
+            className={`text-sm font-medium px-4 py-2.5 min-h-[44px] rounded-lg bg-paper border border-sketch text-ink hover:bg-[#f0e8d8] transition-all ${page === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            Anterior
+          </button>
+          <span className="text-sm text-ink">
+            Pagina {page + 1} din {Math.ceil(totalCount / PAGE_SIZE)}
+          </span>
+          <button
+            onClick={() => setPage((p) => p + 1)}
+            disabled={(page + 1) * PAGE_SIZE >= totalCount}
+            className={`text-sm font-medium px-4 py-2.5 min-h-[44px] rounded-lg bg-paper border border-sketch text-ink hover:bg-[#f0e8d8] transition-all ${(page + 1) * PAGE_SIZE >= totalCount ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            Următor
+          </button>
         </div>
       )}
     </div>

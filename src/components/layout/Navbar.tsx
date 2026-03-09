@@ -6,8 +6,12 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import type { User } from '@/types/database';
 
-const studentLinks: { href: string; label: string }[] = [];
-// Empty - all navigation is on dashboard cards
+const studentLinks = [
+  { href: '/dashboard', label: 'Acasă' },
+  { href: '/groups', label: 'Grupuri' },
+  { href: '/homework', label: 'Teme' },
+  { href: '/profile', label: 'Profil' },
+];
 
 export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
@@ -31,23 +35,20 @@ export default function Navbar() {
       setUser(profile);
 
       // Count assignments without submissions for this student
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: memberships } = await (supabase as any)
+      const { data: memberships } = await supabase
         .from('group_members')
         .select('group_id')
         .eq('user_id', authUser.id) as { data: { group_id: string }[] | null };
 
       if (memberships && memberships.length > 0) {
         const groupIds = memberships.map((m) => m.group_id);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { data: assignments } = await (supabase as any)
+        const { data: assignments } = await supabase
           .from('assignments')
           .select('id')
           .in('group_id', groupIds) as { data: { id: string }[] | null };
 
         if (assignments && assignments.length > 0) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const { data: submissions } = await (supabase as any)
+          const { data: submissions } = await supabase
             .from('assignment_submissions')
             .select('assignment_id')
             .eq('student_id', authUser.id) as { data: { assignment_id: string }[] | null };

@@ -35,8 +35,7 @@ export default function DashboardPage() {
         const { data: { user: authUser } } = await supabase.auth.getUser();
         if (!authUser) return;
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { data: memberships } = await (supabase as any)
+        const { data: memberships } = await supabase
           .from('group_members')
           .select('group:groups(*)')
           .eq('user_id', authUser.id) as { data: { group: Group }[] | null };
@@ -48,12 +47,9 @@ export default function DashboardPage() {
 
           // Fetch meetings, assignments, submissions in parallel
           const [meetingsRes, assignmentsRes, submissionsRes] = await Promise.all([
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (supabase as any).from('meetings').select('*, group:groups(name)').in('group_id', groupIds).gte('scheduled_at', new Date().toISOString()).order('scheduled_at', { ascending: true }).limit(5) as Promise<{ data: (Meeting & { group: { name: string } })[] | null }>,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (supabase as any).from('assignments').select('*, group:groups(name)').in('group_id', groupIds) as Promise<{ data: (Assignment & { group: { name: string } })[] | null }>,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (supabase as any).from('assignment_submissions').select('assignment_id').eq('student_id', authUser.id) as Promise<{ data: { assignment_id: string }[] | null }>,
+            supabase.from('meetings').select('*, group:groups(name)').in('group_id', groupIds).gte('scheduled_at', new Date().toISOString()).order('scheduled_at', { ascending: true }).limit(5).then((r) => r as unknown as { data: (Meeting & { group: { name: string } })[] | null }),
+            supabase.from('assignments').select('*, group:groups(name)').in('group_id', groupIds).then((r) => r as unknown as { data: (Assignment & { group: { name: string } })[] | null }),
+            supabase.from('assignment_submissions').select('assignment_id').eq('student_id', authUser.id).then((r) => r as unknown as { data: { assignment_id: string }[] | null }),
           ]);
 
           setUpcomingMeetings((meetingsRes.data ?? []).map((m) => ({ ...m, groupName: m.group?.name || '' })));

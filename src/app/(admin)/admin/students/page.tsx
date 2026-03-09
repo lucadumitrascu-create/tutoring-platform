@@ -14,6 +14,8 @@ const statusConfig: Record<AccessStatus, { label: string; bg: string; text: stri
   rejected: { label: 'Respins', bg: 'bg-red-100', text: 'text-red-700' },
 };
 
+const PAGE_SIZE = 20;
+
 export default function AdminStudentsPage() {
   const [students, setStudents] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,22 +27,26 @@ export default function AdminStudentsPage() {
   const [showGroupPicker, setShowGroupPicker] = useState(false);
   const [addingToGroup, setAddingToGroup] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState('');
+  const [page, setPage] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
   const supabase = createClient();
 
   useEffect(() => {
     loadStudents();
     loadGroups();
-  }, []);
+  }, [page]);
 
   async function loadStudents() {
     try {
-      const { data: users } = await supabase
+      const { data: users, count } = await supabase
         .from('users')
-        .select('*')
+        .select('*', { count: 'exact' })
         .eq('role', 'student')
-        .order('created_at', { ascending: false }) as { data: User[] | null };
+        .order('created_at', { ascending: false })
+        .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1) as { data: User[] | null; count: number | null };
 
       setStudents(users ?? []);
+      setTotalCount(count ?? 0);
     } catch {
       setError('Nu s-au putut încărca elevii.');
     }
@@ -48,8 +54,7 @@ export default function AdminStudentsPage() {
   }
 
   async function loadGroups() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data } = await (supabase as any).from('groups').select('*').order('name') as { data: Group[] | null };
+    const { data } = await supabase.from('groups').select('*').order('name') as { data: Group[] | null };
     setGroups(data ?? []);
   }
 
@@ -118,8 +123,7 @@ export default function AdminStudentsPage() {
     try {
       const ids = Array.from(selectedStudents);
       for (const userId of ids) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { data: existing } = await (supabase as any)
+        const { data: existing } = await supabase
           .from('group_members')
           .select('id')
           .eq('group_id', groupId)
@@ -127,8 +131,7 @@ export default function AdminStudentsPage() {
           .maybeSingle() as { data: { id: string } | null };
 
         if (!existing) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await (supabase as any).from('group_members').insert({ group_id: groupId, user_id: userId });
+          await supabase.from('group_members').insert({ group_id: groupId, user_id: userId });
         }
       }
 
@@ -346,6 +349,29 @@ export default function AdminStudentsPage() {
           <p className="text-ink-muted text-lg">
             {filter === 'all' ? 'Încă nu sunt elevi înregistrați.' : `Niciun elev ${tabs.find(t => t.key === filter)?.label.toLowerCase()}.`}
           </p>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalCount > PAGE_SIZE && (
+        <div className="flex items-center justify-center gap-4 mt-6">
+          <button
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            disabled={page === 0}
+            className={`text-sm font-medium px-4 py-2.5 min-h-[44px] rounded-lg bg-paper border border-sketch text-ink hover:bg-[#f0e8d8] transition-all ${page === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            Anterior
+          </button>
+          <span className="text-sm text-ink">
+            Pagina {page + 1} din {Math.ceil(totalCount / PAGE_SIZE)}
+          </span>
+          <button
+            onClick={() => setPage((p) => p + 1)}
+            disabled={(page + 1) * PAGE_SIZE >= totalCount}
+            className={`text-sm font-medium px-4 py-2.5 min-h-[44px] rounded-lg bg-paper border border-sketch text-ink hover:bg-[#f0e8d8] transition-all ${(page + 1) * PAGE_SIZE >= totalCount ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            Următor
+          </button>
         </div>
       )}
 

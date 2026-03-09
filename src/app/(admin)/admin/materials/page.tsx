@@ -21,8 +21,7 @@ export default function MaterialsPage() {
 
   async function loadCategories() {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data } = await (supabase as any)
+      const { data } = await supabase
         .from('material_categories')
         .select('*, material_items(count)')
         .order('created_at', { ascending: false }) as {
@@ -45,8 +44,7 @@ export default function MaterialsPage() {
     if (!window.confirm(`Ștergi "${cat.name}" și toate fișierele sale?`)) return;
     setDeleting(cat.id);
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('material_categories').delete().eq('id', cat.id);
+      await supabase.from('material_categories').delete().eq('id', cat.id);
       setCategories((prev) => prev.filter((c) => c.id !== cat.id));
     } catch {
       setError('Nu s-a putut șterge categoria.');

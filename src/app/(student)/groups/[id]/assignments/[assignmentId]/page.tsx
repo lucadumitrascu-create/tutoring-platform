@@ -8,6 +8,7 @@ import type { Assignment, AssignmentFile, AssignmentSubmission } from '@/types/d
 import { getRelativeTime, assignmentStatusConfig } from '@/lib/utils';
 import { uploadToBunny } from '@/lib/bunny';
 import { SkeletonLine } from '@/components/ui/Skeleton';
+import Toast from '@/components/ui/Toast';
 
 export default function StudentAssignmentPage() {
   const { id: groupId, assignmentId } = useParams<{ id: string; assignmentId: string }>();
@@ -21,21 +22,22 @@ export default function StudentAssignmentPage() {
   const [error, setError] = useState('');
   const [textAnswer, setTextAnswer] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
     async function load() {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: aData } = await (supabase as any).from('assignments').select('*').eq('id', assignmentId).single() as { data: Assignment | null };
+
+      const { data: aData } = await supabase.from('assignments').select('*').eq('id', assignmentId).single() as { data: Assignment | null };
       setAssignment(aData);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: fData } = await (supabase as any).from('assignment_files').select('*').eq('assignment_id', assignmentId).order('sort_order') as { data: AssignmentFile[] | null };
+
+      const { data: fData } = await supabase.from('assignment_files').select('*').eq('assignment_id', assignmentId).order('sort_order') as { data: AssignmentFile[] | null };
       setFiles(fData ?? []);
 
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { data: subData } = await (supabase as any).from('assignment_submissions').select('*').eq('assignment_id', assignmentId).eq('student_id', user.id).single() as { data: AssignmentSubmission | null };
+  
+        const { data: subData } = await supabase.from('assignment_submissions').select('*').eq('assignment_id', assignmentId).eq('student_id', user.id).single() as { data: AssignmentSubmission | null };
         setSubmission(subData);
         if (subData?.text_answer) setTextAnswer(subData.text_answer);
       }
@@ -70,16 +72,16 @@ export default function StudentAssignmentPage() {
 
       if (submission) {
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (supabase as any).from('assignment_submissions').update({
+  
+        await supabase.from('assignment_submissions').update({
           ...(fileUrl && { file_url: fileUrl, file_name: fileName }),
           text_answer: textAnswer.trim() || null,
           status: 'submitted',
           feedback: null,
         }).eq('id', submission.id);
       } else {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (supabase as any).from('assignment_submissions').insert({
+  
+        await supabase.from('assignment_submissions').insert({
           assignment_id: assignmentId,
           student_id: user.id,
           file_url: fileUrl,
@@ -88,10 +90,11 @@ export default function StudentAssignmentPage() {
         });
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: subData } = await (supabase as any).from('assignment_submissions').select('*').eq('assignment_id', assignmentId).eq('student_id', user.id).single() as { data: AssignmentSubmission | null };
+
+      const { data: subData } = await supabase.from('assignment_submissions').select('*').eq('assignment_id', assignmentId).eq('student_id', user.id).single() as { data: AssignmentSubmission | null };
       setSubmission(subData);
       setSelectedFile(null);
+      setToast({ message: 'Tema ta a fost trimisa cu succes!', type: 'success' });
     } catch {
       setError('Ceva nu a funcționat.');
     }
@@ -278,6 +281,14 @@ export default function StudentAssignmentPage() {
 
         {error && <div className="bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg mt-3">{error}</div>}
       </div>
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

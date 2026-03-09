@@ -19,20 +19,17 @@ export default function StudentPostDetailPage() {
 
   useEffect(() => {
     async function load() {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: postData } = await (supabase as any).from('posts').select('*').eq('id', postId).single() as { data: Post | null };
+      const { data: postData } = await supabase.from('posts').select('*').eq('id', postId).single() as { data: Post | null };
       setPost(postData);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: filesData } = await (supabase as any).from('post_files').select('*').eq('post_id', postId).order('sort_order') as { data: PostFile[] | null };
+      const { data: filesData } = await supabase.from('post_files').select('*').eq('post_id', postId).order('sort_order') as { data: PostFile[] | null };
       setFiles(filesData ?? []);
       setLoading(false);
 
       // Mark as read
       const { data: { user } } = await supabase.auth.getUser();
       if (user && postData) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (supabase as any).from('post_reads').upsert(
+        await supabase.from('post_reads').upsert(
           { user_id: user.id, post_id: postId },
           { onConflict: 'user_id,post_id' }
         );

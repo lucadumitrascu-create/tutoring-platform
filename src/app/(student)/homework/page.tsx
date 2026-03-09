@@ -27,8 +27,8 @@ export default function HomeworkPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setLoading(false); return; }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: memberships } = await (supabase as any)
+
+      const { data: memberships } = await supabase
         .from('group_members')
         .select('group_id, group:groups(name)')
         .eq('user_id', user.id) as { data: { group_id: string; group: { name: string } }[] | null };
@@ -39,8 +39,8 @@ export default function HomeworkPage() {
 
       if (groupIds.length === 0) { setLoading(false); return; }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: assignmentData } = await (supabase as any)
+
+      const { data: assignmentData } = await supabase
         .from('assignments')
         .select('*')
         .in('group_id', groupIds)
@@ -52,8 +52,8 @@ export default function HomeworkPage() {
       }));
       setAssignments(withGroup);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: subData } = await (supabase as any)
+
+      const { data: subData } = await supabase
         .from('assignment_submissions')
         .select('*')
         .eq('student_id', user.id) as { data: AssignmentSubmission[] | null };

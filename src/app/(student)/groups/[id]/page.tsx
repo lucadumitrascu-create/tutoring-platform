@@ -28,8 +28,7 @@ export default function StudentGroupDetailPage() {
 
   useEffect(() => {
     async function loadGroup() {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data } = await (supabase as any).from('groups').select('*').eq('id', id).single() as { data: Group | null };
+      const { data } = await supabase.from('groups').select('*').eq('id', id).single() as { data: Group | null };
       setGroup(data);
       setLoading(false);
     }
@@ -39,15 +38,13 @@ export default function StudentGroupDetailPage() {
   useEffect(() => {
     async function loadTabData() {
       if (tab === 'posts') {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { data } = await (supabase as any).from('posts').select('*').eq('group_id', id).order('created_at', { ascending: false }) as { data: Post[] | null };
+        const { data } = await supabase.from('posts').select('*').eq('group_id', id).order('created_at', { ascending: false }) as { data: Post[] | null };
         setPosts(data ?? []);
 
         // Load read status
         const { data: { user } } = await supabase.auth.getUser();
         if (user && data && data.length > 0) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const { data: reads } = await (supabase as any)
+          const { data: reads } = await supabase
             .from('post_reads')
             .select('post_id')
             .eq('user_id', user.id)
@@ -55,19 +52,16 @@ export default function StudentGroupDetailPage() {
           setReadPostIds(new Set((reads ?? []).map((r) => r.post_id)));
         }
       } else if (tab === 'assignments') {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { data } = await (supabase as any).from('assignments').select('*').eq('group_id', id).order('created_at', { ascending: false }) as { data: Assignment[] | null };
+        const { data } = await supabase.from('assignments').select('*').eq('group_id', id).order('created_at', { ascending: false }) as { data: Assignment[] | null };
         setAssignments(data ?? []);
 
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const { data: subs } = await (supabase as any).from('assignment_submissions').select('*').eq('student_id', user.id) as { data: AssignmentSubmission[] | null };
+          const { data: subs } = await supabase.from('assignment_submissions').select('*').eq('student_id', user.id) as { data: AssignmentSubmission[] | null };
           setSubmissions(subs ?? []);
         }
       } else if (tab === 'meetings') {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { data } = await (supabase as any).from('meetings').select('*').eq('group_id', id).order('scheduled_at', { ascending: true }) as { data: Meeting[] | null };
+        const { data } = await supabase.from('meetings').select('*').eq('group_id', id).order('scheduled_at', { ascending: true }) as { data: Meeting[] | null };
         setMeetings(data ?? []);
       }
     }
@@ -139,7 +133,7 @@ export default function StudentGroupDetailPage() {
                     {/* Unread dot */}
                     <div className="flex-shrink-0 pt-1.5">
                       {!isRead ? (
-                        <div className="w-2.5 h-2.5 bg-[#f0e8d8]0 rounded-full" />
+                        <div className="w-2.5 h-2.5 bg-amber-400 rounded-full" />
                       ) : (
                         <div className="w-2.5 h-2.5" />
                       )}

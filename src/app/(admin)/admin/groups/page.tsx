@@ -21,8 +21,8 @@ export default function AdminGroupsPage() {
 
   async function loadGroups() {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data } = await (supabase as any)
+  
+      const { data } = await supabase
         .from('groups')
         .select('*, group_members(count)')
         .order('created_at', { ascending: false }) as {
@@ -45,8 +45,8 @@ export default function AdminGroupsPage() {
     if (!window.confirm(`Ștergi "${group.name}"? Toate postările, temele și întâlnirile din acest grup vor fi șterse.`)) return;
     setDeleting(group.id);
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('groups').delete().eq('id', group.id);
+  
+      await supabase.from('groups').delete().eq('id', group.id);
       setGroups((prev) => prev.filter((g) => g.id !== group.id));
     } catch {
       setError('Nu s-a putut șterge grupul.');

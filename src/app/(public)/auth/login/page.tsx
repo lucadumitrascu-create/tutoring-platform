@@ -176,6 +176,12 @@ export default function LoginPage() {
               </button>
             </form>
 
+            <div className="mt-4 text-center">
+              <Link href="/auth/reset-password" className="text-sm text-sketch-dark hover:underline">
+                Ai uitat parola?
+              </Link>
+            </div>
+
             {loginType === 'student' && (
               <div className="mt-6 pt-6 border-t border-sketch-light text-center">
                 <p className="text-sm text-ink-lighter">
