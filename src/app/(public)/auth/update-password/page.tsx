@@ -17,28 +17,30 @@ export default function UpdatePasswordPage() {
   const supabase = createClient();
 
   useEffect(() => {
-    // Supabase automatically handles the token exchange from the URL hash
-    // We just need to wait for the session to be established
+    // Session should already exist — the callback route exchanged the code
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         setSessionReady(true);
+      } else {
+        // Fallback: listen for auth state change in case session is still loading
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+          if ((event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') && session) {
+            setSessionReady(true);
+            subscription.unsubscribe();
+          }
+        });
+        // Timeout — if no session after 5s, show error
+        setTimeout(() => {
+          if (!sessionReady) {
+            setError('Linkul de resetare a expirat sau este invalid. Încearcă din nou.');
+            setSessionReady(true); // show the form with error
+          }
+        }, 5000);
       }
     };
-
-    // Listen for auth state changes (recovery token exchange)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && session)) {
-        setSessionReady(true);
-      }
-    });
-
     checkSession();
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [supabase.auth]);
+  }, []);
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
