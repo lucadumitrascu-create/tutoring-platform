@@ -25,12 +25,36 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
   const path = request.nextUrl.pathname;
+  const code = request.nextUrl.searchParams.get('code');
+
+  // Handle PKCE code exchange on root URL (Supabase always redirects here)
+  if (path === '/' && code) {
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    if (!error && data.session) {
+      // Check if this is a password recovery session
+      // The AMR (Authentication Methods Reference) contains 'recovery' for password resets
+      const isRecovery = data.session.user?.recovery_sent_at != null &&
+        (Date.now() - new Date(data.session.user.recovery_sent_at).getTime()) < 600000; // within 10 min
+
+      const url = request.nextUrl.clone();
+      url.search = ''; // remove code param
+      if (isRecovery) {
+        url.pathname = '/auth/update-password';
+      } else {
+        // Email confirmation — redirect to confirm page
+        url.pathname = '/auth/confirm';
+      }
+      return NextResponse.redirect(url);
+    }
+  }
+
+  const { data: { user } } = await supabase.auth.getUser();
 
   // Redirect logged-in users away from auth pages
+  // EXCEPT update-password and confirm pages (they need to be logged in)
   if (path.startsWith('/auth/')) {
-    if (user) {
+    if (user && path !== '/auth/update-password' && path !== '/auth/confirm') {
       const url = request.nextUrl.clone();
       url.pathname = '/request-access';
       return NextResponse.redirect(url);
@@ -49,7 +73,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Protected student routes
-  if (path.startsWith('/dashboard') || path.startsWith('/groups') || path.startsWith('/profile')) {
+  if (path.startsWith('/dashboard') || path.startsWith('/groups') || path.startsWith('/profile') || path.startsWith('/homework')) {
     if (!user) {
       const url = request.nextUrl.clone();
       url.pathname = '/auth/login';
@@ -71,9 +95,11 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    '/',
     '/dashboard/:path*',
     '/groups/:path*',
     '/profile/:path*',
+    '/homework/:path*',
     '/admin/:path*',
     '/auth/:path*',
     '/request-access',
