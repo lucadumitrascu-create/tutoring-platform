@@ -50,7 +50,7 @@ export default function RegisterPage() {
           full_name: fullName,
           role: 'student',
         },
-        emailRedirectTo: `${window.location.origin}/api/auth/callback?next=/auth/confirm`,
+        emailRedirectTo: `${window.location.origin}/api/auth/confirm-callback`,
       },
     });
 
