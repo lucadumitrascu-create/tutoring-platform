@@ -1,272 +1,284 @@
-'use client';
-
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 export default function Home() {
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Navbar */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? 'bg-white/90 backdrop-blur-md border-b border-gray-200 shadow-sm'
-          : 'bg-transparent'
-      }`}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <Link href="/" className={`text-xl font-bold transition-colors ${scrolled ? 'text-primary-700' : 'text-white'}`}>
-            TutorPlatform
-          </Link>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/auth/login"
-              className={`font-medium px-3 py-2 rounded-lg transition-colors ${
-                scrolled
-                  ? 'text-gray-600 hover:text-gray-900'
-                  : 'text-white/80 hover:text-white'
-              }`}
-            >
-              Autentificare
-            </Link>
-            <Link
-              href="/auth/register"
-              className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                scrolled
-                  ? 'bg-primary-600 text-white hover:bg-primary-700'
-                  : 'bg-white text-primary-700 hover:bg-white/90'
-              }`}
-            >
-              Începe acum
-            </Link>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-[#e8e0d0]">
+      {/* Notebook page container */}
+      <div className="max-w-4xl mx-auto">
+        <div
+          className="min-h-screen bg-[#fdf6e3] shadow-[4px_4px_20px_rgba(0,0,0,0.15),-2px_0_10px_rgba(0,0,0,0.05)] relative"
+          style={{
+            backgroundImage: `
+              repeating-linear-gradient(transparent, transparent 31px, #d4c9b0 31px, #d4c9b0 32px)
+            `,
+            backgroundPosition: '0 80px',
+          }}
+        >
+          {/* Red margin line */}
+          <div className="absolute left-12 sm:left-20 top-0 bottom-0 w-[2px] bg-red-400/40" />
 
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary-600 via-primary-700 to-indigo-800 py-32 sm:py-44 px-4 sm:px-6">
-        {/* Decorative blobs */}
-        <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-white/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-[-15%] left-[-10%] w-[400px] h-[400px] bg-indigo-400/15 rounded-full blur-3xl" />
-        <div className="absolute top-[40%] left-[20%] w-[200px] h-[200px] bg-primary-400/10 rounded-full blur-2xl" />
+          {/* Hole punches */}
+          <div className="absolute left-3 sm:left-5 top-24 w-4 h-4 rounded-full bg-[#e8e0d0] border-2 border-[#c4b89a] shadow-inner" />
+          <div className="absolute left-3 sm:left-5 top-[50%] w-4 h-4 rounded-full bg-[#e8e0d0] border-2 border-[#c4b89a] shadow-inner" />
+          <div className="absolute left-3 sm:left-5 bottom-24 w-4 h-4 rounded-full bg-[#e8e0d0] border-2 border-[#c4b89a] shadow-inner" />
 
-        <div className="relative max-w-4xl mx-auto text-center">
-          <div className="inline-block bg-white/15 backdrop-blur-sm text-white text-sm font-medium px-5 py-2 rounded-full mb-8 border border-white/20">
-            Lecții private și de grup online
-          </div>
-          <h1 className="text-5xl sm:text-7xl font-bold text-white mb-6 leading-[1.1] tracking-tight">
-            Stăpânește orice materie cu{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-primary-200">
-              meditații personalizate
-            </span>
-          </h1>
-          <p className="text-lg sm:text-xl text-white/70 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Accesează lecții de calitate, materiale video, sesiuni live prin Google Meet
-            și feedback direct pe teme. Învață în ritmul tău.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/auth/register"
-              className="w-full sm:w-auto bg-white text-primary-700 px-8 py-4 rounded-xl hover:bg-white/90 font-semibold text-lg transition-all hover:shadow-lg hover:shadow-white/20 active:scale-[0.98]"
-            >
-              Începe să înveți
-            </Link>
-            <Link
-              href="/auth/login"
-              className="w-full sm:w-auto border-2 border-white/30 text-white px-8 py-4 rounded-xl hover:bg-white/10 font-semibold text-lg transition-all active:scale-[0.98]"
-            >
-              Am deja cont
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats */}
-      <section className="py-16 bg-white px-4 sm:px-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-0 sm:divide-x sm:divide-gray-200">
-            {[
-              { value: '50+', label: 'Elevi activi' },
-              { value: '100+', label: 'Lecții disponibile' },
-              { value: '5+', label: 'Ani de experiență' },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <p className="text-4xl sm:text-5xl font-bold text-primary-700 mb-1">{stat.value}</p>
-                <p className="text-sm text-gray-500 font-medium">{stat.label}</p>
+          {/* Content area - right of margin */}
+          <div className="pl-16 sm:pl-24 pr-6 sm:pr-12">
+            {/* Navbar */}
+            <nav className="flex items-center justify-between py-6 relative z-10">
+              <span className="font-hand text-2xl sm:text-3xl text-[#4a3f35] font-bold">
+                TutorPlatform
+              </span>
+              <div className="flex items-center gap-2 sm:gap-4">
+                <Link
+                  href="/auth/login"
+                  className="font-hand text-lg text-[#6b5e50] hover:text-[#4a3f35] transition-colors"
+                >
+                  Autentificare
+                </Link>
+                <Link
+                  href="/auth/register"
+                  className="font-hand text-lg bg-[#4a3f35] text-[#fdf6e3] px-4 py-1.5 rounded hover:bg-[#3a302a] transition-colors"
+                  style={{ border: '2px solid #4a3f35' }}
+                >
+                  Începe acum
+                </Link>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+            </nav>
 
-      {/* Features */}
-      <section className="py-20 bg-gray-50 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              De ce să înveți cu noi?
-            </h2>
-            <p className="text-gray-500 text-lg">
-              Cu ani de experiență în predare, ofer o abordare structurată și personalizată
-              care te ajută să-ți atingi obiectivele.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Card 1 */}
-            <div className="bg-white rounded-2xl p-8 border border-gray-100 hover:shadow-xl hover:-translate-y-1.5 hover:border-primary-200 transition-all duration-300 group">
-              <div className="w-14 h-14 bg-primary-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary-600 transition-colors duration-300">
-                <svg className="w-7 h-7 text-primary-600 group-hover:text-white transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            {/* Hero */}
+            <section className="pt-8 sm:pt-16 pb-12 sm:pb-20">
+              {/* Pencil icon */}
+              <div className="mb-6">
+                <svg className="w-10 h-10 text-[#8b7d6b]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.2} strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                  <path d="m15 5 4 4" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Lecții video</h3>
-              <p className="text-gray-500 leading-relaxed">
-                Urmărește lecții înregistrate de calitate oricând. Dă înapoi, pune pauză și învață în ritmul tău.
+              <h1 className="font-hand text-5xl sm:text-7xl lg:text-8xl text-[#3a302a] leading-[1.1] mb-4">
+                Stăpânește orice{' '}
+                <span className="relative inline-block">
+                  materie
+                  {/* Underline drawn effect */}
+                  <svg className="absolute -bottom-1 left-0 w-full h-3" viewBox="0 0 200 12" preserveAspectRatio="none">
+                    <path d="M2 8 Q50 2, 100 7 T198 5" stroke="#c44" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+                  </svg>
+                </span>
+              </h1>
+              <h2 className="font-hand text-3xl sm:text-4xl text-[#6b5e50] mb-8">
+                cu meditații personalizate
+              </h2>
+              <p className="text-[#8b7d6b] text-base sm:text-lg max-w-lg leading-relaxed mb-10" style={{ fontStyle: 'italic' }}>
+                Accesează lecții de calitate, materiale video, sesiuni live prin Google Meet
+                și feedback direct pe teme. Învață în ritmul tău.
               </p>
-            </div>
-
-            {/* Card 2 */}
-            <div className="bg-white rounded-2xl p-8 border border-gray-100 hover:shadow-xl hover:-translate-y-1.5 hover:border-amber-200 transition-all duration-300 group">
-              <div className="w-14 h-14 bg-amber-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-amber-500 transition-colors duration-300">
-                <svg className="w-7 h-7 text-amber-600 group-hover:text-white transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link
+                  href="/auth/register"
+                  className="font-hand text-xl text-center bg-[#4a3f35] text-[#fdf6e3] px-8 py-3 rounded hover:bg-[#3a302a] transition-all active:scale-[0.98]"
+                  style={{ border: '2px solid #4a3f35' }}
+                >
+                  Începe să înveți →
+                </Link>
+                <Link
+                  href="/auth/login"
+                  className="font-hand text-xl text-center text-[#6b5e50] px-8 py-3 rounded hover:bg-[#f0e8d8] transition-all active:scale-[0.98]"
+                  style={{ border: '2px dashed #c4b89a' }}
+                >
+                  Am deja cont
+                </Link>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Sesiuni live</h3>
-              <p className="text-gray-500 leading-relaxed">
-                Participă la sesiuni live pe Google Meet pentru interacțiune în timp real, întrebări și discuții de grup.
-              </p>
+            </section>
+
+            {/* Separator - hand drawn line */}
+            <div className="py-2">
+              <svg className="w-full h-4" viewBox="0 0 800 16" preserveAspectRatio="none">
+                <path d="M0 8 Q200 4, 400 10 T800 6" stroke="#c4b89a" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+              </svg>
             </div>
 
-            {/* Card 3 */}
-            <div className="bg-white rounded-2xl p-8 border border-gray-100 hover:shadow-xl hover:-translate-y-1.5 hover:border-emerald-200 transition-all duration-300 group">
-              <div className="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-emerald-500 transition-colors duration-300">
-                <svg className="w-7 h-7 text-emerald-600 group-hover:text-white transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Verificare teme</h3>
-              <p className="text-gray-500 leading-relaxed">
-                Trimite temele și primește feedback personalizat pentru a-ți urmări progresul și a te îmbunătăți.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* How it works - Timeline */}
-      <section className="py-20 bg-white px-4 sm:px-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Cum funcționează
-            </h2>
-            <p className="text-gray-500 text-lg">Trei pași simpli pentru a începe</p>
-          </div>
-
-          {/* Desktop timeline */}
-          <div className="hidden sm:flex items-start justify-between gap-4">
-            {[
-              { num: '1', title: 'Creează un cont', desc: 'Înregistrează-te și solicită acces pe platformă.' },
-              { num: '2', title: 'Primește aprobarea', desc: 'Odată ce plata este confirmată, primești acces complet.' },
-              { num: '3', title: 'Începe să înveți', desc: 'Accesează grupurile, lecțiile, temele și întâlnirile live.' },
-            ].map((step, i) => (
-              <div key={step.num} className="flex-1 flex flex-col items-center text-center">
-                <div className="flex items-center w-full mb-6">
-                  {i > 0 && <div className="flex-1 h-0.5 bg-gradient-to-r from-primary-300 to-primary-400" />}
-                  <div className="w-14 h-14 bg-gradient-to-br from-primary-600 to-indigo-600 text-white rounded-full flex items-center justify-center text-xl font-bold shadow-lg shadow-primary-200 flex-shrink-0">
-                    {step.num}
+            {/* Stats */}
+            <section className="py-10 sm:py-14">
+              <div className="grid grid-cols-3 gap-4 sm:gap-8">
+                {[
+                  { value: '50+', label: 'Elevi activi' },
+                  { value: '100+', label: 'Lecții' },
+                  { value: '5+', label: 'Ani experiență' },
+                ].map((stat) => (
+                  <div key={stat.label} className="text-center">
+                    <p className="font-hand text-4xl sm:text-6xl text-[#4a3f35] font-bold">{stat.value}</p>
+                    <p className="text-xs sm:text-sm text-[#8b7d6b] mt-1">{stat.label}</p>
                   </div>
-                  {i < 2 && <div className="flex-1 h-0.5 bg-gradient-to-r from-primary-400 to-indigo-300" />}
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-1">{step.title}</h3>
-                <p className="text-sm text-gray-500">{step.desc}</p>
+                ))}
               </div>
-            ))}
-          </div>
+            </section>
 
-          {/* Mobile timeline */}
-          <div className="sm:hidden space-y-0">
-            {[
-              { num: '1', title: 'Creează un cont', desc: 'Înregistrează-te și solicită acces pe platformă.' },
-              { num: '2', title: 'Primește aprobarea', desc: 'Odată ce plata este confirmată, primești acces complet.' },
-              { num: '3', title: 'Începe să înveți', desc: 'Accesează grupurile, lecțiile, temele și întâlnirile live.' },
-            ].map((step, i) => (
-              <div key={step.num} className="flex gap-4">
-                <div className="flex flex-col items-center">
-                  <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-indigo-600 text-white rounded-full flex items-center justify-center text-sm font-bold shadow-lg shadow-primary-200 flex-shrink-0">
-                    {step.num}
-                  </div>
-                  {i < 2 && <div className="w-0.5 flex-1 bg-gradient-to-b from-primary-300 to-indigo-300 my-2" />}
-                </div>
-                <div className={`pb-8 ${i === 2 ? 'pb-0' : ''}`}>
-                  <h3 className="font-semibold text-gray-900 mb-1">{step.title}</h3>
-                  <p className="text-sm text-gray-500">{step.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+            {/* Separator */}
+            <div className="py-2">
+              <svg className="w-full h-4" viewBox="0 0 800 16" preserveAspectRatio="none">
+                <path d="M0 10 Q200 6, 400 12 T800 8" stroke="#c4b89a" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+              </svg>
+            </div>
 
-      {/* CTA Final */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-primary-600 to-indigo-700 py-20 sm:py-24 px-4 sm:px-6">
-        <div className="absolute top-[-20%] right-[-10%] w-[400px] h-[400px] bg-white/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-[-20%] left-[-5%] w-[300px] h-[300px] bg-indigo-400/15 rounded-full blur-3xl" />
-
-        <div className="relative max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl sm:text-5xl font-bold text-white mb-4">
-            Pregătit să începi?
-          </h2>
-          <p className="text-lg text-white/70 mb-10 max-w-xl mx-auto">
-            Alătură-te elevilor care învață eficient cu lecții structurate, sesiuni live și feedback personalizat.
-          </p>
-          <Link
-            href="/auth/register"
-            className="inline-block bg-white text-primary-700 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/90 hover:shadow-lg hover:shadow-white/20 transition-all active:scale-[0.98]"
-          >
-            Creează cont gratuit
-          </Link>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 py-12 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-            <div>
-              <h4 className="text-lg font-bold text-white mb-3">TutorPlatform</h4>
-              <p className="text-sm text-gray-400">
-                Lecții private și de grup online. Învață de oriunde, oricând.
+            {/* Features */}
+            <section className="py-10 sm:py-14">
+              <h2 className="font-hand text-3xl sm:text-5xl text-[#3a302a] mb-3">
+                De ce să înveți cu noi?
+              </h2>
+              <p className="text-[#8b7d6b] mb-10 max-w-lg">
+                O abordare structurată și personalizată care te ajută să-ți atingi obiectivele.
               </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                {/* Card 1 */}
+                <div
+                  className="bg-[#fdf6e3] p-6 hover:-translate-y-1 transition-all duration-300 group"
+                  style={{
+                    border: '2px solid #c4b89a',
+                    borderRadius: '2px 8px 4px 6px',
+                  }}
+                >
+                  <div className="mb-4">
+                    <svg className="w-10 h-10 text-[#6b5e50] group-hover:text-[#4a3f35] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <h3 className="font-hand text-2xl text-[#3a302a] mb-2">Lecții video</h3>
+                  <p className="text-sm text-[#8b7d6b] leading-relaxed">
+                    Urmărește lecții înregistrate oricând. Dă înapoi, pune pauză și învață în ritmul tău.
+                  </p>
+                </div>
+
+                {/* Card 2 */}
+                <div
+                  className="bg-[#fdf6e3] p-6 hover:-translate-y-1 transition-all duration-300 group"
+                  style={{
+                    border: '2px solid #c4b89a',
+                    borderRadius: '6px 2px 8px 4px',
+                  }}
+                >
+                  <div className="mb-4">
+                    <svg className="w-10 h-10 text-[#6b5e50] group-hover:text-[#4a3f35] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="font-hand text-2xl text-[#3a302a] mb-2">Sesiuni live</h3>
+                  <p className="text-sm text-[#8b7d6b] leading-relaxed">
+                    Participă la sesiuni live pe Google Meet pentru interacțiune în timp real și discuții de grup.
+                  </p>
+                </div>
+
+                {/* Card 3 */}
+                <div
+                  className="bg-[#fdf6e3] p-6 hover:-translate-y-1 transition-all duration-300 group"
+                  style={{
+                    border: '2px solid #c4b89a',
+                    borderRadius: '4px 6px 2px 8px',
+                  }}
+                >
+                  <div className="mb-4">
+                    <svg className="w-10 h-10 text-[#6b5e50] group-hover:text-[#4a3f35] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="font-hand text-2xl text-[#3a302a] mb-2">Verificare teme</h3>
+                  <p className="text-sm text-[#8b7d6b] leading-relaxed">
+                    Trimite temele și primește feedback personalizat pentru a-ți urmări progresul.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* Separator */}
+            <div className="py-2">
+              <svg className="w-full h-4" viewBox="0 0 800 16" preserveAspectRatio="none">
+                <path d="M0 6 Q200 12, 400 4 T800 10" stroke="#c4b89a" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+              </svg>
             </div>
-            <div>
-              <h4 className="text-sm font-semibold text-gray-300 mb-3">Linkuri rapide</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><Link href="/auth/login" className="hover:text-white transition-colors">Autentificare</Link></li>
-                <li><Link href="/auth/register" className="hover:text-white transition-colors">Înregistrare</Link></li>
-              </ul>
+
+            {/* How it works */}
+            <section className="py-10 sm:py-14">
+              <h2 className="font-hand text-3xl sm:text-5xl text-[#3a302a] mb-10">
+                Cum funcționează
+              </h2>
+
+              <div className="space-y-6">
+                {[
+                  { num: '1', title: 'Creează un cont', desc: 'Înregistrează-te și solicită acces pe platformă.', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
+                  { num: '2', title: 'Primește aprobarea', desc: 'Odată ce plata este confirmată, primești acces complet.', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
+                  { num: '3', title: 'Începe să înveți', desc: 'Accesează grupurile, lecțiile, temele și întâlnirile live.', icon: 'M4.26 10.147a60.438 60.438 0 00-.491 6.347A48.62 48.62 0 0112 20.904a48.62 48.62 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.636 50.636 0 00-2.658-.813A59.906 59.906 0 0112 3.493a59.903 59.903 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5' },
+                ].map((step) => (
+                  <div key={step.num} className="flex items-start gap-4 sm:gap-6">
+                    <div
+                      className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center flex-shrink-0 bg-[#4a3f35] text-[#fdf6e3]"
+                      style={{ borderRadius: '4px 8px 4px 8px' }}
+                    >
+                      <span className="font-hand text-2xl sm:text-3xl font-bold">{step.num}</span>
+                    </div>
+                    <div className="pt-1">
+                      <h3 className="font-hand text-2xl sm:text-3xl text-[#3a302a] mb-1">{step.title}</h3>
+                      <p className="text-sm text-[#8b7d6b]">{step.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Separator */}
+            <div className="py-2">
+              <svg className="w-full h-4" viewBox="0 0 800 16" preserveAspectRatio="none">
+                <path d="M0 8 Q200 14, 400 6 T800 10" stroke="#c4b89a" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+              </svg>
             </div>
-            <div>
-              <h4 className="text-sm font-semibold text-gray-300 mb-3">Contact</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li>contact@tutorplatform.com</li>
-                <li>Luni - Vineri, 9:00 - 18:00</li>
-              </ul>
-            </div>
-          </div>
-          <div className="mt-10 pt-6 border-t border-gray-800 text-center text-sm text-gray-500">
-            &copy; {new Date().getFullYear()} TutorPlatform. Toate drepturile rezervate.
+
+            {/* CTA */}
+            <section className="py-12 sm:py-20 text-center">
+              <h2 className="font-hand text-4xl sm:text-6xl text-[#3a302a] mb-4">
+                Pregătit să începi?
+              </h2>
+              <p className="text-[#8b7d6b] mb-8 max-w-md mx-auto">
+                Alătură-te elevilor care învață eficient cu lecții structurate, sesiuni live și feedback personalizat.
+              </p>
+              <Link
+                href="/auth/register"
+                className="inline-block font-hand text-2xl bg-[#4a3f35] text-[#fdf6e3] px-10 py-4 rounded hover:bg-[#3a302a] transition-all active:scale-[0.98] hover:shadow-lg"
+                style={{ border: '2px solid #4a3f35' }}
+              >
+                Creează cont gratuit →
+              </Link>
+            </section>
+
+            {/* Footer */}
+            <footer className="py-10 border-t-2 border-dashed border-[#c4b89a]">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+                <div>
+                  <h4 className="font-hand text-2xl text-[#4a3f35] mb-2">TutorPlatform</h4>
+                  <p className="text-sm text-[#8b7d6b]">
+                    Lecții private și de grup online. Învață de oriunde, oricând.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-hand text-lg text-[#4a3f35] mb-2">Linkuri rapide</h4>
+                  <ul className="space-y-1 text-sm text-[#8b7d6b]">
+                    <li><Link href="/auth/login" className="hover:text-[#4a3f35] transition-colors">Autentificare</Link></li>
+                    <li><Link href="/auth/register" className="hover:text-[#4a3f35] transition-colors">Înregistrare</Link></li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-hand text-lg text-[#4a3f35] mb-2">Contact</h4>
+                  <ul className="space-y-1 text-sm text-[#8b7d6b]">
+                    <li>contact@tutorplatform.com</li>
+                    <li>Luni - Vineri, 9:00 - 18:00</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-8 pt-4 text-center text-xs text-[#b0a590]">
+                &copy; {new Date().getFullYear()} TutorPlatform. Toate drepturile rezervate.
+              </div>
+            </footer>
           </div>
         </div>
-      </footer>
+      </div>
     </div>
   );
 }

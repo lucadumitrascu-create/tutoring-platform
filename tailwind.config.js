@@ -5,6 +5,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        hand: ['var(--font-caveat)', 'cursive'],
+      },
       colors: {
         primary: {
           50: '#f0f4ff',
