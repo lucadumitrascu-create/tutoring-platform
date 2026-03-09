@@ -63,10 +63,10 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-desk">
       {/* Top bar */}
       <div className="p-4 sm:p-6">
-        <Link href="/" className="text-xl font-bold text-primary-700">
+        <Link href="/" className="text-xl font-bold text-sketch-dark">
           TutorPlatform
         </Link>
       </div>
@@ -74,13 +74,13 @@ export default function RegisterPage() {
       {/* Form */}
       <div className="flex-1 flex items-center justify-center px-4 pb-12">
         <div className="w-full max-w-md">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">Creează-ți contul</h1>
-            <p className="text-gray-500 mb-8">Începe-ți călătoria de învățare astăzi.</p>
+          <div className="bg-paper shadow-sm border border-sketch p-8" style={{ borderRadius: '2px 8px 4px 6px' }}>
+            <h1 className="text-2xl font-bold font-hand text-ink mb-1">Creează-ți contul</h1>
+            <p className="text-ink-lighter mb-8">Începe-ți călătoria de învățare astăzi.</p>
 
             <form onSubmit={handleRegister} className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label className="block text-sm font-medium text-ink mb-1.5">
                   Nume complet
                 </label>
                 <input
@@ -88,13 +88,13 @@ export default function RegisterPage() {
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   required
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-gray-900 placeholder:text-gray-400"
+                  className="w-full px-4 py-2.5 border border-sketch rounded-lg focus:outline-none focus:ring-2 focus:ring-sketch-dark focus:border-sketch-dark text-ink placeholder:text-ink-muted"
                   placeholder="Ion Popescu"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label className="block text-sm font-medium text-ink mb-1.5">
                   Email
                 </label>
                 <input
@@ -102,13 +102,13 @@ export default function RegisterPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-gray-900 placeholder:text-gray-400"
+                  className="w-full px-4 py-2.5 border border-sketch rounded-lg focus:outline-none focus:ring-2 focus:ring-sketch-dark focus:border-sketch-dark text-ink placeholder:text-ink-muted"
                   placeholder="you@example.com"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label className="block text-sm font-medium text-ink mb-1.5">
                   Parolă
                 </label>
                 <div className="relative">
@@ -118,13 +118,13 @@ export default function RegisterPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     minLength={6}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-gray-900 placeholder:text-gray-400 pr-12"
+                    className="w-full px-4 py-2.5 border border-sketch rounded-lg focus:outline-none focus:ring-2 focus:ring-sketch-dark focus:border-sketch-dark text-ink placeholder:text-ink-muted pr-12"
                     placeholder="Min. 6 caractere"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-muted hover:text-ink-light"
                   >
                     {showPassword ? (
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -141,7 +141,7 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label className="block text-sm font-medium text-ink mb-1.5">
                   Confirmă parola
                 </label>
                 <input
@@ -149,7 +149,7 @@ export default function RegisterPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-gray-900 placeholder:text-gray-400"
+                  className="w-full px-4 py-2.5 border border-sketch rounded-lg focus:outline-none focus:ring-2 focus:ring-sketch-dark focus:border-sketch-dark text-ink placeholder:text-ink-muted"
                   placeholder="Repetă parola"
                 />
               </div>
@@ -166,7 +166,7 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-primary-600 text-white py-3 rounded-lg font-semibold hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full bg-sketch-dark text-paper py-3 rounded-lg font-semibold hover:bg-ink disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">
@@ -182,10 +182,10 @@ export default function RegisterPage() {
               </button>
             </form>
 
-            <div className="mt-6 pt-6 border-t border-gray-100 text-center">
-              <p className="text-sm text-gray-500">
+            <div className="mt-6 pt-6 border-t border-sketch-light text-center">
+              <p className="text-sm text-ink-lighter">
                 Ai deja un cont?{' '}
-                <Link href="/auth/login" className="text-primary-600 font-medium hover:underline">
+                <Link href="/auth/login" className="text-sketch-dark font-medium hover:underline">
                   Autentifică-te
                 </Link>
               </p>

@@ -92,10 +92,10 @@ export default function Sidebar() {
     <>
       {/* Logo */}
       <div className="p-6 pb-4">
-        <Link href="/admin" className="text-xl font-bold text-primary-700">
+        <Link href="/admin" className="text-xl font-bold font-hand text-sketch-dark">
           TutorPlatform
         </Link>
-        <p className="text-xs text-gray-400 mt-0.5">Panou Admin</p>
+        <p className="text-xs text-ink-muted mt-0.5">Panou Admin</p>
       </div>
 
       {/* Links */}
@@ -107,8 +107,8 @@ export default function Sidebar() {
             onClick={() => setMobileOpen(false)}
             className={`flex items-center gap-3 px-3 py-3 min-h-[44px] rounded-lg text-sm font-medium transition-all duration-150 active:scale-[0.97] ${
               isActive(link)
-                ? 'bg-primary-50 text-primary-700'
-                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                ? 'bg-[#f0e8d8] text-sketch-dark'
+                : 'text-ink-light hover:bg-[#f0e8d8] hover:text-ink'
             }`}
           >
             {link.icon}
@@ -118,21 +118,21 @@ export default function Sidebar() {
       </div>
 
       {/* User info + logout */}
-      <div className="p-4 border-t border-gray-200">
+      <div className="p-4 border-t border-sketch">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
-            <span className="text-sm font-semibold text-primary-700">
+          <div className="w-9 h-9 bg-[#f0e8d8] rounded-full flex items-center justify-center flex-shrink-0">
+            <span className="text-sm font-semibold text-sketch-dark">
               {user?.full_name?.charAt(0)?.toUpperCase() || 'A'}
             </span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">{user?.full_name || 'Admin'}</p>
-            <p className="text-xs text-gray-400 truncate">{user?.email}</p>
+            <p className="text-sm font-medium text-ink truncate">{user?.full_name || 'Admin'}</p>
+            <p className="text-xs text-ink-muted truncate">{user?.email}</p>
           </div>
         </div>
         <button
           onClick={handleLogout}
-          className="mt-3 w-full text-left text-sm text-gray-500 hover:text-red-600 font-medium px-3 py-2.5 min-h-[44px] rounded-lg hover:bg-gray-100 transition-all duration-150 active:scale-[0.97]"
+          className="mt-3 w-full text-left text-sm text-ink-lighter hover:text-red-600 font-medium px-3 py-2.5 min-h-[44px] rounded-lg hover:bg-[#f0e8d8] transition-all duration-150 active:scale-[0.97]"
         >
           Deconectare
         </button>
@@ -143,13 +143,13 @@ export default function Sidebar() {
   return (
     <>
       {/* Mobile top bar */}
-      <div className="lg:hidden sticky top-0 z-50 bg-white border-b border-gray-200 flex items-center justify-between px-4 h-14">
-        <Link href="/admin" className="text-lg font-bold text-primary-700">
+      <div className="lg:hidden sticky top-0 z-50 bg-paper border-b border-sketch flex items-center justify-between px-4 h-14">
+        <Link href="/admin" className="text-lg font-bold font-hand text-sketch-dark">
           TutorPlatform
         </Link>
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 transition-colors active:scale-95"
+          className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-ink-lighter hover:bg-[#f0e8d8] transition-colors active:scale-95"
         >
           {mobileOpen ? (
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -170,12 +170,12 @@ export default function Sidebar() {
       />
 
       {/* Mobile drawer */}
-      <div className={`lg:hidden fixed top-0 left-0 z-50 h-full w-72 bg-white border-r border-gray-200 flex flex-col transform transition-transform duration-300 ease-out ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className={`lg:hidden fixed top-0 left-0 z-50 h-full w-72 bg-paper border-r border-sketch flex flex-col transform transition-transform duration-300 ease-out ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         {sidebarContent}
       </div>
 
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 bg-white border-r border-gray-200">
+      <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 bg-paper border-r border-sketch">
         {sidebarContent}
       </aside>
     </>

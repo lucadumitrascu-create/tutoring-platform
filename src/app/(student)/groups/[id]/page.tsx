@@ -86,7 +86,7 @@ export default function StudentGroupDetailPage() {
     );
   }
 
-  if (!group) return <p className="text-gray-500 py-12 text-center">Grupul nu a fost găsit.</p>;
+  if (!group) return <p className="text-ink-lighter py-12 text-center">Grupul nu a fost găsit.</p>;
 
   const tabs: { key: Tab; label: string; count?: number }[] = [
     { key: 'posts', label: 'Lecții', count: posts.length },
@@ -106,16 +106,16 @@ export default function StudentGroupDetailPage() {
 
   return (
     <div>
-      <Link href="/groups" className="text-sm text-primary-600 hover:underline mb-4 inline-block">&larr; Înapoi la grupuri</Link>
+      <Link href="/groups" className="text-sm text-sketch-dark hover:underline mb-4 inline-block">&larr; Înapoi la grupuri</Link>
 
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">{group.name}</h1>
-      {group.description && <p className="text-gray-500 mb-6">{group.description}</p>}
+      <h1 className="text-2xl font-bold text-ink mb-1 font-hand">{group.name}</h1>
+      {group.description && <p className="text-ink-lighter mb-6">{group.description}</p>}
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 rounded-lg p-1 mb-6 overflow-x-auto scrollbar-hide">
+      <div className="flex gap-1 bg-[#f0e8d8] rounded-lg p-1 mb-6 overflow-x-auto scrollbar-hide">
         {tabs.map((t) => (
           <button key={t.key} onClick={() => { setTab(t.key); setSearch(''); }}
-            className={`px-4 py-2.5 min-h-[44px] text-sm font-medium rounded-md whitespace-nowrap flex-shrink-0 transition-all active:scale-95 ${tab === t.key ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+            className={`px-4 py-2.5 min-h-[44px] text-sm font-medium rounded-md whitespace-nowrap flex-shrink-0 transition-all active:scale-95 ${tab === t.key ? 'bg-paper text-ink shadow-sm' : 'text-ink-lighter hover:text-ink'}`}>
             {t.label}
           </button>
         ))}
@@ -135,26 +135,26 @@ export default function StudentGroupDetailPage() {
                 const isRead = readPostIds.has(post.id);
                 return (
                   <Link key={post.id} href={`/groups/${id}/posts/${post.id}`}
-                    className="flex items-start gap-3 bg-white border border-gray-200 rounded-2xl px-5 py-4 hover:shadow-sm hover:border-gray-300 active:scale-[0.99] transition-all">
+                    className="flex items-start gap-3 bg-paper border border-sketch rounded-2xl px-5 py-4 hover:shadow-sm hover:border-sketch active:scale-[0.99] transition-all">
                     {/* Unread dot */}
                     <div className="flex-shrink-0 pt-1.5">
                       {!isRead ? (
-                        <div className="w-2.5 h-2.5 bg-primary-500 rounded-full" />
+                        <div className="w-2.5 h-2.5 bg-[#f0e8d8]0 rounded-full" />
                       ) : (
                         <div className="w-2.5 h-2.5" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className={`font-medium text-gray-900 ${!isRead ? '' : 'text-gray-600'}`}>{post.title}</p>
-                      {post.description && <p className="text-sm text-gray-500 mt-1 line-clamp-2">{post.description}</p>}
-                      <p className="text-xs text-gray-400 mt-2">{new Date(post.created_at).toLocaleDateString('ro-RO', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                      <p className={`font-medium text-ink ${!isRead ? '' : 'text-ink-light'}`}>{post.title}</p>
+                      {post.description && <p className="text-sm text-ink-lighter mt-1 line-clamp-2">{post.description}</p>}
+                      <p className="text-xs text-ink-muted mt-2">{new Date(post.created_at).toLocaleDateString('ro-RO', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                     </div>
                   </Link>
                 );
               })}
             </div>
           ) : posts.length > 0 ? (
-            <p className="text-gray-400 text-sm text-center py-8">Niciun rezultat pentru &ldquo;{search}&rdquo;</p>
+            <p className="text-ink-muted text-sm text-center py-8">Niciun rezultat pentru &ldquo;{search}&rdquo;</p>
           ) : (
             <EmptyState
               icon={<svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" /></svg>}
@@ -176,24 +176,24 @@ export default function StudentGroupDetailPage() {
                 const isOverdue = a.deadline && new Date(a.deadline) < new Date() && status === 'pending';
                 return (
                   <Link key={a.id} href={`/groups/${id}/assignments/${a.id}`}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white border border-gray-200 rounded-2xl px-5 py-4 hover:shadow-sm hover:border-gray-300 active:scale-[0.99] transition-all">
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-paper border border-sketch rounded-2xl px-5 py-4 hover:shadow-sm hover:border-sketch active:scale-[0.99] transition-all">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-medium text-gray-900">{a.title}</p>
+                        <p className="font-medium text-ink">{a.title}</p>
                         <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${config.bg} ${config.text}`}>
                           {config.label}
                         </span>
                       </div>
                       {a.deadline && (
-                        <p className={`text-xs mt-1 ${isOverdue ? 'text-red-500 font-medium' : 'text-gray-400'}`}>
+                        <p className={`text-xs mt-1 ${isOverdue ? 'text-red-500 font-medium' : 'text-ink-muted'}`}>
                           {isOverdue ? 'Întârziat' : `Termen: ${new Date(a.deadline).toLocaleDateString('ro-RO', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`}
                           {!isOverdue && a.deadline && new Date(a.deadline) > new Date() && (
-                            <span className="ml-1.5 text-gray-400">({getRelativeTime(a.deadline)})</span>
+                            <span className="ml-1.5 text-ink-muted">({getRelativeTime(a.deadline)})</span>
                           )}
                         </p>
                       )}
                     </div>
-                    <svg className="w-5 h-5 text-gray-300 flex-shrink-0 hidden sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg className="w-5 h-5 text-sketch flex-shrink-0 hidden sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                     </svg>
                   </Link>
@@ -218,18 +218,18 @@ export default function StudentGroupDetailPage() {
               {meetings.map((m) => {
                 const isPast = new Date(m.scheduled_at) < new Date();
                 return (
-                  <div key={m.id} className={`bg-white border border-gray-200 rounded-2xl px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all ${isPast ? 'opacity-60' : 'hover:shadow-sm hover:border-gray-300'}`}>
+                  <div key={m.id} className={`bg-paper border border-sketch rounded-2xl px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all ${isPast ? 'opacity-60' : 'hover:shadow-sm hover:border-sketch'}`}>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-medium text-gray-900">{m.title}</p>
-                        {isPast && <span className="text-[10px] font-semibold bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Trecut</span>}
-                        {!isPast && <span className="text-[10px] font-semibold bg-primary-50 text-primary-700 px-2 py-0.5 rounded-full">{getRelativeTime(m.scheduled_at)}</span>}
+                        <p className="font-medium text-ink">{m.title}</p>
+                        {isPast && <span className="text-[10px] font-semibold bg-[#f0e8d8] text-ink-lighter px-2 py-0.5 rounded-full">Trecut</span>}
+                        {!isPast && <span className="text-[10px] font-semibold bg-[#f0e8d8] text-sketch-dark px-2 py-0.5 rounded-full">{getRelativeTime(m.scheduled_at)}</span>}
                       </div>
-                      <p className="text-xs text-gray-400 mt-1">{new Date(m.scheduled_at).toLocaleDateString('ro-RO', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                      <p className="text-xs text-ink-muted mt-1">{new Date(m.scheduled_at).toLocaleDateString('ro-RO', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                     </div>
                     {!isPast && (
                       <a href={m.meet_link} target="_blank" rel="noopener noreferrer"
-                        className="bg-primary-600 text-white text-sm font-medium px-4 py-2.5 min-h-[44px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all flex items-center justify-center">
+                        className="bg-sketch-dark text-paper text-sm font-medium px-4 py-2.5 min-h-[44px] rounded-lg hover:bg-ink active:scale-95 transition-all flex items-center justify-center">
                         Intră
                       </a>
                     )}

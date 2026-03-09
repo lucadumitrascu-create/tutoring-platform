@@ -38,8 +38,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (loading || !authorized) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <svg className="animate-spin w-6 h-6 text-primary-600" viewBox="0 0 24 24" fill="none">
+      <div className="min-h-screen bg-desk flex items-center justify-center">
+        <svg className="animate-spin w-6 h-6 text-sketch-dark" viewBox="0 0 24 24" fill="none">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
         </svg>
@@ -48,7 +48,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-desk">
       <Sidebar />
       <div className="lg:pl-64">
         <main className="pt-16 lg:pt-0 p-4 sm:p-6 lg:p-8">{children}</main>

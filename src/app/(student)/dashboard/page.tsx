@@ -96,7 +96,7 @@ export default function DashboardPage() {
         </div>
         <div className="space-y-3">
           {Array.from({ length: 2 }).map((_, i) => (
-            <div key={i} className="bg-white border border-gray-200 rounded-2xl p-4 flex items-center gap-4">
+            <div key={i} className="bg-paper border border-sketch rounded-2xl p-4 flex items-center gap-4">
               <div className="flex-1 space-y-2"><SkeletonLine className="h-4 w-3/4" /><SkeletonLine className="h-3 w-1/2" /></div>
               <SkeletonLine className="h-9 w-16 rounded-lg" />
             </div>
@@ -116,29 +116,29 @@ export default function DashboardPage() {
       {/* Quick nav cards */}
       <div className="grid grid-cols-2 gap-3 mb-5">
         <Link href="/homework"
-          className="relative bg-white border border-gray-200 rounded-2xl p-4 flex flex-col items-center gap-2.5 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all">
+          className="relative bg-paper border border-sketch rounded-2xl p-4 flex flex-col items-center gap-2.5 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all">
           <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
             <svg className="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15a2.25 2.25 0 012.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0118 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3l1.5 1.5 3-3.75" />
             </svg>
           </div>
-          <span className="text-sm font-medium text-gray-900">Teme</span>
+          <span className="text-sm font-medium text-ink">Teme</span>
         </Link>
         <Link href="/profile"
-          className="bg-white border border-gray-200 rounded-2xl p-4 flex flex-col items-center gap-2.5 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all">
+          className="bg-paper border border-sketch rounded-2xl p-4 flex flex-col items-center gap-2.5 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all">
           <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
             <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
             </svg>
           </div>
-          <span className="text-sm font-medium text-gray-900">Profil</span>
+          <span className="text-sm font-medium text-ink">Profil</span>
         </Link>
       </div>
 
       <div className="space-y-5">
         {/* Urgent Deadline Card */}
         {urgentDeadlines.length > 0 && (
-          <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+          <div className="bg-paper border border-sketch rounded-2xl overflow-hidden">
             <div className="flex items-center gap-2.5 px-5 pt-5 pb-3">
               <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
                 <svg className="w-4 h-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -161,28 +161,28 @@ export default function DashboardPage() {
 
         {/* Upcoming Meetings Card */}
         {upcomingMeetings.length > 0 && (
-          <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+          <div className="bg-paper border border-sketch rounded-2xl overflow-hidden">
             <div className="flex items-center gap-2.5 px-5 pt-5 pb-3">
-              <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg className="w-4 h-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <div className="w-8 h-8 bg-[#f0e8d8] rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-4 h-4 text-sketch-dark" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
                 </svg>
               </div>
-              <h2 className="text-sm font-semibold text-gray-900">Întâlniri viitoare</h2>
+              <h2 className="text-sm font-semibold text-ink">Întâlniri viitoare</h2>
             </div>
             <div className="px-5 pb-4 space-y-2">
               {upcomingMeetings.map((m) => (
-                <div key={m.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3 border-t border-gray-100 first:border-0 first:pt-0">
+                <div key={m.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3 border-t border-sketch-light first:border-0 first:pt-0">
                   <div className="min-w-0">
-                    <p className="font-medium text-gray-900 text-sm">{m.title}</p>
+                    <p className="font-medium text-ink text-sm">{m.title}</p>
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
-                      <span className="text-xs text-primary-600 font-medium">{m.groupName}</span>
-                      <span className="text-xs text-gray-400">{new Date(m.scheduled_at).toLocaleDateString('ro-RO', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-                      <span className="text-xs font-medium bg-primary-50 text-primary-700 px-2 py-0.5 rounded-full">{getRelativeTime(m.scheduled_at)}</span>
+                      <span className="text-xs text-sketch-dark font-medium">{m.groupName}</span>
+                      <span className="text-xs text-ink-muted">{new Date(m.scheduled_at).toLocaleDateString('ro-RO', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                      <span className="text-xs font-medium bg-[#f0e8d8] text-sketch-dark px-2 py-0.5 rounded-full">{getRelativeTime(m.scheduled_at)}</span>
                     </div>
                   </div>
                   <a href={m.meet_link} target="_blank" rel="noopener noreferrer"
-                    className="bg-primary-600 text-white text-xs font-medium px-3.5 py-2 min-h-[36px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all flex items-center justify-center">
+                    className="bg-sketch-dark text-paper text-xs font-medium px-3.5 py-2 min-h-[36px] rounded-lg hover:bg-ink active:scale-95 transition-all flex items-center justify-center">
                     Intră
                   </a>
                 </div>
@@ -192,17 +192,17 @@ export default function DashboardPage() {
         )}
 
         {/* My Groups Card */}
-        <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+        <div className="bg-paper border border-sketch rounded-2xl overflow-hidden">
           <div className="flex items-center justify-between px-5 pt-5 pb-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg className="w-4 h-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <div className="w-8 h-8 bg-[#f0e8d8] rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-4 h-4 text-sketch-dark" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
                 </svg>
               </div>
-              <h2 className="text-sm font-semibold text-gray-900">Grupurile mele</h2>
+              <h2 className="text-sm font-semibold text-ink">Grupurile mele</h2>
             </div>
-            <Link href="/groups" className="text-xs text-primary-600 font-medium hover:underline">Vezi toate</Link>
+            <Link href="/groups" className="text-xs text-sketch-dark font-medium hover:underline">Vezi toate</Link>
           </div>
           {groups.length > 0 ? (
             <div className="px-5 pb-5">
@@ -212,18 +212,18 @@ export default function DashboardPage() {
                   const progress = group.totalAssignments > 0 ? Math.round((group.submittedAssignments / group.totalAssignments) * 100) : 0;
                   return (
                     <Link key={group.id} href={`/groups/${group.id}`}
-                      className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all">
+                      className="border border-sketch rounded-xl overflow-hidden hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all">
                       <div className={`h-1.5 ${color.bg}`} />
                       <div className="p-4">
-                        <h3 className="font-semibold text-gray-900 text-sm mb-0.5">{group.name}</h3>
-                        <p className="text-xs text-gray-500 line-clamp-2 mb-3">{group.description || 'Fără descriere'}</p>
+                        <h3 className="font-semibold text-ink text-sm mb-0.5">{group.name}</h3>
+                        <p className="text-xs text-ink-lighter line-clamp-2 mb-3">{group.description || 'Fără descriere'}</p>
                         {group.totalAssignments > 0 && (
                           <div>
-                            <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
+                            <div className="flex items-center justify-between text-xs text-ink-muted mb-1">
                               <span>Progres</span>
                               <span>{group.submittedAssignments}/{group.totalAssignments}</span>
                             </div>
-                            <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-1.5 bg-[#f0e8d8] rounded-full overflow-hidden">
                               <div className={`h-full rounded-full transition-all ${color.bg}`} style={{ width: `${progress}%` }} />
                             </div>
                           </div>

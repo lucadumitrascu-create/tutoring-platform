@@ -70,8 +70,8 @@ export default function RequestAccessPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <svg className="animate-spin w-6 h-6 text-primary-600" viewBox="0 0 24 24" fill="none">
+      <div className="min-h-screen flex items-center justify-center bg-desk">
+        <svg className="animate-spin w-6 h-6 text-sketch-dark" viewBox="0 0 24 24" fill="none">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
         </svg>
@@ -80,17 +80,17 @@ export default function RequestAccessPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-desk">
       {/* Top bar */}
       <div className="p-4 sm:p-6">
-        <Link href="/" className="text-xl font-bold text-primary-700">
+        <Link href="/" className="text-xl font-bold text-sketch-dark">
           TutorPlatform
         </Link>
       </div>
 
       <div className="flex-1 flex items-center justify-center px-4 pb-12">
         <div className="w-full max-w-md">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+          <div className="bg-paper shadow-sm border border-sketch p-8" style={{ borderRadius: '2px 8px 4px 6px' }}>
             {accessStatus === 'pending' ? (
               <>
                 <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -98,21 +98,21 @@ export default function RequestAccessPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-2 text-center">Cerere în așteptare</h1>
-                <p className="text-gray-500 text-center mb-6">
+                <h1 className="text-2xl font-bold font-hand text-ink mb-2 text-center">Cerere în așteptare</h1>
+                <p className="text-ink-lighter text-center mb-6">
                   Cererea ta de acces a fost trimisă. O vom analiza în curând. Revino mai târziu.
                 </p>
                 <button
                   onClick={() => window.location.reload()}
-                  className="w-full bg-gray-100 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                  className="w-full bg-[#f0e8d8] text-ink py-3 rounded-lg font-medium hover:bg-[#e8dcc8] transition-colors"
                 >
                   Verifică statusul
                 </button>
               </>
             ) : (
               <>
-                <h1 className="text-2xl font-bold text-gray-900 mb-2 text-center">Obține acces</h1>
-                <p className="text-gray-500 text-center mb-8">
+                <h1 className="text-2xl font-bold font-hand text-ink mb-2 text-center">Obține acces</h1>
+                <p className="text-ink-lighter text-center mb-8">
                   Pentru a accesa toate lecțiile și materialele, efectuează un transfer bancar și apoi solicită acces mai jos.
                 </p>
 
@@ -126,20 +126,20 @@ export default function RequestAccessPage() {
                 )}
 
                 {/* IBAN Info */}
-                <div className="bg-gray-50 rounded-xl p-5 mb-6">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-3">Detalii transfer bancar</h3>
+                <div className="bg-desk rounded-xl p-5 mb-6">
+                  <h3 className="text-sm font-semibold text-ink mb-3">Detalii transfer bancar</h3>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-500">IBAN</span>
-                      <span className="font-mono font-medium text-gray-900">RO00 XXXX 0000 0000 0000 0000</span>
+                      <span className="text-ink-lighter">IBAN</span>
+                      <span className="font-mono font-medium text-ink">RO00 XXXX 0000 0000 0000 0000</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Beneficiar</span>
-                      <span className="font-medium text-gray-900">TutorPlatform SRL</span>
+                      <span className="text-ink-lighter">Beneficiar</span>
+                      <span className="font-medium text-ink">TutorPlatform SRL</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Bancă</span>
-                      <span className="font-medium text-gray-900">Banca X</span>
+                      <span className="text-ink-lighter">Bancă</span>
+                      <span className="font-medium text-ink">Banca X</span>
                     </div>
                   </div>
                 </div>
@@ -156,7 +156,7 @@ export default function RequestAccessPage() {
                 <button
                   onClick={handleRequestAccess}
                   disabled={requesting}
-                  className="w-full bg-primary-600 text-white py-3 rounded-lg font-semibold hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="w-full bg-sketch-dark text-paper py-3 rounded-lg font-semibold hover:bg-ink disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {requesting ? (
                     <span className="flex items-center justify-center gap-2">
@@ -171,7 +171,7 @@ export default function RequestAccessPage() {
                   )}
                 </button>
 
-                <p className="text-xs text-gray-400 text-center mt-4">
+                <p className="text-xs text-ink-muted text-center mt-4">
                   După efectuarea transferului, apasă butonul de mai sus. Accesul tău va fi aprobat odată ce plata este confirmată.
                 </p>
               </>

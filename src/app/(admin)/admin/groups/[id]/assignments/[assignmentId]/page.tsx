@@ -205,14 +205,14 @@ export default function ManageAssignmentPage() {
 
   return (
     <div className="max-w-4xl">
-      <Link href={`/admin/groups/${groupId}`} className="text-sm text-primary-600 hover:underline mb-6 inline-block">&larr; Înapoi la grup</Link>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Gestionează tema</h1>
+      <Link href={`/admin/groups/${groupId}`} className="text-sm text-sketch-dark hover:underline mb-6 inline-block">&larr; Înapoi la grup</Link>
+      <h1 className="text-2xl font-bold font-hand text-ink mb-6">Gestionează tema</h1>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 rounded-lg p-1 mb-6 overflow-x-auto scrollbar-hide">
+      <div className="flex gap-1 bg-[#f0e8d8] rounded-lg p-1 mb-6 overflow-x-auto scrollbar-hide">
         {([{ key: 'details', label: 'Detalii' }, { key: 'submissions', label: `Trimiteri (${submissions.length})` }] as { key: ViewTab; label: string }[]).map((t) => (
           <button key={t.key} onClick={() => setTab(t.key)}
-            className={`px-4 py-2.5 min-h-[44px] text-sm font-medium rounded-md whitespace-nowrap flex-shrink-0 transition-all duration-150 active:scale-95 ${tab === t.key ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+            className={`px-4 py-2.5 min-h-[44px] text-sm font-medium rounded-md whitespace-nowrap flex-shrink-0 transition-all duration-150 active:scale-95 ${tab === t.key ? 'bg-paper text-ink shadow-sm' : 'text-ink-lighter hover:text-ink'}`}>
             {t.label}
           </button>
         ))}
@@ -222,72 +222,72 @@ export default function ManageAssignmentPage() {
       {tab === 'details' && (
         <form onSubmit={handleSave} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Titlu *</label>
-            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" />
+            <label className="block text-sm font-medium text-ink mb-1.5">Titlu *</label>
+            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full border border-sketch rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-sketch-dark focus:border-sketch-dark outline-none" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Descriere</label>
-            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none resize-none" />
+            <label className="block text-sm font-medium text-ink mb-1.5">Descriere</label>
+            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} className="w-full border border-sketch rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-sketch-dark focus:border-sketch-dark outline-none resize-none" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Termen limită</label>
+            <label className="block text-sm font-medium text-ink mb-1.5">Termen limită</label>
             {deadline ? (
               <div className="flex items-center gap-2">
                 <input type="datetime-local" value={deadline} onChange={(e) => setDeadline(e.target.value)}
-                  className="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" />
+                  className="flex-1 border border-sketch rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-sketch-dark focus:border-sketch-dark outline-none" />
                 <button type="button" onClick={() => setDeadline('')}
-                  className="text-sm text-gray-400 hover:text-red-500 px-3 py-2.5 min-h-[44px] rounded-lg hover:bg-gray-100 transition-colors flex-shrink-0"
+                  className="text-sm text-ink-muted hover:text-red-500 px-3 py-2.5 min-h-[44px] rounded-lg hover:bg-[#f0e8d8] transition-colors flex-shrink-0"
                   title="Elimină termenul limită">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
               </div>
             ) : (
               <button type="button" onClick={() => setDeadline(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16))}
-                className="w-full border-2 border-dashed border-gray-200 rounded-lg px-4 py-3 text-sm text-gray-400 hover:border-primary-300 hover:text-primary-600 transition-colors text-left">
+                className="w-full border-2 border-dashed border-sketch rounded-lg px-4 py-3 text-sm text-ink-muted hover:border-sketch-dark hover:text-sketch-dark transition-colors text-left">
                 Fără deadline — click pentru a adăuga
               </button>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Fișiere cerință</label>
+            <label className="block text-sm font-medium text-ink mb-1.5">Fișiere cerință</label>
             {files.length > 0 && (
               <div className="space-y-2 mb-4">
                 {files.map((f, idx) => (
-                  <div key={f.id} className="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3">
+                  <div key={f.id} className="flex items-center gap-3 bg-[#f0e8d8] rounded-lg px-4 py-3">
                     <div className="flex flex-col gap-0.5">
-                      <button type="button" onClick={() => moveFile(f.id, 'up')} disabled={idx === 0} className="text-gray-400 hover:text-gray-600 disabled:opacity-30"><svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg></button>
-                      <button type="button" onClick={() => moveFile(f.id, 'down')} disabled={idx === files.length - 1} className="text-gray-400 hover:text-gray-600 disabled:opacity-30"><svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg></button>
+                      <button type="button" onClick={() => moveFile(f.id, 'up')} disabled={idx === 0} className="text-ink-muted hover:text-ink disabled:opacity-30"><svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg></button>
+                      <button type="button" onClick={() => moveFile(f.id, 'down')} disabled={idx === files.length - 1} className="text-ink-muted hover:text-ink disabled:opacity-30"><svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg></button>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-700 truncate">{f.fileName}</p>
-                      {f.isExisting && <p className="text-xs text-gray-400 mt-0.5">Existent</p>}
-                      {f.uploading && <div className="mt-1.5 h-1.5 bg-gray-200 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full" style={{ width: `${f.progress}%` }} /></div>}
+                      <p className="text-sm text-ink truncate">{f.fileName}</p>
+                      {f.isExisting && <p className="text-xs text-ink-muted mt-0.5">Existent</p>}
+                      {f.uploading && <div className="mt-1.5 h-1.5 bg-[#f0e8d8] rounded-full overflow-hidden"><div className="h-full bg-sketch-dark rounded-full" style={{ width: `${f.progress}%` }} /></div>}
                       {!f.isExisting && f.done && <p className="text-xs text-green-600 mt-0.5">Încărcat</p>}
                       {f.error && <p className="text-xs text-red-500 mt-0.5">{f.error}</p>}
                     </div>
-                    <button type="button" onClick={() => removeFile(f)} className="text-gray-400 hover:text-red-500 flex-shrink-0">
+                    <button type="button" onClick={() => removeFile(f)} className="text-ink-muted hover:text-red-500 flex-shrink-0">
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                   </div>
                 ))}
               </div>
             )}
-            <label className="flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-lg p-6 cursor-pointer hover:border-primary-300 hover:bg-primary-50/30 transition-colors">
+            <label className="flex items-center justify-center gap-2 border-2 border-dashed border-sketch rounded-lg p-6 cursor-pointer hover:border-sketch-dark hover:bg-[#f0e8d8]/30 transition-colors">
               <input type="file" multiple className="hidden" accept="image/*,application/pdf,video/*" onChange={(e) => addFiles(e.target.files)} />
-              <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
-              <span className="text-sm text-gray-500">Click pentru a adăuga fișiere</span>
+              <svg className="w-5 h-5 text-ink-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
+              <span className="text-sm text-ink-lighter">Click pentru a adăuga fișiere</span>
             </label>
           </div>
 
           {error && <div className="bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg">{error}</div>}
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
-            <button type="submit" disabled={saving} className="bg-primary-600 text-white font-medium px-6 py-3 min-h-[44px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all duration-150 disabled:opacity-50 flex items-center justify-center gap-2">
+            <button type="submit" disabled={saving} className="bg-sketch-dark text-white font-medium px-6 py-3 min-h-[44px] rounded-lg hover:bg-ink active:scale-95 transition-all duration-150 disabled:opacity-50 flex items-center justify-center gap-2">
               {saving && <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>}
               {saving ? 'Se salvează...' : 'Salvează'}
             </button>
-            <Link href={`/admin/groups/${groupId}`} className="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-3 min-h-[44px] flex items-center justify-center">Anulează</Link>
+            <Link href={`/admin/groups/${groupId}`} className="text-sm text-ink-lighter hover:text-ink font-medium px-4 py-3 min-h-[44px] flex items-center justify-center">Anulează</Link>
           </div>
         </form>
       )}
@@ -299,15 +299,15 @@ export default function ManageAssignmentPage() {
           {submissions.length > 0 ? (
             <div className="space-y-4">
               {submissions.map((sub) => (
-                <div key={sub.id} className="bg-white border border-gray-200 hover:border-gray-300 rounded-2xl p-5 hover:shadow-sm transition-all duration-200">
+                <div key={sub.id} className="bg-paper border border-sketch hover:border-sketch-dark rounded-2xl p-5 hover:shadow-sm transition-all duration-200">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
-                        <span className="text-xs font-semibold text-primary-700">{sub.student?.full_name?.charAt(0)?.toUpperCase() || '?'}</span>
+                      <div className="w-8 h-8 bg-[#f0e8d8] rounded-full flex items-center justify-center">
+                        <span className="text-xs font-semibold text-sketch-dark">{sub.student?.full_name?.charAt(0)?.toUpperCase() || '?'}</span>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{sub.student?.full_name}</p>
-                        <p className="text-xs text-gray-400">{new Date(sub.created_at).toLocaleDateString('ro-RO', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                        <p className="text-sm font-medium text-ink">{sub.student?.full_name}</p>
+                        <p className="text-xs text-ink-muted">{new Date(sub.created_at).toLocaleDateString('ro-RO', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                       </div>
                     </div>
                     <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${statusColors[sub.status] || ''}`}>
@@ -316,25 +316,25 @@ export default function ManageAssignmentPage() {
                   </div>
 
                   {sub.file_url && (
-                    <a href={sub.file_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-primary-600 hover:underline mb-3">
+                    <a href={sub.file_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-sketch-dark hover:underline mb-3">
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
                       {sub.file_name}
                     </a>
                   )}
 
                   {(sub as any).text_answer && (
-                    <div className="bg-gray-50 rounded-lg px-4 py-3 mb-3">
-                      <p className="text-xs font-medium text-gray-500 mb-1">Răspuns text</p>
-                      <p className="text-sm text-gray-700 whitespace-pre-wrap">{(sub as any).text_answer}</p>
+                    <div className="bg-[#f0e8d8] rounded-lg px-4 py-3 mb-3">
+                      <p className="text-xs font-medium text-ink-lighter mb-1">Răspuns text</p>
+                      <p className="text-sm text-ink whitespace-pre-wrap">{(sub as any).text_answer}</p>
                     </div>
                   )}
 
                   {(sub.feedback || sub.feedback_file_url) && (
-                    <div className="bg-gray-50 rounded-lg px-4 py-3 mb-3">
-                      <p className="text-xs font-medium text-gray-500 mb-1">Feedback</p>
-                      {sub.feedback && <p className="text-sm text-gray-700">{sub.feedback}</p>}
+                    <div className="bg-[#f0e8d8] rounded-lg px-4 py-3 mb-3">
+                      <p className="text-xs font-medium text-ink-lighter mb-1">Feedback</p>
+                      {sub.feedback && <p className="text-sm text-ink">{sub.feedback}</p>}
                       {sub.feedback_file_url && (
-                        <a href={sub.feedback_file_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-primary-600 hover:underline mt-1">
+                        <a href={sub.feedback_file_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-sketch-dark hover:underline mt-1">
                           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" /></svg>
                           {sub.feedback_file_name || 'Fișier atașat'}
                         </a>
@@ -343,15 +343,15 @@ export default function ManageAssignmentPage() {
                   )}
 
                   {sub.status === 'submitted' && (
-                    <div className="space-y-3 pt-2 border-t border-gray-100">
+                    <div className="space-y-3 pt-2 border-t border-sketch-light">
                       <textarea
                         value={feedbackMap[sub.id] || ''}
                         onChange={(e) => setFeedbackMap((prev) => ({ ...prev, [sub.id]: e.target.value }))}
                         rows={2}
                         placeholder="Feedback opțional..."
-                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none resize-none"
+                        className="w-full border border-sketch rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-sketch-dark focus:border-sketch-dark outline-none resize-none"
                       />
-                      <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-500 hover:text-gray-700 transition-colors">
+                      <label className="flex items-center gap-2 cursor-pointer text-sm text-ink-lighter hover:text-ink transition-colors">
                         <input type="file" className="hidden" onChange={(e) => {
                           const file = e.target.files?.[0] || null;
                           setFeedbackFiles((prev) => ({ ...prev, [sub.id]: file }));
@@ -375,7 +375,7 @@ export default function ManageAssignmentPage() {
               ))}
             </div>
           ) : (
-            <p className="text-gray-400 text-sm">Încă nu există trimiteri.</p>
+            <p className="text-ink-muted text-sm">Încă nu există trimiteri.</p>
           )}
         </div>
       )}

@@ -59,8 +59,8 @@ export default function StudentGroupsPage() {
     return (
       <div>
         <div className="space-y-2 mb-8">
-          <div className="animate-pulse bg-gray-200 rounded h-8 w-40" />
-          <div className="animate-pulse bg-gray-200 rounded h-5 w-56" />
+          <div className="animate-pulse bg-sketch rounded h-8 w-40" />
+          <div className="animate-pulse bg-sketch rounded h-5 w-56" />
         </div>
         <SkeletonCards count={4} />
       </div>
@@ -69,8 +69,8 @@ export default function StudentGroupsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Grupurile mele</h1>
-      <p className="text-gray-500 mb-8">Clasele în care ești înscris.</p>
+      <h1 className="text-2xl font-bold text-ink mb-1 font-hand">Grupurile mele</h1>
+      <p className="text-ink-lighter mb-8">Clasele în care ești înscris.</p>
 
       {groups.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -79,18 +79,18 @@ export default function StudentGroupsPage() {
             const progress = group.totalAssignments > 0 ? Math.round((group.submittedAssignments / group.totalAssignments) * 100) : 0;
             return (
               <Link key={group.id} href={`/groups/${group.id}`}
-                className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all block">
+                className="bg-paper border border-sketch rounded-2xl overflow-hidden hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all block">
                 <div className={`h-1.5 ${color.bg}`} />
                 <div className="p-5">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-1">{group.name}</h3>
-                  <p className="text-sm text-gray-500 line-clamp-2 mb-3">{group.description || 'Fără descriere'}</p>
+                  <h3 className="text-lg font-semibold text-ink mb-1">{group.name}</h3>
+                  <p className="text-sm text-ink-lighter line-clamp-2 mb-3">{group.description || 'Fără descriere'}</p>
                   {group.totalAssignments > 0 && (
                     <div>
-                      <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
+                      <div className="flex items-center justify-between text-xs text-ink-muted mb-1">
                         <span>Progres</span>
                         <span>{group.submittedAssignments}/{group.totalAssignments}</span>
                       </div>
-                      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-1.5 bg-[#f0e8d8] rounded-full overflow-hidden">
                         <div className={`h-full rounded-full transition-all ${color.bg}`} style={{ width: `${progress}%` }} />
                       </div>
                     </div>

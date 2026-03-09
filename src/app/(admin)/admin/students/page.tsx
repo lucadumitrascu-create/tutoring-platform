@@ -8,7 +8,7 @@ import { SkeletonTable } from '@/components/ui/Skeleton';
 type FilterTab = 'all' | 'pending' | 'approved' | 'none';
 
 const statusConfig: Record<AccessStatus, { label: string; bg: string; text: string }> = {
-  none: { label: 'Fără acces', bg: 'bg-gray-100', text: 'text-gray-700' },
+  none: { label: 'Fără acces', bg: 'bg-[#f0e8d8]', text: 'text-ink' },
   pending: { label: 'În așteptare', bg: 'bg-amber-100', text: 'text-amber-700' },
   approved: { label: 'Activ', bg: 'bg-green-100', text: 'text-green-700' },
   rejected: { label: 'Respins', bg: 'bg-red-100', text: 'text-red-700' },
@@ -193,8 +193,8 @@ export default function AdminStudentsPage() {
   if (loading) {
     return (
       <div>
-        <div className="space-y-2 mb-6"><div className="animate-pulse bg-gray-200 rounded h-8 w-32" /><div className="animate-pulse bg-gray-200 rounded h-5 w-56" /></div>
-        <div className="animate-pulse bg-gray-200 rounded-lg h-10 w-72 mb-6" />
+        <div className="space-y-2 mb-6"><div className="animate-pulse bg-[#f0e8d8] rounded h-8 w-32" /><div className="animate-pulse bg-[#f0e8d8] rounded h-5 w-56" /></div>
+        <div className="animate-pulse bg-[#f0e8d8] rounded-lg h-10 w-72 mb-6" />
         <SkeletonTable rows={5} />
       </div>
     );
@@ -208,8 +208,8 @@ export default function AdminStudentsPage() {
       {successMsg && (
         <div className="bg-green-50 text-green-700 text-sm px-4 py-3 rounded-lg mb-6">{successMsg}</div>
       )}
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Elevi</h1>
-      <p className="text-gray-500 mb-6">Gestionează accesul elevilor la platformă.</p>
+      <h1 className="text-2xl font-bold font-hand text-ink mb-1">Elevi</h1>
+      <p className="text-ink-lighter mb-6">Gestionează accesul elevilor la platformă.</p>
 
       {/* Filter icons */}
       <div className="flex gap-2 mb-6">
@@ -220,15 +220,15 @@ export default function AdminStudentsPage() {
             title={tab.label}
             className={`relative p-2.5 min-h-[44px] min-w-[44px] rounded-xl transition-all duration-150 active:scale-95 ${
               filter === tab.key
-                ? 'bg-primary-100 text-primary-700'
-                : 'bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600'
+                ? 'bg-[#f0e8d8] text-sketch-dark'
+                : 'bg-[#f0e8d8] text-ink-muted hover:bg-[#f0e8d8] hover:text-ink'
             }`}
           >
             {tab.icon}
             <span className={`absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold rounded-full px-1 ${
               filter === tab.key
-                ? 'bg-primary-600 text-white'
-                : 'bg-gray-300 text-gray-700'
+                ? 'bg-sketch-dark text-white'
+                : 'bg-sketch text-ink'
             }`}>
               {tab.count}
             </span>
@@ -237,20 +237,20 @@ export default function AdminStudentsPage() {
       </div>
 
       {filteredStudents.length > 0 ? (
-        <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+        <div className="bg-paper border border-sketch rounded-2xl overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100">
-                <th className="text-left font-medium text-gray-500 px-5 py-3 w-10">
+              <tr className="border-b border-sketch-light">
+                <th className="text-left font-medium text-ink-lighter px-5 py-3 w-10">
                   {approvedInView.length > 0 && (
                     <input type="checkbox" checked={allApprovedSelected} onChange={toggleAll}
-                      className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer" />
+                      className="w-4 h-4 rounded border-sketch text-sketch-dark focus:ring-sketch-dark cursor-pointer" />
                   )}
                 </th>
-                <th className="text-left font-medium text-gray-500 px-5 py-3">Elev</th>
-                <th className="text-left font-medium text-gray-500 px-5 py-3 hidden sm:table-cell">Status</th>
-                <th className="text-left font-medium text-gray-500 px-5 py-3 hidden md:table-cell">Înscris</th>
-                <th className="text-right font-medium text-gray-500 px-5 py-3">Acțiuni</th>
+                <th className="text-left font-medium text-ink-lighter px-5 py-3">Elev</th>
+                <th className="text-left font-medium text-ink-lighter px-5 py-3 hidden sm:table-cell">Status</th>
+                <th className="text-left font-medium text-ink-lighter px-5 py-3 hidden md:table-cell">Înscris</th>
+                <th className="text-right font-medium text-ink-lighter px-5 py-3">Acțiuni</th>
               </tr>
             </thead>
             <tbody>
@@ -260,23 +260,23 @@ export default function AdminStudentsPage() {
                 const isApproved = student.access_status === 'approved';
 
                 return (
-                  <tr key={student.id} className="border-b border-gray-50 last:border-0">
+                  <tr key={student.id} className="border-b border-sketch-light/50 last:border-0">
                     <td className="px-5 py-4">
                       {isApproved && (
                         <input type="checkbox" checked={selectedStudents.has(student.id)} onChange={() => toggleStudent(student.id)}
-                          className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer" />
+                          className="w-4 h-4 rounded border-sketch text-sketch-dark focus:ring-sketch-dark cursor-pointer" />
                       )}
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
-                          <span className="text-sm font-semibold text-primary-700">
+                        <div className="w-9 h-9 bg-[#f0e8d8] rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-sm font-semibold text-sketch-dark">
                             {student.full_name?.charAt(0)?.toUpperCase() || '?'}
                           </span>
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">{student.full_name}</p>
-                          <p className="text-xs text-gray-400">{student.email}</p>
+                          <p className="font-medium text-ink">{student.full_name}</p>
+                          <p className="text-xs text-ink-muted">{student.email}</p>
                         </div>
                       </div>
                     </td>
@@ -285,7 +285,7 @@ export default function AdminStudentsPage() {
                         {status.label}
                       </span>
                     </td>
-                    <td className="px-5 py-4 text-gray-400 hidden md:table-cell">
+                    <td className="px-5 py-4 text-ink-muted hidden md:table-cell">
                       {new Date(student.created_at).toLocaleDateString('ro-RO', {
                         month: 'short',
                         day: 'numeric',
@@ -325,7 +325,7 @@ export default function AdminStudentsPage() {
                           <button
                             onClick={() => handleAction(student.id, 'grant')}
                             disabled={isLoading}
-                            className="text-xs bg-primary-600 text-white font-medium px-3.5 py-2 min-h-[36px] rounded-md hover:bg-primary-700 active:scale-95 transition-all disabled:opacity-50"
+                            className="text-xs bg-sketch-dark text-white font-medium px-3.5 py-2 min-h-[36px] rounded-md hover:bg-ink active:scale-95 transition-all disabled:opacity-50"
                           >
                             {actionLoading === `${student.id}-grant` ? 'Se acordă...' : 'Acordă acces'}
                           </button>
@@ -339,11 +339,11 @@ export default function AdminStudentsPage() {
           </table>
         </div>
       ) : (
-        <div className="bg-white border border-gray-200 border-dashed rounded-2xl p-8 sm:p-12 text-center">
-          <svg className="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <div className="bg-paper border border-sketch border-dashed rounded-2xl p-8 sm:p-12 text-center">
+          <svg className="w-12 h-12 text-sketch mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
           </svg>
-          <p className="text-gray-400 text-lg">
+          <p className="text-ink-muted text-lg">
             {filter === 'all' ? 'Încă nu sunt elevi înregistrați.' : `Niciun elev ${tabs.find(t => t.key === filter)?.label.toLowerCase()}.`}
           </p>
         </div>
@@ -352,32 +352,32 @@ export default function AdminStudentsPage() {
       {/* Floating bar when students are selected */}
       {selectedStudents.size > 0 && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-          <div className="bg-gray-900 text-white rounded-2xl shadow-2xl px-6 py-3.5 flex items-center gap-4">
+          <div className="bg-ink text-white rounded-2xl shadow-2xl px-6 py-3.5 flex items-center gap-4">
             <span className="text-sm font-medium">{selectedStudents.size} {selectedStudents.size > 1 ? 'selectați' : 'selectat'}</span>
-            <div className="w-px h-5 bg-gray-700" />
+            <div className="w-px h-5 bg-ink-light" />
             <div className="relative">
               <button onClick={() => setShowGroupPicker(!showGroupPicker)}
-                className="bg-primary-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-primary-700 active:scale-95 transition-all">
+                className="bg-sketch-dark text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-ink active:scale-95 transition-all">
                 Adaugă la grup
               </button>
               {showGroupPicker && (
-                <div className="absolute bottom-full mb-2 right-0 w-64 bg-white border border-gray-200 rounded-xl shadow-xl p-2 max-h-64 overflow-y-auto">
+                <div className="absolute bottom-full mb-2 right-0 w-64 bg-paper border border-sketch rounded-xl shadow-xl p-2 max-h-64 overflow-y-auto">
                   {groups.length > 0 ? groups.map((g) => (
                     <button key={g.id} onClick={() => addToGroup(g.id)} disabled={addingToGroup !== null}
-                      className="w-full text-left px-3 py-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 flex items-center justify-between">
+                      className="w-full text-left px-3 py-2.5 rounded-lg text-sm text-ink hover:bg-[#f0e8d8] transition-colors disabled:opacity-50 flex items-center justify-between">
                       <span>{g.name}</span>
                       {addingToGroup === g.id && (
-                        <svg className="animate-spin w-4 h-4 text-primary-600" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                        <svg className="animate-spin w-4 h-4 text-sketch-dark" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
                       )}
                     </button>
                   )) : (
-                    <p className="text-sm text-gray-400 px-3 py-2">Încă nu există grupuri.</p>
+                    <p className="text-sm text-ink-muted px-3 py-2">Încă nu există grupuri.</p>
                   )}
                 </div>
               )}
             </div>
             <button onClick={() => { setSelectedStudents(new Set()); setShowGroupPicker(false); }}
-              className="text-gray-400 hover:text-white transition-colors">
+              className="text-ink-muted hover:text-white transition-colors">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           </div>

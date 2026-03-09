@@ -54,7 +54,7 @@ export default function ProfilePage() {
   const accessStatusMap: Record<string, { label: string; bg: string; text: string }> = {
     approved: { label: 'Activ', bg: 'bg-green-100', text: 'text-green-700' },
     pending: { label: 'În așteptare', bg: 'bg-amber-100', text: 'text-amber-700' },
-    none: { label: 'Fără acces', bg: 'bg-gray-100', text: 'text-gray-700' },
+    none: { label: 'Fără acces', bg: 'bg-[#f0e8d8]', text: 'text-ink' },
     rejected: { label: 'Respins', bg: 'bg-red-100', text: 'text-red-700' },
   };
 
@@ -62,7 +62,7 @@ export default function ProfilePage() {
     return (
       <div className="max-w-2xl">
         <SkeletonLine className="h-8 w-32 mb-8" />
-        <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-6">
+        <div className="bg-paper border border-sketch rounded-2xl p-6 space-y-6">
           <div className="flex items-center gap-4">
             <SkeletonLine className="h-16 w-16 rounded-full" />
             <div className="space-y-2"><SkeletonLine className="h-5 w-40" /><SkeletonLine className="h-4 w-48" /></div>
@@ -89,29 +89,29 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold text-gray-900 mb-8">Profil</h1>
+      <h1 className="text-2xl font-bold text-ink mb-8 font-hand">Profil</h1>
 
-      <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+      <div className="bg-paper border border-sketch rounded-2xl overflow-hidden">
         {/* User info */}
         <div className="p-6 sm:p-8">
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
-              <span className="text-2xl font-bold text-primary-700">
+            <div className="w-16 h-16 bg-[#f0e8d8] rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="text-2xl font-bold text-sketch-dark">
                 {user.full_name?.charAt(0)?.toUpperCase() || '?'}
               </span>
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">{user.full_name}</h2>
-              <p className="text-sm text-gray-500">{user.email}</p>
+              <h2 className="text-xl font-semibold text-ink">{user.full_name}</h2>
+              <p className="text-sm text-ink-lighter">{user.email}</p>
             </div>
           </div>
 
           {/* Stats */}
           <div className="grid grid-cols-3 gap-4 mb-6">
             {statItems.map((stat) => (
-              <div key={stat.label} className="bg-gray-50 rounded-xl p-4 text-center">
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{stat.label}</p>
+              <div key={stat.label} className="bg-[#f0e8d8] rounded-xl p-4 text-center">
+                <p className="text-2xl font-bold text-ink">{stat.value}</p>
+                <p className="text-xs text-ink-lighter mt-0.5">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -119,18 +119,18 @@ export default function ProfilePage() {
           {/* Account details */}
           <div className="space-y-3">
             <div className="flex items-center justify-between py-2">
-              <span className="text-sm text-gray-500">Stare</span>
+              <span className="text-sm text-ink-lighter">Stare</span>
               <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${statusCfg.bg} ${statusCfg.text}`}>
                 {statusCfg.label}
               </span>
             </div>
-            <div className="flex items-center justify-between py-2 border-t border-gray-100">
-              <span className="text-sm text-gray-500">Rol</span>
-              <span className="text-sm text-gray-900 capitalize">{user.role === 'student' ? 'Elev' : user.role === 'admin' ? 'Administrator' : user.role}</span>
+            <div className="flex items-center justify-between py-2 border-t border-sketch-light">
+              <span className="text-sm text-ink-lighter">Rol</span>
+              <span className="text-sm text-ink capitalize">{user.role === 'student' ? 'Elev' : user.role === 'admin' ? 'Administrator' : user.role}</span>
             </div>
-            <div className="flex items-center justify-between py-2 border-t border-gray-100">
-              <span className="text-sm text-gray-500">Înscris</span>
-              <span className="text-sm text-gray-900">
+            <div className="flex items-center justify-between py-2 border-t border-sketch-light">
+              <span className="text-sm text-ink-lighter">Înscris</span>
+              <span className="text-sm text-ink">
                 {new Date(user.created_at).toLocaleDateString('ro-RO', { month: 'long', day: 'numeric', year: 'numeric' })}
               </span>
             </div>

@@ -51,9 +51,9 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
 
   if (loading || !authorized) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-desk">
         {/* Skeleton navbar */}
-        <div className="sticky top-0 z-50 bg-white border-b border-gray-200">
+        <div className="sticky top-0 z-50 bg-paper border-b border-sketch">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
             <SkeletonLine className="h-6 w-32" />
             <div className="hidden sm:flex gap-2">
@@ -70,7 +70,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
             <SkeletonLine className="h-5 w-48" />
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-6">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="bg-white border border-gray-200 rounded-2xl p-5 space-y-3">
+                <div key={i} className="bg-paper border border-sketch rounded-2xl p-5 space-y-3">
                   <SkeletonLine className="h-5 w-2/3" />
                   <SkeletonLine className="h-4 w-full" />
                   <SkeletonLine className="h-4 w-1/2" />
@@ -84,7 +84,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-desk">
       <Navbar />
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">{children}</main>
     </div>

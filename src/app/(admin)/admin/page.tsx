@@ -84,7 +84,7 @@ export default function AdminDashboardPage() {
       label: 'Total grupuri',
       value: stats.totalGroups,
       href: '/admin/groups',
-      color: 'bg-primary-100 text-primary-700',
+      color: 'bg-[#f0e8d8] text-sketch-dark',
       icon: (
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
@@ -132,8 +132,8 @@ export default function AdminDashboardPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Panou principal</h1>
-      <p className="text-gray-500 mb-8">Prezentare generală a platformei de meditații.</p>
+      <h1 className="text-2xl font-bold font-hand text-ink mb-1">Panou principal</h1>
+      <p className="text-ink-lighter mb-8">Prezentare generală a platformei de meditații.</p>
 
       {error && (
         <div className="bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg mb-6">{error}</div>
@@ -145,37 +145,37 @@ export default function AdminDashboardPage() {
           <Link
             key={card.label}
             href={card.href}
-            className="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200"
+            className="bg-paper border border-sketch rounded-2xl p-6 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200"
           >
             <div className={`w-12 h-12 ${card.color} rounded-xl flex items-center justify-center mb-4`}>
               {card.icon}
             </div>
-            <p className="text-sm text-gray-500 mb-1">{card.label}</p>
-            <p className="text-3xl font-bold text-gray-900">{card.value}</p>
+            <p className="text-sm text-ink-lighter mb-1">{card.label}</p>
+            <p className="text-3xl font-bold text-ink">{card.value}</p>
           </Link>
         ))}
       </div>
 
       {/* Pending requests */}
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Cereri de acces în așteptare</h2>
+      <h2 className="text-lg font-semibold font-hand text-ink mb-4">Cereri de acces în așteptare</h2>
       {pendingStudents.length > 0 ? (
-        <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden mb-10">
+        <div className="bg-paper border border-sketch rounded-2xl overflow-hidden mb-10">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100">
-                <th className="text-left font-medium text-gray-500 px-5 py-3">Elev</th>
-                <th className="text-left font-medium text-gray-500 px-5 py-3 hidden sm:table-cell">Înscris</th>
-                <th className="text-right font-medium text-gray-500 px-5 py-3">Acțiuni</th>
+              <tr className="border-b border-sketch-light">
+                <th className="text-left font-medium text-ink-lighter px-5 py-3">Elev</th>
+                <th className="text-left font-medium text-ink-lighter px-5 py-3 hidden sm:table-cell">Înscris</th>
+                <th className="text-right font-medium text-ink-lighter px-5 py-3">Acțiuni</th>
               </tr>
             </thead>
             <tbody>
               {pendingStudents.map((student) => (
-                <tr key={student.id} className="border-b border-gray-50 last:border-0">
+                <tr key={student.id} className="border-b border-sketch-light/50 last:border-0">
                   <td className="px-5 py-3">
-                    <p className="font-medium text-gray-900">{student.full_name || 'Necunoscut'}</p>
-                    <p className="text-xs text-gray-400">{student.email}</p>
+                    <p className="font-medium text-ink">{student.full_name || 'Necunoscut'}</p>
+                    <p className="text-xs text-ink-muted">{student.email}</p>
                   </td>
-                  <td className="px-5 py-3 text-gray-400 hidden sm:table-cell">
+                  <td className="px-5 py-3 text-ink-muted hidden sm:table-cell">
                     {new Date(student.created_at).toLocaleDateString('ro-RO', { month: 'short', day: 'numeric', year: 'numeric' })}
                   </td>
                   <td className="px-5 py-3 text-right">
@@ -196,21 +196,21 @@ export default function AdminDashboardPage() {
           </table>
         </div>
       ) : (
-        <div className="bg-white border border-gray-200 border-dashed rounded-2xl p-8 text-center mb-10">
-          <p className="text-gray-400">Nu există cereri în așteptare.</p>
+        <div className="bg-paper border border-sketch border-dashed rounded-2xl p-8 text-center mb-10">
+          <p className="text-ink-muted">Nu există cereri în așteptare.</p>
         </div>
       )}
 
       {/* Quick actions */}
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Acțiuni rapide</h2>
+      <h2 className="text-lg font-semibold font-hand text-ink mb-4">Acțiuni rapide</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Link href="/admin/groups/new" className="bg-primary-600 text-white rounded-2xl p-6 hover:bg-primary-700 active:scale-[0.98] transition-all duration-200">
+        <Link href="/admin/groups/new" className="bg-sketch-dark text-white rounded-2xl p-6 hover:bg-ink active:scale-[0.98] transition-all duration-200">
           <h3 className="font-semibold mb-1">Creează un grup nou</h3>
-          <p className="text-sm text-primary-200">Configurează o nouă clasă pentru elevii tăi.</p>
+          <p className="text-sm text-paper">Configurează o nouă clasă pentru elevii tăi.</p>
         </Link>
-        <Link href="/admin/groups" className="bg-white border border-gray-200 hover:border-gray-300 rounded-2xl p-6 hover:shadow-md active:scale-[0.98] transition-all duration-200">
-          <h3 className="font-semibold text-gray-900 mb-1">Gestionează grupurile</h3>
-          <p className="text-sm text-gray-500">Vizualizează și gestionează toate clasele tale.</p>
+        <Link href="/admin/groups" className="bg-paper border border-sketch hover:border-sketch-dark rounded-2xl p-6 hover:shadow-md active:scale-[0.98] transition-all duration-200">
+          <h3 className="font-semibold text-ink mb-1">Gestionează grupurile</h3>
+          <p className="text-sm text-ink-lighter">Vizualizează și gestionează toate clasele tale.</p>
         </Link>
       </div>
     </div>

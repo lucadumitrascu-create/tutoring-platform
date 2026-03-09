@@ -215,12 +215,12 @@ export default function CategoryDetailPage() {
 
   return (
     <div className="max-w-3xl">
-      <Link href="/admin/materials" className="text-sm text-primary-600 hover:underline mb-6 inline-block">&larr; Înapoi la materiale</Link>
+      <Link href="/admin/materials" className="text-sm text-sketch-dark hover:underline mb-6 inline-block">&larr; Înapoi la materiale</Link>
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">{category.name}</h1>
-          {category.description && <p className="text-gray-500">{category.description}</p>}
+          <h1 className="text-2xl font-bold font-hand text-ink mb-1">{category.name}</h1>
+          {category.description && <p className="text-ink-lighter">{category.description}</p>}
         </div>
         {hasFiles && (
           <button onClick={() => setShowGroupPicker(!showGroupPicker)}
@@ -235,27 +235,27 @@ export default function CategoryDetailPage() {
 
       {/* Group Picker */}
       {showGroupPicker && (
-        <div className="bg-white border border-gray-200 rounded-2xl p-5 mb-6">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">Alege un grup pentru a trimite acest conținut:</h3>
+        <div className="bg-paper border border-sketch rounded-2xl p-5 mb-6">
+          <h3 className="text-sm font-semibold text-ink mb-3">Alege un grup pentru a trimite acest conținut:</h3>
           {groups.length > 0 ? (
             <div className="space-y-2">
               {groups.map((g) => (
                 <button key={g.id} onClick={() => sendToGroup(g.id)} disabled={sendingTo !== null}
-                  className="w-full text-left flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3.5 min-h-[44px] hover:bg-primary-50 hover:border-primary-200 border border-gray-100 active:scale-[0.98] transition-all duration-150 disabled:opacity-50">
+                  className="w-full text-left flex items-center justify-between bg-[#f0e8d8] rounded-xl px-4 py-3.5 min-h-[44px] hover:bg-[#f0e8d8] hover:border-sketch border border-sketch-light active:scale-[0.98] transition-all duration-150 disabled:opacity-50">
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{g.name}</p>
-                    {g.description && <p className="text-xs text-gray-400 mt-0.5">{g.description}</p>}
+                    <p className="text-sm font-medium text-ink">{g.name}</p>
+                    {g.description && <p className="text-xs text-ink-muted mt-0.5">{g.description}</p>}
                   </div>
                   {sendingTo === g.id ? (
-                    <svg className="animate-spin w-4 h-4 text-primary-600" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                    <svg className="animate-spin w-4 h-4 text-sketch-dark" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
                   ) : (
-                    <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+                    <svg className="w-4 h-4 text-ink-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
                   )}
                 </button>
               ))}
             </div>
           ) : (
-            <p className="text-gray-400 text-sm">Încă nu există grupuri. Creează mai întâi un grup.</p>
+            <p className="text-ink-muted text-sm">Încă nu există grupuri. Creează mai întâi un grup.</p>
           )}
         </div>
       )}
@@ -266,14 +266,14 @@ export default function CategoryDetailPage() {
       {/* Files */}
       <div className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Fișiere</label>
+          <label className="block text-sm font-medium text-ink mb-1.5">Fișiere</label>
           {files.length > 0 && (
             <div className="space-y-2 mb-4">
               {files.map((f, idx) => (
-                <div key={f.id} className="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3">
+                <div key={f.id} className="flex items-center gap-3 bg-[#f0e8d8] rounded-lg px-4 py-3">
                   <div className="flex flex-col gap-0.5">
-                    <button type="button" onClick={() => moveFile(f.id, 'up')} disabled={idx === 0} className="text-gray-400 hover:text-gray-600 disabled:opacity-30"><svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg></button>
-                    <button type="button" onClick={() => moveFile(f.id, 'down')} disabled={idx === files.length - 1} className="text-gray-400 hover:text-gray-600 disabled:opacity-30"><svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg></button>
+                    <button type="button" onClick={() => moveFile(f.id, 'up')} disabled={idx === 0} className="text-ink-muted hover:text-ink disabled:opacity-30"><svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg></button>
+                    <button type="button" onClick={() => moveFile(f.id, 'down')} disabled={idx === files.length - 1} className="text-ink-muted hover:text-ink disabled:opacity-30"><svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg></button>
                   </div>
                   <div className="flex-1 min-w-0">
                     {/* Editable name for new files (not yet uploaded) */}
@@ -282,7 +282,7 @@ export default function CategoryDetailPage() {
                         type="text"
                         value={f.displayName}
                         onChange={(e) => updateDisplayName(f.id, e.target.value)}
-                        className="w-full text-sm text-gray-700 bg-white border border-gray-200 rounded px-2 py-1 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                        className="w-full text-sm text-ink bg-paper border border-sketch rounded px-2 py-1 focus:ring-2 focus:ring-sketch-dark focus:border-sketch-dark outline-none"
                       />
                     ) : f.editingName ? (
                       <div className="flex items-center gap-2">
@@ -292,42 +292,42 @@ export default function CategoryDetailPage() {
                           onChange={(e) => updateDisplayName(f.id, e.target.value)}
                           onKeyDown={(e) => { if (e.key === 'Enter') saveExistingName(f); if (e.key === 'Escape') setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, displayName: f.fileName, editingName: false } : pf)); }}
                           autoFocus
-                          className="flex-1 text-sm text-gray-700 bg-white border border-gray-200 rounded px-2 py-1 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                          className="flex-1 text-sm text-ink bg-paper border border-sketch rounded px-2 py-1 focus:ring-2 focus:ring-sketch-dark focus:border-sketch-dark outline-none"
                         />
-                        <button type="button" onClick={() => saveExistingName(f)} className="text-xs text-primary-600 font-medium hover:underline">Salvează</button>
-                        <button type="button" onClick={() => setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, displayName: f.fileName, editingName: false } : pf))} className="text-xs text-gray-400 hover:text-gray-600">Anulează</button>
+                        <button type="button" onClick={() => saveExistingName(f)} className="text-xs text-sketch-dark font-medium hover:underline">Salvează</button>
+                        <button type="button" onClick={() => setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, displayName: f.fileName, editingName: false } : pf))} className="text-xs text-ink-muted hover:text-ink">Anulează</button>
                       </div>
                     ) : (
-                      <p className="text-sm text-gray-700 truncate cursor-pointer hover:text-primary-600" onClick={() => setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, editingName: true } : pf))}>
+                      <p className="text-sm text-ink truncate cursor-pointer hover:text-sketch-dark" onClick={() => setFiles((prev) => prev.map((pf) => pf.id === f.id ? { ...pf, editingName: true } : pf))}>
                         {f.displayName}
                       </p>
                     )}
-                    {f.isExisting && !f.editingName && <p className="text-xs text-gray-400 mt-0.5">Salvat — click pe nume pentru a redenumi</p>}
-                    {f.uploading && <div className="mt-1.5 h-1.5 bg-gray-200 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full" style={{ width: `${f.progress}%` }} /></div>}
+                    {f.isExisting && !f.editingName && <p className="text-xs text-ink-muted mt-0.5">Salvat — click pe nume pentru a redenumi</p>}
+                    {f.uploading && <div className="mt-1.5 h-1.5 bg-[#f0e8d8] rounded-full overflow-hidden"><div className="h-full bg-sketch-dark rounded-full" style={{ width: `${f.progress}%` }} /></div>}
                     {!f.isExisting && f.done && <p className="text-xs text-green-600 mt-0.5">Încărcat</p>}
                     {f.error && <p className="text-xs text-red-500 mt-0.5">{f.error}</p>}
                   </div>
-                  <button type="button" onClick={() => removeFile(f)} className="text-gray-400 hover:text-red-500 flex-shrink-0">
+                  <button type="button" onClick={() => removeFile(f)} className="text-ink-muted hover:text-red-500 flex-shrink-0">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                   </button>
                 </div>
               ))}
             </div>
           )}
-          <label className="flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-lg p-6 cursor-pointer hover:border-primary-300 hover:bg-primary-50/30 transition-colors">
+          <label className="flex items-center justify-center gap-2 border-2 border-dashed border-sketch rounded-lg p-6 cursor-pointer hover:border-sketch-dark hover:bg-[#f0e8d8]/30 transition-colors">
             <input type="file" multiple className="hidden" accept="image/*,application/pdf,video/*" onChange={(e) => addFiles(e.target.files)} />
-            <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
-            <span className="text-sm text-gray-500">Click pentru a adăuga fișiere</span>
+            <svg className="w-5 h-5 text-ink-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
+            <span className="text-sm text-ink-lighter">Click pentru a adăuga fișiere</span>
           </label>
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
           <button onClick={handleSave} disabled={saving}
-            className="bg-primary-600 text-white font-medium px-6 py-3 min-h-[44px] rounded-lg hover:bg-primary-700 active:scale-95 transition-all duration-150 disabled:opacity-50 flex items-center justify-center gap-2">
+            className="bg-sketch-dark text-white font-medium px-6 py-3 min-h-[44px] rounded-lg hover:bg-ink active:scale-95 transition-all duration-150 disabled:opacity-50 flex items-center justify-center gap-2">
             {saving && <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>}
             {saving ? 'Se salvează...' : 'Salvează'}
           </button>
-          <Link href="/admin/materials" className="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-3 min-h-[44px] flex items-center justify-center">Înapoi</Link>
+          <Link href="/admin/materials" className="text-sm text-ink-lighter hover:text-ink font-medium px-4 py-3 min-h-[44px] flex items-center justify-center">Înapoi</Link>
         </div>
       </div>
     </div>
